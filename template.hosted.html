@@ -66,11 +66,11 @@
           </div>
         </div>
 
-        <details id="formHeader" class="card header-details">
-          <summary>Cabeçalho <span class="muted-inline">(opcional — nome, referência, versão…)</span></summary>
+        <details id="formHeader" class="card header-details" open>
+          <summary>Cabeçalho <span class="muted-inline">(nome obrigatório — referência, versão… opcionais)</span></summary>
           <div class="header-grid">
-            <label class="input-label" for="headerNome">Nome da ficha
-              <input id="headerNome" type="text">
+            <label class="input-label" for="headerNome">Nome da ficha *
+              <input id="headerNome" type="text" required>
             </label>
             <label class="input-label" for="headerReferencia">Referência do artigo
               <input id="headerReferencia" type="text">

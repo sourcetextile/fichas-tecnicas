@@ -1104,11 +1104,11 @@ textarea {
           </div>
         </div>
 
-        <details id="formHeader" class="card header-details">
-          <summary>Cabeçalho <span class="muted-inline">(opcional — nome, referência, versão…)</span></summary>
+        <details id="formHeader" class="card header-details" open>
+          <summary>Cabeçalho <span class="muted-inline">(nome obrigatório — referência, versão… opcionais)</span></summary>
           <div class="header-grid">
-            <label class="input-label" for="headerNome">Nome da ficha
-              <input id="headerNome" type="text">
+            <label class="input-label" for="headerNome">Nome da ficha *
+              <input id="headerNome" type="text" required>
             </label>
             <label class="input-label" for="headerReferencia">Referência do artigo
               <input id="headerReferencia" type="text">
@@ -7464,6 +7464,7 @@ const App = (() => {
   const formTitle = document.getElementById('formTitle');
   const formContainer = document.getElementById('formContainer');
   const backButton = document.getElementById('backButton');
+  const formHeader = document.getElementById('formHeader');
   const saveButton = document.getElementById('saveButton');
   const clearButton = document.getElementById('clearButton');
   const generateButton = document.getElementById('generateButton');
@@ -7574,24 +7575,20 @@ const App = (() => {
   }
 
   // --- Fichas guardadas -----------------------------------------------------
-  function savedName() {
-    const nome = (headerState.nome || '').trim();
-    if (nome) return nome;
-    const ref = (headerState.referencia || '').trim();
-    if (ref) return ref;
-    // Inclui a hora (com segundos) para duas fichas do mesmo tipo, gravadas
-    // sem nome/referência no mesmo dia por pessoas diferentes, não colidirem
-    // na chave única (nome, tipo_peca) e uma sobrescrever a outra.
-    const now = new Date();
-    const date = now.toLocaleDateString('pt-PT');
-    const time = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    return `${currentType} — ${date} ${time}`;
-  }
-
   async function saveFicha() {
     if (!currentType) return;
+    const nome = (headerState.nome || '').trim();
+    if (!nome) {
+      // Nome obrigatório: evita que duas fichas sem nome (do mesmo tipo,
+      // gravadas no mesmo dia por pessoas diferentes) colidam na chave
+      // única (nome, tipo_peca) e uma sobrescreva a outra sem aviso.
+      formHeader.open = true;
+      headerFields.nome.focus();
+      headerFields.nome.reportValidity();
+      return;
+    }
     const entry = {
-      name: savedName(),
+      name: nome,
       type: currentType,
       savedAt: new Date().toISOString(),
       header: JSON.parse(JSON.stringify(headerState)),
