@@ -7579,7 +7579,13 @@ const App = (() => {
     if (nome) return nome;
     const ref = (headerState.referencia || '').trim();
     if (ref) return ref;
-    return `${currentType} — ${new Date().toLocaleDateString('pt-PT')}`;
+    // Inclui a hora (com segundos) para duas fichas do mesmo tipo, gravadas
+    // sem nome/referência no mesmo dia por pessoas diferentes, não colidirem
+    // na chave única (nome, tipo_peca) e uma sobrescrever a outra.
+    const now = new Date();
+    const date = now.toLocaleDateString('pt-PT');
+    const time = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    return `${currentType} — ${date} ${time}`;
   }
 
   async function saveFicha() {
