@@ -1,0 +1,1829 @@
+/* =====================================================================
+   Fichas de decoração — estilos próprios desta secção.
+   Reutiliza tokens e classes de app/css/styles.css (.card, .primary,
+   .secondary, .screen-tabs/.tab, .saved-list/.saved-item/...,
+   .input-label, .version-toggle/.segmented) em vez de os redefinir.
+   ===================================================================== */
+
+/* A barra de seccoes vive no cabecalho da pagina, por cima do titulo, que
+   muda conforme a seccao aberta. */
+#appTabs {
+  margin-bottom: var(--s2);
+}
+
+.deco-section-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.deco-new-actions {
+  display: flex;
+  gap: var(--s1);
+}
+
+.deco-group {
+  margin-bottom: var(--s3);
+}
+
+.deco-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.deco-group-title {
+  margin: 0 0 var(--s1);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.deco-item .saved-actions {
+  flex-wrap: wrap;
+}
+
+.deco-help {
+  margin: 0 0 var(--s2);
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+/* =====================================================================
+   DENSIDADE — escala propria da seccao de decoracao
+   ---------------------------------------------------------------------
+   Esta seccao e uma ferramenta de introducao de dados: um ecra chega a ter
+   40 campos, uma grelha de 12 colunas e dois paineis de desenho. Com a
+   escala normal da app (controlos de 44px, corpo a 15px, titulos a 21px e
+   oito tamanhos de letra diferentes no mesmo ecra) o resultado le-se como
+   ruido.
+
+   Referencias usadas (design systems de aplicacoes densas):
+     - corpo a 13-14px com entrelinha de 20px em modo compacto, nunca
+       abaixo de 12px;
+     - controlos de 32px (28px nas barras de ferramentas), em vez dos 44px
+       de um formulario tocavel;
+     - poucos tamanhos de letra: aqui ficam quatro (14 / 13 / 11.5 e o
+       titulo da pagina), contra os oito que havia;
+     - etiquetas em maiusculas pequenas e cinzentas, para nao competirem
+       com o valor que estao a identificar;
+     - "em layouts densos nao ha espaco para decoracao": cantos menos
+       arredondados e menos ar entre cartoes.
+
+   Tudo esta preso a #sectionDeco: a Ficha tecnica nao e tocada.
+   (Raiz da app = 15px, por isso 0.8667rem = 13px e 0.7667rem = 11.5px.)
+   ===================================================================== */
+/* O cabeçalho da página é partilhado com a Ficha técnica: só encolhe
+   enquanto a secção de decoração está aberta. */
+body.is-deco .page-header {
+  margin-bottom: var(--s3);
+}
+
+body.is-deco .page-header h1 {
+  font-size: 1.5rem;
+  margin: 2px 0 4px;
+}
+
+body.is-deco .page-description {
+  font-size: 0.8667rem;
+  max-width: 68ch;
+}
+
+#sectionDeco {
+  --deco-h: 32px;       /* controlo normal */
+  --deco-h-sm: 28px;    /* controlo de barra de ferramentas */
+  --deco-text: 0.8667rem;   /* 13px */
+  --deco-label: 0.7667rem;  /* 11.5px */
+  --deco-title: 0.9333rem;  /* 14px */
+  --deco-gap: 12px;
+}
+
+#sectionDeco .card {
+  padding: 14px 18px;
+  margin-bottom: var(--deco-gap);
+  border-radius: 10px;
+}
+
+#sectionDeco .section-bar {
+  margin-bottom: 10px;
+}
+
+#sectionDeco .section-bar h2,
+#sectionDeco .deco-section-bar h2 {
+  font-size: var(--deco-title);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+#sectionDeco .form-topbar {
+  margin-bottom: 10px;
+}
+
+#sectionDeco .form-topbar-actions {
+  align-items: center;
+}
+
+#sectionDeco .form-title {
+  font-size: 1.1rem;
+}
+
+#sectionDeco .header-grid {
+  gap: 10px 14px;
+}
+
+#sectionDeco .input-label {
+  gap: 3px;
+  font-size: var(--deco-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+#sectionDeco input[type="text"],
+#sectionDeco input[type="email"],
+#sectionDeco input[type="date"],
+#sectionDeco input[type="number"],
+#sectionDeco input[type="tel"],
+#sectionDeco select {
+  height: var(--deco-h);
+  min-height: 0;
+  padding: 0 10px;
+  font-size: var(--deco-text);
+  border-radius: 8px;
+}
+
+#sectionDeco textarea {
+  min-height: 0;
+  padding: 6px 10px;
+  font-size: var(--deco-text);
+  border-radius: 8px;
+}
+
+#sectionDeco .primary,
+#sectionDeco .secondary,
+#sectionDeco .segmented {
+  height: var(--deco-h);
+  min-height: 0;
+  padding: 0 14px;
+  font-size: var(--deco-text);
+}
+
+#sectionDeco .saved-name {
+  font-size: var(--deco-text);
+}
+
+#sectionDeco .saved-meta,
+#sectionDeco .saved-empty {
+  font-size: var(--deco-label);
+}
+
+#sectionDeco .saved-item {
+  padding: 10px 14px;
+}
+
+.deco-checkbox-row {
+  display: flex;
+  gap: var(--s3);
+  margin-bottom: var(--s2);
+}
+
+.deco-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.deco-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Editor: barra de ferramentas da tabela ------------------------------ */
+.deco-tamanhos-actions {
+  display: flex;
+  gap: var(--s1);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* styles.css dá width:100%/min-height:44px a todos os selects e inputs —
+   nas barras de ferramentas e nas grelhas isso tem de ser anulado. */
+.deco-tamanhos-actions .secondary,
+.deco-tamanhos-actions select {
+  height: 34px;
+  min-height: 0;
+  width: auto;
+  padding: 0 10px;
+  font-size: 0.82rem;
+}
+
+.deco-tamanhos-actions {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+}
+
+.deco-toolbar-sep {
+  width: 1px;
+  align-self: stretch;
+  min-height: 20px;
+  background: var(--line);
+}
+
+/* --- Editor: tabela de posições (12 colunas fixas) ----------------------- */
+.deco-table-wrap {
+  overflow-x: auto;
+}
+
+.deco-posicoes-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 1160px;
+  table-layout: fixed;
+}
+
+.deco-posicoes-table th,
+.deco-posicoes-table td {
+  border: 1px solid var(--line-strong);
+  padding: 3px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.deco-posicoes-table th {
+  background: var(--panel-bg);
+  font-size: 0.78rem;
+  padding: 4px 3px;
+}
+
+.deco-posicoes-table .deco-col-posicao {
+  width: 62px;
+}
+
+/* Larga o suficiente para a frase standard mais comprida ("Da costura lateral
+   esquerda PV ao início da decoração") se ler inteira, sem passar o rato. */
+.deco-posicoes-table .deco-col-descricao {
+  width: 340px;
+  text-align: left;
+}
+
+
+.deco-posicoes-table input {
+  width: 100%;
+  height: 30px;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  padding: 0 4px;
+  font-size: 0.85rem;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.deco-posicoes-table input:focus {
+  outline: none;
+  background: #FFF;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.deco-letra-input {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.deco-desc-input {
+  text-align: left !important;
+}
+
+/* A descricao e uma escolha, nao um campo em branco: a seta tem de se ver.
+   Nas duas primeiras linhas o prefixo fixo fica por cima da escolha. */
+.deco-desc-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.deco-desc-prefixo {
+  padding: 0 5px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.3;
+  color: var(--muted);
+}
+
+.deco-desc-escolha {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+
+.deco-posicoes-table .deco-desc-escolha .deco-desc-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.deco-desc-toggle {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deco-desc-toggle:hover {
+  background: rgba(26, 26, 26, 0.08);
+  color: var(--ink);
+}
+
+/* No <body> e em position:fixed: a tabela tem scroll horizontal e cortaria-o. */
+.deco-desc-menu {
+  position: fixed;
+  z-index: 40;
+  overflow-y: auto;
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+.deco-desc-menu__item {
+  display: block;
+  width: 100%;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.deco-desc-menu__item:hover,
+.deco-desc-menu__item.is-ativo {
+  background: rgba(26, 26, 26, 0.07);
+}
+
+.deco-tamanho-input {
+  font-weight: 700;
+  font-size: 0.8rem !important;
+  height: 26px !important;
+}
+
+.deco-tamanho-controls {
+  display: flex;
+  gap: 1px;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.deco-posicoes-table th:hover .deco-tamanho-controls,
+.deco-posicoes-table th:focus-within .deco-tamanho-controls {
+  opacity: 1;
+}
+
+.deco-mini-button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 5px;
+  padding: 0 5px;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.deco-mini-button:hover {
+  border-color: var(--line-strong);
+}
+
+.deco-posicoes-table td.is-merged {
+  background: #F1F6FB;
+}
+
+.deco-posicoes-table td.is-selected {
+  box-shadow: inset 0 0 0 2px #1F6FB2;
+}
+
+
+/* --- Editor: croqui ------------------------------------------------------ */
+.croqui-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s3);
+}
+
+@media (max-width: 980px) {
+  .croqui-panels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.croqui-panel h3 {
+  margin: 0 0 var(--s1);
+  font-size: 1rem;
+}
+
+.croqui-actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.croqui-actions .secondary {
+  height: 30px;
+  padding: 0 9px;
+  font-size: 0.78rem;
+}
+
+.croqui-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-wrap: wrap;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-bg);
+  margin-bottom: 6px;
+}
+
+.croqui-tool {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  padding: 3px 7px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.croqui-tool:hover {
+  background: #FFF;
+  border-color: var(--line);
+}
+
+.croqui-tool.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #FFF;
+}
+
+.croqui-tool__icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.croqui-color {
+  width: 30px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+}
+
+.croqui-width {
+  height: 26px;
+  min-height: 0;
+  width: auto;
+  font-size: 0.75rem;
+  padding: 0 4px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--card);
+}
+
+.croqui-more {
+  position: relative;
+  margin-left: auto;
+}
+
+.croqui-more > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-weight: 700;
+}
+
+.croqui-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+.croqui-more__menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 20;
+  min-width: 210px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+  padding: 4px;
+}
+
+.croqui-more__menu hr {
+  border: 0;
+  border-top: 1px solid var(--line);
+  margin: 4px 0;
+}
+
+.croqui-more__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  padding: 5px 8px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.croqui-more__item:hover {
+  background: var(--panel-bg);
+}
+
+.croqui-labels {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.croqui-labels__caption {
+  font-weight: 700;
+}
+
+.croqui-labels__empty {
+  font-style: italic;
+}
+
+.croqui-chip {
+  min-width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  border: 1px solid #FF0000;
+  background: #FFF;
+  color: #FF0000;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.croqui-chip.active {
+  background: #FF0000;
+  color: #FFF;
+}
+
+.croqui-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: var(--panel-bg);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.croqui-stage:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
+}
+
+.croqui-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--s2);
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.croqui-image-frame {
+  position: absolute;
+  transform-origin: 50% 50%;
+}
+
+.croqui-stage__image {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.croqui-stage[data-tool="imagem"] .croqui-stage__image {
+  cursor: move;
+}
+
+.croqui-handle {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  right: -7px;
+  bottom: -7px;
+  background: var(--ink);
+  border: 2px solid #fff;
+  border-radius: 3px;
+  cursor: nwse-resize;
+}
+
+.croqui-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.croqui-svg--passive {
+  pointer-events: none;
+}
+
+.croqui-stage[data-tool="selecionar"] .croqui-svg {
+  cursor: default;
+}
+
+.croqui-stage:not([data-tool="selecionar"]):not([data-tool="imagem"]) .croqui-svg {
+  cursor: crosshair;
+}
+
+.croqui-ann--selected .croqui-ann__outline {
+  fill: none;
+  stroke: #1F6FB2;
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  pointer-events: none;
+}
+
+.croqui-ann--selected .croqui-ann__handle {
+  fill: #FFFFFF;
+  stroke: #1F6FB2;
+  stroke-width: 2;
+  cursor: grab;
+}
+
+/* A caixa de escrita usa a mesma fonte e tamanho do texto final (a largura e
+   o font-size sao postos pelo JS), para nao parecer enorme ao escrever. */
+input.croqui-text-input {
+  position: absolute;
+  height: auto;
+  min-width: 0;
+  min-height: 0;
+  line-height: 1.15;
+  font-family: Calibri, Carlito, Arial, sans-serif;
+  border: 2px solid #1F6FB2;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 1px 4px;
+  z-index: 16;
+}
+
+.croqui-status {
+  margin: var(--s1) 0 0;
+  min-height: 1.2em;
+}
+
+/* --- Editor: colocação / comentários ------------------------------------- */
+.deco-colocacao-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.deco-partes-label {
+  margin-top: var(--s1);
+  max-width: 420px;
+}
+
+.deco-colocacao-row input {
+  flex: 1 1 320px;
+  width: auto;
+  height: var(--control-h);
+  min-height: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  padding: 0 12px;
+}
+
+.deco-rt-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.deco-rt-actions .secondary {
+  height: 32px;
+  padding: 0 10px;
+  font-size: 0.82rem;
+}
+
+.deco-rich-text {
+  min-height: 90px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  padding: 10px 12px;
+}
+
+.deco-rich-text:focus {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* --- Editor: paleta de cores --------------------------------------------- */
+input.deco-paleta-titulo {
+  width: auto;
+  min-height: 0;
+  border: 1px dashed var(--line);
+  border-radius: 6px;
+  background: transparent;
+  padding: 2px 6px;
+  font: inherit;
+  font-weight: 700;
+  min-width: 220px;
+}
+
+.deco-paleta-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 620px;
+}
+
+.deco-paleta-table th,
+.deco-paleta-table td {
+  border: 1px solid var(--line-strong);
+  padding: 3px;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.deco-paleta-table th {
+  background: var(--panel-bg);
+}
+
+.deco-paleta-corner {
+  text-align: left !important;
+  min-width: 190px;
+}
+
+input.deco-paleta-cor-input,
+input.deco-paleta-base-input {
+  width: 100%;
+  min-width: 80px;
+  height: 28px;
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+  padding: 0 4px;
+}
+
+input.deco-paleta-base-input {
+  text-align: left;
+}
+
+input.deco-paleta-cor-input:focus,
+input.deco-paleta-base-input:focus {
+  outline: none;
+  background: #FFF;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.deco-paleta-mark {
+  cursor: pointer;
+  font-weight: 700;
+  min-width: 46px;
+}
+
+.deco-paleta-mark:hover {
+  background: var(--panel-bg);
+}
+
+.deco-paleta-mark.is-marked {
+  background: #FBE5D6;
+}
+
+.deco-paleta-foto img {
+  display: block;
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin: 0 auto 2px;
+}
+
+
+/* --- Editor: sub-seccoes dentro do croqui -------------------------------- */
+.deco-croqui-extra {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s2);
+  margin-top: var(--s2);
+  padding-top: var(--s2);
+  border-top: 1px solid var(--line);
+}
+
+@media (max-width: 980px) {
+  .deco-croqui-extra {
+    grid-template-columns: 1fr;
+  }
+}
+
+.deco-subsection-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s1);
+  flex-wrap: wrap;
+}
+
+.deco-subsection-title {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.deco-subsection-bar .deco-subsection-title {
+  margin-bottom: 6px;
+}
+
+/* --- Pega para arrastar um tamanho --------------------------------------- */
+.deco-tamanho-grip {
+  cursor: grab;
+  padding: 0 4px;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  letter-spacing: -2px;
+  color: var(--muted);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  user-select: none;
+}
+
+.deco-tamanho-grip:hover {
+  border-color: var(--line-strong);
+  background: var(--card);
+}
+
+.deco-tamanho-grip:active {
+  cursor: grabbing;
+}
+
+.deco-help-grip {
+  letter-spacing: -2px;
+  font-weight: 700;
+}
+
+.deco-posicoes-table th.is-drop-before {
+  box-shadow: inset 3px 0 0 #1F6FB2;
+}
+
+.deco-posicoes-table th.is-drop-after {
+  box-shadow: inset -3px 0 0 #1F6FB2;
+}
+
+/* --- Croqui: barra flutuante da seleccao --------------------------------- */
+.croqui-selbar {
+  position: absolute;
+  z-index: 15;
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--ink);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+.croqui-selbar__button {
+  border: 0;
+  background: transparent;
+  color: #FFF;
+  font-size: 0.72rem;
+  padding: 2px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.croqui-selbar__button:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+
+/* --- Fases da ficha + auditoria ------------------------------------------ */
+.deco-fases-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  flex-wrap: wrap;
+  margin-bottom: var(--s2);
+}
+
+.deco-auditoria {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+
+
+
+
+
+
+
+
+.deco-list-filters {
+  display: flex;
+  gap: var(--s1);
+  align-items: center;
+  margin-bottom: var(--s2);
+}
+
+.deco-list-filters .saved-filter {
+  flex: 1 1 auto;
+  margin-bottom: 0;
+}
+
+.deco-list-filters select {
+  width: auto;
+  min-height: 0;
+  height: 40px;
+  padding: 0 10px;
+}
+
+/* --- Copiar de outra ficha ----------------------------------------------- */
+.deco-copy-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s3);
+  background: rgba(26, 26, 26, 0.45);
+}
+
+.deco-copy-dialog {
+  width: min(680px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: var(--s3);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.3);
+}
+
+.deco-copy-dialog h2 {
+  margin: 0 0 var(--s1);
+  font-size: 1.2rem;
+}
+
+.deco-copy-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px var(--s2);
+  margin: var(--s2) 0;
+  padding: var(--s2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel-bg);
+}
+
+.deco-copy-search {
+  margin-bottom: var(--s1);
+}
+
+.deco-copy-list {
+  display: grid;
+  gap: 6px;
+  max-height: 320px;
+  overflow: auto;
+}
+
+.deco-copy-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s2);
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--field-bg);
+  text-align: left;
+}
+
+.deco-copy-item.is-same-model {
+  border-color: var(--line-strong);
+  background: #FFF;
+}
+
+.deco-copy-item-main {
+  min-width: 0;
+}
+
+.deco-copy-item-name {
+  margin: 0;
+  font-weight: 700;
+}
+
+.deco-copy-item-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.deco-fase-dialog {
+  width: min(460px, 100%);
+}
+
+/* Accao destrutiva: o botao de confirmar diz ao que vem. */
+.deco-dialog__perigo.primary {
+  background: #A32014;
+  border-color: #A32014;
+}
+
+.deco-dialog__perigo.primary:hover {
+  background: #8A1B11;
+  border-color: #8A1B11;
+}
+
+.deco-fase-dialog__opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1);
+  margin: var(--s2) 0;
+}
+
+.deco-dialog__campo {
+  display: block;
+  margin: var(--s2) 0 0;
+}
+
+.deco-dialog__campo input {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.deco-copy-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s1);
+  margin-top: var(--s2);
+}
+
+
+/* --- Densidade: acertos por componente ---------------------------------- */
+#sectionDeco .deco-help {
+  font-size: var(--deco-label);
+  line-height: 1.45;
+  margin-bottom: 10px;
+}
+
+#sectionDeco .deco-tamanhos-actions .secondary,
+#sectionDeco .deco-tamanhos-actions select {
+  height: var(--deco-h-sm);
+  font-size: var(--deco-label);
+  padding: 0 10px;
+}
+
+#sectionDeco .deco-posicoes-table th,
+#sectionDeco .deco-posicoes-table td {
+  padding: 2px 3px;
+}
+
+#sectionDeco .deco-posicoes-table th {
+  font-size: var(--deco-label);
+  letter-spacing: 0.03em;
+}
+
+#sectionDeco .deco-posicoes-table input {
+  height: var(--deco-h-sm);
+  font-size: var(--deco-text);
+  border-radius: 4px;
+}
+
+#sectionDeco .deco-tamanho-input {
+  height: 24px !important;
+  font-size: var(--deco-label) !important;
+}
+
+#sectionDeco .croqui-panel h3,
+#sectionDeco .deco-subsection-title {
+  font-size: var(--deco-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+#sectionDeco .croqui-actions .secondary {
+  height: 26px;
+  padding: 0 10px;
+  font-size: var(--deco-label);
+}
+
+#sectionDeco .croqui-actions .croqui-rotate {
+  padding: 0 8px;
+  font-size: 0.8rem;
+  letter-spacing: -0.01em;
+}
+
+#sectionDeco .croqui-tool {
+  font-size: var(--deco-label);
+  padding: 2px 7px;
+}
+
+#sectionDeco .croqui-labels,
+#sectionDeco .croqui-status,
+#sectionDeco .deco-auditoria {
+  font-size: var(--deco-label);
+}
+
+#sectionDeco .croqui-width {
+  height: 24px;
+  font-size: 0.733rem;
+}
+
+#sectionDeco .deco-rich-text {
+  min-height: 62px;
+  padding: 7px 10px;
+  font-size: var(--deco-text);
+}
+
+#sectionDeco .deco-rt-actions .secondary {
+  height: 26px;
+  padding: 0 10px;
+  font-size: var(--deco-label);
+}
+
+#sectionDeco .deco-colocacao-row input {
+  height: var(--deco-h);
+}
+
+#sectionDeco .deco-paleta-table th,
+#sectionDeco .deco-paleta-table td {
+  padding: 2px 3px;
+  font-size: var(--deco-text);
+}
+
+#sectionDeco input.deco-paleta-cor-input,
+#sectionDeco input.deco-paleta-base-input {
+  height: var(--deco-h-sm);
+  font-size: var(--deco-text);
+}
+
+#sectionDeco input.deco-paleta-titulo {
+  height: var(--deco-h-sm);
+  font-size: var(--deco-title);
+}
+
+#sectionDeco .deco-list-filters select,
+#sectionDeco .deco-list-filters .saved-filter {
+  height: var(--deco-h);
+  font-size: var(--deco-text);
+}
+
+
+#sectionDeco .deco-group-title {
+  font-size: var(--deco-label);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#sectionDeco .deco-checkbox {
+  font-size: var(--deco-text);
+}
+
+#sectionDeco .deco-checkbox input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+}
+
+/* Os ultimos fora da escala. O piso de 12px das referencias aplica-se a
+   palavras; os glifos de icone (grelha de arrastar, x) podem ficar abaixo. */
+#sectionDeco .croqui-more__item,
+#sectionDeco .croqui-more > summary,
+#sectionDeco .croqui-tool__icon {
+  font-size: var(--deco-text);
+}
+
+#sectionDeco .croqui-hint {
+  font-size: var(--deco-label);
+}
+
+#sectionDeco .deco-mini-button,
+#sectionDeco .deco-tamanho-grip {
+  font-size: 0.733rem;
+}
+
+.deco-fase-info {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  flex-wrap: wrap;
+}
+
+.deco-fases {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--chip-bg);
+  border: 1px solid var(--line);
+}
+
+.deco-fase {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 0.8667rem;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.deco-fase:hover {
+  background: #FFF;
+}
+
+.deco-fase.active {
+  background: var(--ink);
+  color: #FFF;
+}
+
+/* Uma fase que ainda nao existe mostra-se esbatida: clicar cria-a. */
+.deco-fase.is-vazia {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.deco-fase.is-vazia::after {
+  content: '+';
+  font-weight: 700;
+}
+
+.deco-fase__check {
+  font-size: 0.8em;
+}
+
+.deco-fase-chip {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  vertical-align: middle;
+}
+
+.deco-fase-chip.is-finalizada {
+  border-color: #6B3F26;
+  background: #6B3F26;
+  color: #FFF;
+}
+
+/* --- Tabela: colunas numericas e linha calculada -------------------------- */
+.deco-posicoes-table .deco-col-num {
+  width: 74px;
+}
+
+/* A Ficha MP leva um campo de escrita no cabecalho: precisa de mais folego
+   do que as outras colunas numericas. */
+.deco-posicoes-table .deco-col-mp-head,
+.deco-posicoes-table .deco-col-mp {
+  width: 96px;
+}
+
+.deco-col-mp {
+  position: relative;
+}
+
+/* A marca %C / %L fica esbatida no canto da celula, como no impresso. */
+.deco-mp-tag {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(26, 26, 26, 0.32);
+  pointer-events: none;
+}
+
+.deco-col-mp .deco-num-input {
+  padding-left: 22px;
+}
+
+.deco-posicoes-table .deco-num-input {
+  width: 100%;
+  text-align: center;
+}
+
+/* Linha de baixo de cada posicao: o valor calculado. Cor propria e sem
+   input, para se perceber que sai da formula e nao se escreve. */
+.deco-pos-row--calc td {
+  background: #F4F1EA;
+  color: #6B3F26;
+  font-weight: 700;
+  font-size: 0.8667rem;
+  height: 24px;
+  padding: 0 3px;
+}
+
+.deco-pos-row td {
+  border-bottom-color: rgba(26, 26, 26, 0.12);
+}
+
+/* Cabecalho da Ficha MP: rotulo em cima, campo de escrita por baixo. */
+.deco-col-mp-head .deco-mp-head-input {
+  width: 100%;
+  height: 22px;
+  min-height: 0;
+  margin-top: 3px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 4px;
+  padding: 0 4px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.deco-col-mp-head .deco-mp-head-input:focus {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--ink);
+}
+
+.deco-pos-row--calc td {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+/* =====================================================================
+   IMPRESSAO — folha A4 (794 x 1123 px a 96 dpi)
+   ---------------------------------------------------------------------
+   Nao ha pre-visualizacao: a folha e montada fora do campo de visao e so
+   as regras de @media print a revelam. Paleta Sourcetextile — castanho
+   escuro na estrutura, terracota da marca nos destaques.
+   ===================================================================== */
+.deco-print-host {
+  position: fixed;
+  left: -10000px;
+  top: 0;
+  width: 794px;
+}
+
+.deco-print-sheets {
+  display: block;
+}
+
+.deco-sheet {
+  --src-ink: #161615;
+  --src-brown: #6B3F26;
+  --src-accent: #C6683B;
+  --src-rule: rgba(107, 63, 38, 0.28);
+
+  width: 794px;
+  height: 1123px;
+  overflow: hidden;
+  background: #FFFFFF;
+  color: var(--src-ink);
+  padding: 24px 28px 16px;
+  font-family: Calibri, Carlito, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.34;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- cabecalho --- */
+.deco-sheet__hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--src-brown);
+}
+
+.deco-sheet__hero-side {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+/* O ficheiro do logótipo é um lockup VERTICAL (41,4 x 341,6). Para ficar
+   deitado no canto superior direito, deita-se com uma rotação e a caixa fica
+   com as medidas já trocadas. */
+.deco-sheet__logo {
+  position: relative;
+  width: 196px;
+  height: 26px;
+}
+
+.deco-sheet__logo svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 196px;
+  width: auto;
+  display: block;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.deco-sheet__hero-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.deco-sheet__hero-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--src-brown);
+}
+
+.deco-sheet__hero-title {
+  margin: 3px 0 5px;
+  font-size: 34px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.deco-sheet__hero-ref {
+  color: var(--src-brown);
+  word-break: break-word;
+}
+
+/* O numero da OF vai destacado ao lado do modelo. */
+.deco-sheet__hero-of {
+  background: var(--src-accent);
+  color: #FFFFFF;
+  border-radius: 6px;
+  padding: 2px 13px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.deco-sheet__hero-sub {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--src-accent);
+}
+
+.deco-sheet__hero-meta {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 3px;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.deco-sheet__meta-line {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.deco-sheet__meta-label {
+  color: #6B6055;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.deco-sheet__meta-value {
+  font-weight: 700;
+  color: var(--src-brown);
+  min-width: 92px;
+  text-align: right;
+}
+
+/* --- tira de dados-chave --- */
+.deco-sheet__strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--src-rule);
+  border: 1px solid var(--src-rule);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.deco-sheet__tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: #FFF;
+  padding: 8px 11px;
+  min-width: 0;
+}
+
+.deco-sheet__tile-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6B6055;
+}
+
+.deco-sheet__tile-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--src-brown);
+  overflow-wrap: anywhere;
+}
+
+/* --- bandas --- */
+.deco-sheet__band {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--src-brown);
+  padding: 0 0 3px;
+  margin-top: 14px;
+  border-bottom: 1px solid var(--src-rule);
+}
+
+/* --- tabelas --- */
+.deco-sheet__table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin-top: 7px;
+}
+
+.deco-sheet__table th,
+.deco-sheet__table td {
+  border: 1px solid var(--src-rule);
+  padding: 6px 6px;
+  text-align: center;
+  font-size: 13px;
+  word-break: break-word;
+}
+
+/* Valor que vale para vários tamanhos seguidos. */
+.deco-sheet__table td.is-unido {
+  font-weight: 700;
+}
+
+.deco-sheet__table th {
+  background: var(--src-brown);
+  color: #FFF;
+  border-color: var(--src-brown);
+  font-weight: 700;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.deco-sheet__table tbody tr:nth-child(even) td {
+  background: #FAF7F4;
+}
+
+/* Foto da cor base na paleta impressa. */
+.deco-sheet__table .is-foto {
+  width: 46px;
+  padding: 3px;
+}
+
+.deco-sheet__table .is-foto img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin: 0 auto;
+}
+
+.deco-sheet__table .is-narrow {
+  width: 46px;
+}
+
+.deco-sheet__table .is-wide {
+  width: 250px;
+  text-align: left;
+}
+
+.deco-sheet__letter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1.4px solid var(--src-accent);
+  color: var(--src-accent);
+  font-weight: 700;
+  font-size: 11.5px;
+  line-height: 1;
+}
+
+/* --- croqui --- */
+.deco-sheet__croquis {
+  border: 1px solid var(--src-rule);
+  border-radius: 8px;
+  padding: 8px;
+  margin-top: 7px;
+}
+
+.deco-sheet__croqui-paineis {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+/* Colocação e partes ficam por baixo dos dois painéis, dentro da mesma caixa. */
+.deco-sheet__colocacao {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--src-rule);
+}
+
+.deco-sheet__campo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.deco-sheet__campo-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6B6055;
+}
+
+.deco-sheet__campo-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--src-brown);
+  overflow-wrap: anywhere;
+}
+
+.deco-sheet__croqui-title {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--src-brown);
+}
+
+.deco-sheet__croqui-stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--src-rule);
+  border-radius: 5px;
+  background: #FFF;
+}
+
+.deco-sheet__croqui-frame {
+  position: absolute;
+  transform-origin: 50% 50%;
+}
+
+.deco-sheet__croqui-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.deco-sheet__croqui-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- comentarios --- */
+.deco-sheet__note {
+  margin-top: 7px;
+  background: #FBF7F2;
+  border: 1px solid var(--src-rule);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.deco-sheet__note-body {
+  font-size: 13px;
+}
+
+/* --- rodape --- */
+.deco-sheet__footer {
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid var(--src-rule);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #6B6055;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html, body {
+    background: #FFF !important;
+  }
+
+  .page-shell {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .page-shell > *:not(.main-content),
+  .main-content > *:not(#sectionDeco),
+  #sectionDeco > *:not(#decoPrintScreen),
+  #appTabs {
+    display: none !important;
+  }
+
+  /* O contentor vive fora do ecra; na impressao volta ao fluxo. */
+  .deco-print-host {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+  }
+
+  .deco-sheet {
+    margin: 0;
+    page-break-after: always;
+    break-after: page;
+  }
+
+  .deco-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  .deco-sheet__hero-of,
+  .deco-sheet__table th,
+  .deco-sheet__table tbody tr:nth-child(even) td,
+  .deco-sheet__note {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
