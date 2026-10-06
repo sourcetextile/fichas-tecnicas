@@ -5,35 +5,52 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ficha técnica do produto — Sourcetextile</title>
   <link rel="stylesheet" href="app/css/styles.css">
+  <link rel="stylesheet" href="app/css/deco.css">
+  <link rel="stylesheet" href="app/css/pedidos.css">
 </head>
 <body>
   <div class="page-shell">
     <header class="page-header">
       <div id="authStatus" class="auth-status hidden">
+        <span id="authEmail"></span>
         <button id="signOutButton" type="button" class="secondary">Sair</button>
       </div>
+      <div id="appTabs" class="screen-tabs hidden" role="tablist">
+        <button id="tabSectionFicha" type="button" class="tab active" role="tab" aria-selected="true">Ficha técnica</button>
+        <button id="tabSectionDeco" type="button" class="tab" role="tab" aria-selected="false">Fichas de decoração</button>
+        <button id="tabSectionPedidos" type="button" class="tab" role="tab" aria-selected="false">Pedidos de preço</button>
+      </div>
       <p class="eyebrow">Sourcetextile</p>
-      <h1>Ficha técnica do produto</h1>
-      <p class="page-description">Seleciona a peça e preenche apenas os campos relevantes. A aplicação gera descrições standard por zona — Confeção, Embalagem e Corte.</p>
+      <h1 id="pageTitle">Ficha técnica do produto</h1>
+      <p id="pageDescription" class="page-description">Seleciona a peça e preenche apenas os campos relevantes. A aplicação gera descrições standard por zona — Confeção, Embalagem e Corte.</p>
     </header>
 
     <main class="main-content">
       <section id="loginScreen" class="screen">
         <div id="loginCard" class="card login-card">
-          <h2>Acesso à ficha técnica</h2>
-          <p class="muted-inline">Introduz a password de acesso partilhada pela Sourcetextile.</p>
+          <h2>Iniciar sessão</h2>
+          <p class="muted-inline">Introduz o teu email Kaizen ou Sourcetextile para receberes um código de acesso.</p>
 
           <div id="loginStepEmail">
-            <label class="input-label" for="loginEmail">Password
-              <input id="loginEmail" type="password" autocomplete="current-password">
+            <label class="input-label" for="loginEmail">Email
+              <input id="loginEmail" type="email" autocomplete="email" placeholder="nome@kaizen.com">
             </label>
-            <button id="loginSendButton" type="button" class="primary">Entrar</button>
+            <button id="loginSendButton" type="button" class="primary">Enviar código</button>
+          </div>
+
+          <div id="loginStepCode" class="hidden">
+            <label class="input-label" for="loginCode">Código recebido por email
+              <input id="loginCode" type="tel" inputmode="numeric" autocomplete="one-time-code" maxlength="10">
+            </label>
+            <button id="loginVerifyButton" type="button" class="primary">Confirmar</button>
+            <button id="loginBackButton" type="button" class="secondary">Usar outro email</button>
           </div>
 
           <p id="loginStatus" class="muted-inline"></p>
         </div>
       </section>
 
+      <div id="sectionFicha">
       <section id="selectionScreen" class="screen hidden">
         <div class="screen-tabs" role="tablist">
           <button id="tabTypes" type="button" class="tab active" role="tab" aria-selected="true">Nova ficha</button>
@@ -134,6 +151,350 @@
           </div>
         </section>
       </section>
+      </div>
+      <div id="sectionDeco" class="hidden">
+        <section id="decoListScreen" class="screen">
+          <div class="section-bar deco-section-bar">
+            <h2>Fichas por modelo</h2>
+            <div class="deco-new-actions">
+              <button id="decoNewBlankButton" type="button" class="secondary">Nova ficha em branco</button>
+              <button id="decoNewFromFichaButton" type="button" class="primary">Importar de ficha técnica</button>
+            </div>
+          </div>
+          <div class="deco-list-filters">
+            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por modelo, referência, OF, fornecedor...">
+            <select id="decoListEstado" aria-label="Filtrar por fase">
+                <option value="">Todas as fases</option>
+                <option value="SMS">Com SMS</option>
+                <option value="PPS">Com PPS</option>
+                <option value="Produção">Com Produção</option>
+            </select>
+          </div>
+          <div id="decoList" class="deco-list"></div>
+
+          <div id="decoImportPicker" class="hidden">
+            <div class="section-bar deco-section-bar">
+              <h3>Importar cabeçalho de uma ficha técnica</h3>
+              <button id="decoImportCancelButton" type="button" class="secondary">Cancelar</button>
+            </div>
+            <div id="decoImportList" class="deco-list"></div>
+          </div>
+        </section>
+
+        <section id="decoEditorScreen" class="screen hidden">
+          <div class="form-topbar">
+            <button id="decoBackButton" type="button" class="secondary">← Voltar</button>
+            <h2 id="decoFormTitle" class="form-title">Ficha de decoração</h2>
+            <div class="form-topbar-actions">
+              <span id="decoSaveStatus" class="muted-inline"></span>
+              <button id="decoCopyButton" type="button" class="secondary">Reaproveitar de outra ficha</button>
+              <button id="decoSaveButton" type="button" class="primary">Guardar</button>
+              <button id="decoPrintButton" type="button" class="secondary">Imprimir</button>
+            </div>
+          </div>
+
+          <div class="deco-fases-bar">
+            <div id="decoFases" class="deco-fases" role="tablist" aria-label="Fases da ficha"></div>
+            <div class="deco-fase-info">
+              <button id="decoFinalizarButton" type="button" class="secondary">Finalizar fase</button>
+              <p id="decoAuditoria" class="deco-auditoria"></p>
+            </div>
+          </div>
+
+          <div class="card deco-header-card">
+            <div class="header-grid">
+              <label class="input-label" for="decoRefNosso">Ref. Nosso Modelo
+                <input id="decoRefNosso" type="text">
+              </label>
+              <label class="input-label" for="decoRefCliente">Ref. Modelo Cliente
+                <input id="decoRefCliente" type="text">
+              </label>
+              <label class="input-label" for="decoOfs">OF's
+                <input id="decoOfs" type="text">
+              </label>
+            </div>
+          </div>
+
+          <div class="card deco-identificacao-card">
+            <div class="deco-checkbox-row">
+              <label class="deco-checkbox"><input type="checkbox" id="decoEstampado"> Estampado</label>
+              <label class="deco-checkbox"><input type="checkbox" id="decoBordado"> Bordado</label>
+            </div>
+            <div class="header-grid">
+              <label class="input-label" for="decoFornecedor">Fornecedor
+                <input id="decoFornecedor" type="text" list="decoFornecedores"
+                       autocomplete="off" placeholder="Escolhe da lista ou escreve um novo">
+              </label>
+              <!-- Lista dos fornecedores habituais. Um <datalist> mostra-os todos
+                   ao clicar, vai reduzindo a lista à medida que se escreve, e
+                   continua a aceitar um nome que não esteja lá. -->
+              <datalist id="decoFornecedores">
+                <option value="Bordados Anjos, Lda."></option>
+                <option value="DESIPRINT IMPRESSÕES, Lda"></option>
+                <option value="Luis Rodrigues &amp; Teixiera, S.A."></option>
+                <option value="Bordados Joaquim Oliveira &amp; Oliveira, Lda."></option>
+                <option value="Neivacor - Estamparia Têxtil, Lda"></option>
+                <option value="Costampa - Estamparia, Lda"></option>
+                <option value="Juvenália &amp; Sá, Lda."></option>
+                <option value="Cristais Anjos - Acessórios Têxteis Lda"></option>
+                <option value="Bordados Huca, Lda"></option>
+                <option value="COM-PRENSA - Impressão Têxtil Lda"></option>
+                <option value="J.S.B. - Oliveira e Oliveira Lda."></option>
+                <option value="JSB - Inovação Têxtil, Lda"></option>
+                <option value="Bordados Braponto, Lda"></option>
+                <option value="Blur, Unipessoal da"></option>
+                <option value="Interborda, Bordados Lda"></option>
+                <option value="Estamparia Pinto , S.A."></option>
+                <option value="Borda Stamp Unipessoal Lda"></option>
+                <option value="Fast-Bor, Lda"></option>
+                <option value="Optibor - Bord. e Estamp. Têxtil, Lda"></option>
+                <option value="Dimensão Rebelde, Lda"></option>
+                <option value="Estamparia Meireles, Lda"></option>
+                <option value="Vimacor Estamparia Unipessoal Lda"></option>
+                <option value="Ideal Borda - Malhas e Confecções Lda"></option>
+                <option value="Cor Suspensa Estampagem Lda"></option>
+                <option value="Alta Frequência Unipessoal, Lda."></option>
+                <option value="BONEPRINT Unipessoal, Lda."></option>
+                <option value="BORDANPE - Indústria de Bordados Unipessoal, Lda."></option>
+                <option value="Bordacávado-Bordados do Cávado, Lda"></option>
+                <option value="Fusão Print, Lda"></option>
+                <option value="A F VILAS BOAS II BORDADOS LDA"></option>
+                <option value="AF Vilas Boas GROUP, Lda."></option>
+              </datalist>
+            </div>
+          </div>
+
+          <div class="card deco-posicoes-card">
+            <div class="section-bar deco-section-bar">
+              <h2>Posição</h2>
+              <div class="deco-tamanhos-actions">
+                <button id="decoAddPosicaoButton" type="button" class="secondary">+ Linha</button>
+                <button id="decoRemovePosicaoButton" type="button" class="secondary">Apagar linha</button>
+                <span class="deco-toolbar-sep" aria-hidden="true"></span>
+                <button id="decoMergeButton" type="button" class="secondary" disabled>Unir células</button>
+                <button id="decoUnmergeButton" type="button" class="secondary" disabled>Separar células</button>
+                <button id="decoFillRowButton" type="button" class="secondary" disabled>= em todos</button>
+                <span class="deco-toolbar-sep" aria-hidden="true"></span>
+                <select id="decoTamanhosPreset" aria-label="Predefinições de tamanhos">
+                  <option value="">Tamanhos...</option>
+                  <option value="XS-5XL">XS – 5XL (9)</option>
+                  <option value="XS-XXL">XS – XXL (6)</option>
+                  <option value="XXS-XXL">XXS – XXL (7)</option>
+                  <option value="XXS-4XL">XXS – 4XL (9)</option>
+                </select>
+                <button id="decoAddTamanhoButton" type="button" class="secondary">+ Tamanho</button>
+              </div>
+            </div>
+            <p class="deco-help">Na <strong>Descrição</strong>, clica na seta <strong>⌄</strong> para escolher uma das frases da lista — ou escreve, se for um caso à parte. <strong>Arrasta</strong> sobre as células (ou <strong>Shift+clique</strong>) para marcar um intervalo e <strong>unir</strong>, como no Excel. Para trocar tamanhos de lugar, arrasta o <span class="deco-help-grip">∷∷</span> por baixo do nome.</p>
+            <div id="decoPosicoesTableWrap" class="deco-table-wrap">
+              <table id="decoPosicoesTable" class="deco-posicoes-table"></table>
+            </div>
+          </div>
+
+          <div class="card deco-croqui-card">
+            <div class="section-bar">
+              <h2>Croqui</h2>
+            </div>
+            <div class="croqui-panels">
+              <div class="croqui-panel">
+                <h3>Arte</h3>
+                <div class="croqui-actions">
+                  <button type="button" class="secondary" data-croqui-upload title="Importar uma imagem para este painel">Importar</button>
+                  <button type="button" class="secondary croqui-rotate" data-croqui-rotate="-90" title="Rodar 90° para a esquerda" aria-label="Rodar 90 graus para a esquerda">↺ 90°</button>
+                  <button type="button" class="secondary croqui-rotate" data-croqui-rotate="90" title="Rodar 90° para a direita" aria-label="Rodar 90 graus para a direita">↻ 90°</button>
+                  <button type="button" class="secondary" data-croqui-fit title="Ajustar à área — a imagem inteira cabe no painel">Ajustar</button>
+                  <button type="button" class="secondary" data-croqui-reset title="Repor o tamanho natural da imagem">100%</button>
+                  <button type="button" class="secondary" data-croqui-remove title="Remover a imagem deste painel">Remover</button>
+                  <input type="file" accept="image/*" class="hidden" data-croqui-file>
+                </div>
+                <div class="croqui-toolbar" data-croqui-toolbar></div>
+                <div class="croqui-labels" data-croqui-labels></div>
+                <div class="croqui-stage" data-croqui-stage tabindex="0">
+                  <p class="croqui-hint">Arrasta uma imagem para aqui, cola com Ctrl+V, ou usa "Importar imagem".</p>
+                  <div class="croqui-image-frame hidden" data-croqui-frame>
+                    <img class="croqui-stage__image" draggable="false" alt="Arte da decoração">
+                    <div class="croqui-handle" data-croqui-handle></div>
+                  </div>
+                  <svg class="croqui-svg" data-croqui-svg xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+                <p class="croqui-status muted-inline"></p>
+              </div>
+
+              <div class="croqui-panel">
+                <h3>Desenho técnico</h3>
+                <div class="croqui-actions">
+                  <button type="button" class="secondary" data-croqui-upload title="Importar uma imagem para este painel">Importar</button>
+                  <button type="button" class="secondary croqui-rotate" data-croqui-rotate="-90" title="Rodar 90° para a esquerda" aria-label="Rodar 90 graus para a esquerda">↺ 90°</button>
+                  <button type="button" class="secondary croqui-rotate" data-croqui-rotate="90" title="Rodar 90° para a direita" aria-label="Rodar 90 graus para a direita">↻ 90°</button>
+                  <button type="button" class="secondary" data-croqui-fit title="Ajustar à área — a imagem inteira cabe no painel">Ajustar</button>
+                  <button type="button" class="secondary" data-croqui-reset title="Repor o tamanho natural da imagem">100%</button>
+                  <button type="button" class="secondary" data-croqui-remove title="Remover a imagem deste painel">Remover</button>
+                  <input type="file" accept="image/*" class="hidden" data-croqui-file>
+                </div>
+                <div class="croqui-toolbar" data-croqui-toolbar></div>
+                <div class="croqui-labels" data-croqui-labels></div>
+                <div class="croqui-stage" data-croqui-stage tabindex="0">
+                  <p class="croqui-hint">Arrasta uma imagem para aqui, cola com Ctrl+V, ou usa "Importar imagem".</p>
+                  <div class="croqui-image-frame hidden" data-croqui-frame>
+                    <img class="croqui-stage__image" draggable="false" alt="Desenho técnico">
+                    <div class="croqui-handle" data-croqui-handle></div>
+                  </div>
+                  <svg class="croqui-svg" data-croqui-svg xmlns="http://www.w3.org/2000/svg"></svg>
+                </div>
+                <p class="croqui-status muted-inline"></p>
+              </div>
+            </div>
+
+            <div class="deco-croqui-extra">
+              <div class="deco-subsection">
+                <h3 class="deco-subsection-title">Colocação</h3>
+                <div class="deco-colocacao-row">
+                  <div class="version-toggle" role="group" aria-label="Colocação">
+                    <button id="decoColocacaoFrente" type="button" class="segmented">Frente</button>
+                    <button id="decoColocacaoVerso" type="button" class="segmented">Verso</button>
+                  </div>
+                  <input id="decoColocacaoTexto" type="text" placeholder="Ex.: A 8 cm da costura do ombro, ao centro">
+                </div>
+                <label class="input-label deco-partes-label" for="decoColocacaoPartes">Partes
+                  <input id="decoColocacaoPartes" type="text" list="decoPartes"
+                         autocomplete="off" placeholder="Escolhe da lista ou escreve">
+                </label>
+                <!-- Partes da peça. Lista própria, mantida em separado da dos
+                     fornecedores. -->
+                <datalist id="decoPartes">
+                    <option value="1/2 lua"></option>
+                    <option value="Bolso centro costas"></option>
+                    <option value="Bolso costa"></option>
+                    <option value="Bolso direito"></option>
+                    <option value="Bolso direito costa"></option>
+                    <option value="Bolso esquerdo"></option>
+                    <option value="Bolso esquerdo costa"></option>
+                    <option value="Bolso esquerdo superior"></option>
+                    <option value="Bolso exterior cinto costas"></option>
+                    <option value="Bolso exterior costa"></option>
+                    <option value="Bolso frente direito"></option>
+                    <option value="Bolso frente esquerdo"></option>
+                    <option value="Bolsos"></option>
+                    <option value="Bolsos costa"></option>
+                    <option value="Bolsos de chapa obliquos"></option>
+                    <option value="Capuz"></option>
+                    <option value="Capuz direito"></option>
+                    <option value="Capuz esquerdo"></option>
+                    <option value="Carcela direita"></option>
+                    <option value="Carcela esquerda"></option>
+                    <option value="Carcela frente"></option>
+                    <option value="Carcela inferior"></option>
+                    <option value="Carcela superior"></option>
+                    <option value="Cinto"></option>
+                    <option value="Cinto costa"></option>
+                    <option value="Cinto frente"></option>
+                    <option value="Cinto interior costa"></option>
+                    <option value="Costa direita"></option>
+                    <option value="Costa esquerda"></option>
+                    <option value="Costa esquerda inferior"></option>
+                    <option value="Costa inferior"></option>
+                    <option value="Costa superior"></option>
+                    <option value="Costas"></option>
+                    <option value="Costura lateral"></option>
+                    <option value="Decote"></option>
+                    <option value="Encaixe superior frente"></option>
+                    <option value="Encaixe superior perna esq."></option>
+                    <option value="Enxaixe exterior"></option>
+                    <option value="Escapulário"></option>
+                    <option value="Escapulário direito"></option>
+                    <option value="Etiqueta"></option>
+                    <option value="Frente"></option>
+                    <option value="Frente direita"></option>
+                    <option value="Frente esquerda"></option>
+                    <option value="Interior costa"></option>
+                    <option value="Interior frente"></option>
+                    <option value="Manga direita"></option>
+                    <option value="Manga esquerda"></option>
+                    <option value="Painel"></option>
+                    <option value="Pala bolso"></option>
+                    <option value="Perna direita"></option>
+                    <option value="Perna direita costa"></option>
+                    <option value="Perna direita frente"></option>
+                    <option value="Perna esquerda"></option>
+                    <option value="Perna esquerda costa"></option>
+                    <option value="Perna esquerda frente"></option>
+                </datalist>
+              </div>
+
+              <div class="deco-subsection">
+                <div class="deco-subsection-bar">
+                  <h3 class="deco-subsection-title">Comentários</h3>
+                  <div class="deco-rt-actions">
+                    <button id="decoComentariosBold" type="button" class="secondary" title="Negrito (Ctrl+B)"><strong>N</strong></button>
+                    <button id="decoComentariosRed" type="button" class="secondary" title="Realçar a vermelho">Realçar</button>
+                    <button id="decoComentariosClear" type="button" class="secondary" title="Remover formatação">Limpar formato</button>
+                  </div>
+                </div>
+                <div id="decoComentarios" class="deco-rich-text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Comentários"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card deco-paleta-card">
+            <div class="section-bar deco-section-bar">
+              <h2><input id="decoPaletaTitulo" type="text" class="deco-paleta-titulo" value="Paleta de cores"></h2>
+              <div class="deco-tamanhos-actions">
+                <button id="decoPaletaAddCor" type="button" class="secondary">+ Cor</button>
+                <button id="decoPaletaAddBase" type="button" class="secondary">+ Cor base</button>
+              </div>
+            </div>
+            <p class="deco-help">As cores do artigo são as colunas, as cores base da decoração são as linhas. Clica numa célula para marcar <strong>X</strong>.</p>
+            <div class="deco-table-wrap">
+              <table id="decoPaletaTable" class="deco-paleta-table"></table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Nao e um ecra: e so o contentor das folhas, mantido fora do
+             campo de visao e revelado apenas pelas regras de @media print. -->
+        <div id="decoPrintScreen" class="deco-print-host" aria-hidden="true">
+          <div id="decoPrintSheets" class="deco-print-sheets"></div>
+        </div>
+      </div>
+      <div id="sectionPedidos" class="hidden">
+        <section class="screen">
+          <div class="pp-barra" role="toolbar" aria-label="Pedidos de preço">
+            <button id="pedidosNovoButton" type="button" class="primary">+ Novo pedido</button>
+            <div class="pp-vistas" role="group" aria-label="Vista">
+              <button id="pedidosVistaQuadro" type="button" class="pp-vista is-ativo" aria-pressed="true">Quadro</button>
+              <button id="pedidosVistaDash" type="button" class="pp-vista" aria-pressed="false">Dashboard</button>
+              <button id="pedidosVistaConfig" type="button" class="pp-vista" aria-pressed="false">Configurações</button>
+            </div>
+            <div class="pp-sino-caixa">
+              <button id="pedidosSino" type="button" class="pp-sino" aria-expanded="false" aria-controls="pedidosAlertas"
+                      title="Alertas de hoje" aria-label="Alertas de hoje">
+                <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+                <span id="pedidosSinoNumero" class="pp-sino__numero hidden">0</span>
+              </button>
+              <div id="pedidosAlertas" class="pp-alertas hidden" role="region" aria-label="Alertas de hoje"></div>
+            </div>
+            <div id="pedidosControlos" class="pp-controlos">
+              <div id="pedidosResumo" class="pp-resumo" role="group" aria-label="Resumo e filtros rápidos"></div>
+              <input id="pedidosPesquisa" class="pp-pesquisa" type="search" autocomplete="off"
+                     placeholder="Pesquisar cliente ou referência" aria-label="Pesquisar por cliente ou referência">
+              <div class="pp-barra__dir">
+                <div id="pedidosFiltroGp" class="pp-gps hidden" role="group" aria-label="Filtrar por GP"></div>
+                <button id="pedidosVerFechados" type="button" class="pp-toggle" aria-pressed="false">Fechados</button>
+                <button id="pedidosDesfazerButton" type="button" class="pp-desfazer" disabled>↶ Desfazer</button>
+              </div>
+            </div>
+          </div>
+          <div id="pedidosQuadroWrap" class="pp-quadro-wrap">
+            <div id="pedidosQuadro" class="pp-quadro-raiz"></div>
+          </div>
+          <div id="pedidosDashboard" class="pp-dashboard hidden"></div>
+          <div id="pedidosConfig" class="pp-configuracoes hidden"></div>
+        </section>
+
+        <div id="pedidosDrawerFundo" class="pp-gaveta-fundo hidden"></div>
+        <aside id="pedidosDrawer" class="pp-gaveta hidden" aria-label="Detalhe do pedido"></aside>
+        <div id="pedidosToasts" class="pp-toasts" role="status" aria-live="polite"></div>
+      </div>
     </main>
 
     <footer class="app-credit">
@@ -157,7 +518,30 @@
   <script src="app/js/sketches.js"></script>
   <script src="app/js/storage.js"></script>
   <script src="app/js/generator.js"></script>
+  <script src="app/js/config.js"></script>
   <script type="module" src="app/js/auth.js"></script>
   <script src="app/js/app.js"></script>
+  <script src="app/js/deco/deco-storage.js"></script>
+  <script src="app/js/deco/deco-images.js"></script>
+  <script src="app/js/deco/deco-annotate.js"></script>
+  <script src="app/js/deco/deco-dialog.js"></script>
+  <script src="app/js/deco/deco-logo.js"></script>
+  <script src="app/js/deco/deco-palette.js"></script>
+  <script src="app/js/deco/deco-copy.js"></script>
+  <script src="app/js/deco/deco-print.js"></script>
+  <script src="app/js/deco/deco-list.js"></script>
+  <script src="app/js/deco/deco-editor.js"></script>
+  <script src="app/js/deco/deco-app.js"></script>
+  <script src="app/js/pedidos/pedidos-util.js"></script>
+  <script src="app/js/pedidos/pedidos-storage.js"></script>
+  <script src="app/js/pedidos/pedidos-toast.js"></script>
+  <script src="app/js/pedidos/pedidos-modal.js"></script>
+  <script src="app/js/pedidos/pedidos-kpi.js"></script>
+  <script src="app/js/pedidos/pedidos-alertas.js"></script>
+  <script src="app/js/pedidos/pedidos-config.js"></script>
+  <script src="app/js/pedidos/pedidos-drawer.js"></script>
+  <script src="app/js/pedidos/pedidos-kanban.js"></script>
+  <script src="app/js/pedidos/pedidos-dashboard.js"></script>
+  <script src="app/js/pedidos/pedidos-app.js"></script>
 </body>
 </html>
