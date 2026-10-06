@@ -10,17 +10,21 @@
 --   admins (config)    fazem tudo; qualquer outro email com acesso só lê
 -- =====================================================================
 
+-- A migração inicial cria a Aprovisionamento sem email; aqui fica preenchido.
+-- Tem de vir ANTES do insert: o email é único, por isso inserir primeiro
+-- uma Paula com email e depois preencher o email da que já existe falharia
+-- com "duplicate key".
+update pedidos_preco_sourcetextile_utilizadores
+   set email = 'planeamento.amostras@sourcetextile.pt'
+ where papel = 'aprovisionamento' and (email is null or trim(email) = '');
+
 -- As duas gestoras de produto e a responsável de Aprovisionamento de Malhas.
+-- (Quem já existe com o mesmo email fica como está.)
 insert into pedidos_preco_sourcetextile_utilizadores (nome, email, papel) values
   ('Sónia Marques', 'comercial1@sourcetextile.pt',          'gp'),
   ('Sandrina',      'comercial2@sourcetextile.pt',          'gp'),
   ('Paula',         'planeamento.amostras@sourcetextile.pt', 'aprovisionamento')
 on conflict do nothing;
-
--- A migração inicial cria a Aprovisionamento sem email; aqui fica preenchido.
-update pedidos_preco_sourcetextile_utilizadores
-   set email = 'planeamento.amostras@sourcetextile.pt'
- where papel = 'aprovisionamento' and (email is null or trim(email) = '');
 
 -- Quem administra (pode tudo). Emails completos e/ou domínios.
 update pedidos_preco_sourcetextile_config
