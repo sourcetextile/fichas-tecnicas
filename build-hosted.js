@@ -17,8 +17,8 @@ let html = fs.readFileSync(path.join(appDir, 'template.hosted.html'), 'utf8');
 
 // CSS → <style>
 html = html.replace(
-  /<link rel="stylesheet" href="app\/css\/styles\.css">/,
-  () => `<style>\n${readApp('css/styles.css')}\n</style>`
+  /<link rel="stylesheet" href="app\/([^"]+)">/g,
+  (_match, href) => `<style>\n${readApp(href)}\n</style>`
 );
 
 // <script src="..."></script> clássico → <script> com o conteúdo embutido
