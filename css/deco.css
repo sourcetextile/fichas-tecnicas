@@ -1650,6 +1650,16 @@ input.deco-paleta-base-input:focus {
   margin: 0 auto;
 }
 
+/* Foto da cor base no cabeçalho da coluna. */
+.deco-sheet__table th img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: cover;
+  border-radius: 4px;
+  margin: 0 auto 3px;
+}
+
 .deco-sheet__table .is-narrow {
   width: 46px;
 }

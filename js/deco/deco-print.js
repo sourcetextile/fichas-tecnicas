@@ -167,35 +167,33 @@ const DecoPrint = (() => {
     const bases = (paleta && Array.isArray(paleta.cores_base)) ? paleta.cores_base : [];
     if (!cores.length && !bases.length) return null;
 
-    // A coluna da foto so aparece se alguma cor base tiver mesmo imagem.
-    const comFoto = bases.some(base => base.foto);
-
+    // Cor base em colunas (com a foto, se houver, por cima do nome) e cor do
+    // artigo em linhas.
     const table = el('table', 'deco-sheet__table deco-sheet__table--paleta');
     const thead = el('thead');
     const headRow = el('tr');
-    if (comFoto) headRow.appendChild(el('th', 'is-foto', 'Foto'));
-    headRow.appendChild(el('th', 'is-wide', 'Cor base'));
-    cores.forEach(cor => headRow.appendChild(el('th', null, cor || '')));
+    headRow.appendChild(el('th', 'is-wide', 'Cor do artigo'));
+    bases.forEach(base => {
+      const th = el('th', null);
+      if (base.foto) {
+        const img = document.createElement('img');
+        img.alt = base.nome || 'Cor base';
+        DecoImages.getSignedUrl(base.foto).then(url => {
+          if (url) img.src = url;
+        });
+        th.appendChild(img);
+      }
+      th.appendChild(document.createTextNode(base.nome || ''));
+      headRow.appendChild(th);
+    });
     thead.appendChild(headRow);
     table.appendChild(thead);
 
     const tbody = el('tbody');
-    bases.forEach(base => {
+    cores.forEach((cor, index) => {
       const tr = el('tr');
-      if (comFoto) {
-        const fotoCell = el('td', 'is-foto');
-        if (base.foto) {
-          const img = document.createElement('img');
-          img.alt = base.nome || 'Cor base';
-          DecoImages.getSignedUrl(base.foto).then(url => {
-            if (url) img.src = url;
-          });
-          fotoCell.appendChild(img);
-        }
-        tr.appendChild(fotoCell);
-      }
-      tr.appendChild(el('td', 'is-wide', base.nome || ''));
-      cores.forEach((_, index) => {
+      tr.appendChild(el('td', 'is-wide', cor || ''));
+      bases.forEach(base => {
         tr.appendChild(el('td', 'is-mark', base.marcas && base.marcas[index] ? 'X' : ''));
       });
       tbody.appendChild(tr);
