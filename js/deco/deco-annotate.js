@@ -32,7 +32,13 @@ const CroquiEditor = (() => {
       }
     }
     if (!file && data.files) file = Array.from(data.files).find(f => f.type && f.type.startsWith('image/')) || null;
-    if (!file) return;
+    if (!file) {
+      // Nada de texto nem de imagem utilizavel: avisa em vez de ficar calado.
+      if (!data.getData('text/plain')) {
+        painelAtivo.aviso('Não há nenhuma imagem copiada. Copia a imagem (ou usa "Importar") e tenta outra vez.');
+      }
+      return;
+    }
     event.preventDefault();
     painelAtivo.importar(file);
   });
@@ -1305,7 +1311,7 @@ const CroquiEditor = (() => {
         if (file) importFile(file);
       });
 
-      const ativar = () => { painelAtivo = { container: containerEl, importar: importFile }; };
+      const ativar = () => { painelAtivo = { container: containerEl, importar: importFile, aviso: setStatus }; };
       ['pointerenter', 'pointerdown', 'focusin'].forEach(nome => containerEl.addEventListener(nome, ativar));
 
       img.addEventListener('pointerdown', onImagePointerDown);

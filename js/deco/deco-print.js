@@ -46,7 +46,9 @@ const DecoPrint = (() => {
 
   function colocacaoLabel(ficha) {
     const bits = [];
-    if (ficha.colocacao_tipo) bits.push(ficha.colocacao_tipo);
+    // Na base de dados continua a guardar-se 'Frente'/'Verso'; no ecrã é Exterior/Interior.
+    const tipos = { Frente: 'Exterior', Verso: 'Interior' };
+    if (ficha.colocacao_tipo) bits.push(tipos[ficha.colocacao_tipo] || ficha.colocacao_tipo);
     if (ficha.colocacao_texto) bits.push(ficha.colocacao_texto);
     return bits.join(' — ');
   }

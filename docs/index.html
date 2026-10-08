@@ -4798,8 +4798,8 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
                 <h3 class="deco-subsection-title">Colocação</h3>
                 <div class="deco-colocacao-row">
                   <div class="version-toggle" role="group" aria-label="Colocação">
-                    <button id="decoColocacaoFrente" type="button" class="segmented">Frente</button>
-                    <button id="decoColocacaoVerso" type="button" class="segmented">Verso</button>
+                    <button id="decoColocacaoFrente" type="button" class="segmented">Exterior</button>
+                    <button id="decoColocacaoVerso" type="button" class="segmented">Interior</button>
                   </div>
                   <input id="decoColocacaoTexto" type="text" placeholder="Ex.: A 8 cm da costura do ombro, ao centro">
                 </div>
@@ -12420,7 +12420,13 @@ const CroquiEditor = (() => {
       }
     }
     if (!file && data.files) file = Array.from(data.files).find(f => f.type && f.type.startsWith('image/')) || null;
-    if (!file) return;
+    if (!file) {
+      // Nada de texto nem de imagem utilizavel: avisa em vez de ficar calado.
+      if (!data.getData('text/plain')) {
+        painelAtivo.aviso('Não há nenhuma imagem copiada. Copia a imagem (ou usa "Importar") e tenta outra vez.');
+      }
+      return;
+    }
     event.preventDefault();
     painelAtivo.importar(file);
   });
@@ -13693,7 +13699,7 @@ const CroquiEditor = (() => {
         if (file) importFile(file);
       });
 
-      const ativar = () => { painelAtivo = { container: containerEl, importar: importFile }; };
+      const ativar = () => { painelAtivo = { container: containerEl, importar: importFile, aviso: setStatus }; };
       ['pointerenter', 'pointerdown', 'focusin'].forEach(nome => containerEl.addEventListener(nome, ativar));
 
       img.addEventListener('pointerdown', onImagePointerDown);
@@ -14460,7 +14466,9 @@ const DecoPrint = (() => {
 
   function colocacaoLabel(ficha) {
     const bits = [];
-    if (ficha.colocacao_tipo) bits.push(ficha.colocacao_tipo);
+    // Na base de dados continua a guardar-se 'Frente'/'Verso'; no ecrã é Exterior/Interior.
+    const tipos = { Frente: 'Exterior', Verso: 'Interior' };
+    if (ficha.colocacao_tipo) bits.push(tipos[ficha.colocacao_tipo] || ficha.colocacao_tipo);
     if (ficha.colocacao_texto) bits.push(ficha.colocacao_texto);
     return bits.join(' — ');
   }
