@@ -729,6 +729,10 @@ input.croqui-text-input {
   max-width: 420px;
 }
 
+.deco-partes-add {
+  margin-top: var(--s1);
+}
+
 .deco-colocacao-row input {
   flex: 1 1 320px;
   width: auto;

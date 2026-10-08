@@ -34,6 +34,8 @@ const DecoEditor = (() => {
   const colocacaoVerso = document.getElementById('decoColocacaoVerso');
   const colocacaoTexto = document.getElementById('decoColocacaoTexto');
   const colocacaoPartes = document.getElementById('decoColocacaoPartes');
+  const partesAddButton = document.getElementById('decoPartesAdd');
+  const partesList = document.getElementById('decoPartes');
 
   const fasesEl = document.getElementById('decoFases');
   const finalizarButton = document.getElementById('decoFinalizarButton');
@@ -440,6 +442,54 @@ const DecoEditor = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Partes da Colocação: as de fábrica estão no HTML; as que as pessoas
+  // acrescentam ficam numa tabela partilhada e juntam-se à mesma lista.
+  // ---------------------------------------------------------------------
+  let partesExtraCarregadas = false;
+
+  function partesNaLista() {
+    return Array.from(partesList.options).map(o => o.value.trim().toLowerCase());
+  }
+
+  function juntarParte(nome) {
+    if (partesNaLista().includes(nome.trim().toLowerCase())) return;
+    const opcao = document.createElement('option');
+    opcao.value = nome;
+    const seguinte = Array.from(partesList.options).find(o => o.value.localeCompare(nome, 'pt') > 0);
+    partesList.insertBefore(opcao, seguinte || null);
+  }
+
+  async function carregarPartesExtra() {
+    if (partesExtraCarregadas) return;
+    partesExtraCarregadas = true;
+    (await DecoStorage.listPartesExtra()).forEach(juntarParte);
+    atualizarBotaoParte();
+  }
+
+  function atualizarBotaoParte() {
+    const valor = colocacaoPartes.value.trim();
+    const novo = valor && !partesNaLista().includes(valor.toLowerCase());
+    partesAddButton.classList.toggle('hidden', !novo);
+    if (novo) partesAddButton.textContent = `+ Adicionar "${valor}" à lista`;
+  }
+
+  async function acrescentarParte() {
+    const nome = colocacaoPartes.value.trim().replace(/\s+/g, ' ');
+    if (!nome) return;
+    partesAddButton.disabled = true;
+    const ok = await DecoStorage.addParteExtra(nome);
+    partesAddButton.disabled = false;
+    if (!ok) {
+      window.alert('Não foi possível acrescentar à lista. Se o problema continuar, avisa quem gere a aplicação.');
+      return;
+    }
+    colocacaoPartes.value = nome;
+    juntarParte(nome);
+    atualizarBotaoParte();
+    scheduleSave();
+  }
+
+  // ---------------------------------------------------------------------
   // Carregar / guardar
   // ---------------------------------------------------------------------
   function load(entry) {
@@ -455,6 +505,8 @@ const DecoEditor = (() => {
     fornecedorInput.value = ficha.fornecedor || '';
     colocacaoTexto.value = ficha.colocacao_texto || '';
     colocacaoPartes.value = ficha.colocacao_partes || '';
+    carregarPartesExtra();
+    atualizarBotaoParte();
     renderColocacao();
     comentariosEl.innerHTML = sanitizeHtml((ficha.comentarios && ficha.comentarios.html) || '');
     renderFases();
@@ -1447,6 +1499,8 @@ const DecoEditor = (() => {
       input.addEventListener('input', scheduleSave);
     });
     [estampadoInput, bordadoInput].forEach(input => input.addEventListener('change', scheduleSave));
+    colocacaoPartes.addEventListener('input', atualizarBotaoParte);
+    partesAddButton.addEventListener('click', acrescentarParte);
 
     document.addEventListener('mouseup', () => { dragSelecting = false; });
     addTamanhoButton.addEventListener('click', addTamanho);

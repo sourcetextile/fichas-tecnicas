@@ -1775,6 +1775,10 @@ input.croqui-text-input {
   max-width: 420px;
 }
 
+.deco-partes-add {
+  margin-top: var(--s1);
+}
+
 .deco-colocacao-row input {
   flex: 1 1 320px;
   width: auto;
@@ -4817,6 +4821,7 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
                   <input id="decoColocacaoPartes" type="text" list="decoPartes"
                          autocomplete="off" placeholder="Escolhe da lista ou escreve">
                 </label>
+                <button id="decoPartesAdd" type="button" class="secondary hidden deco-partes-add"></button>
                 <!-- Partes da peça. Lista própria, mantida em separado da dos
                      fornecedores. -->
                 <datalist id="decoPartes">
@@ -11133,6 +11138,8 @@ window.AppConfig = {
   tabelas: {
     fichas: 'ficha_tecnica_sourcetextile_fichas',
     deco: 'ficha_tecnica_sourcetextile_deco_fichas',
+    // Partes acrescentadas pelas pessoas à lista da Colocação.
+    partes: 'ficha_tecnica_sourcetextile_deco_partes',
     // Todas as tabelas e funções dos Pedidos de Preço começam por isto.
     pedidos: 'pedidos_preco_sourcetextile_'
   },
@@ -12282,6 +12289,32 @@ const DecoStorage = {
       return null;
     }
     return data;
+  },
+
+  // Partes acrescentadas pelas pessoas (lista partilhada). Se a tabela ainda
+  // não existir, a lista fica só com as de fábrica.
+  async listPartesExtra() {
+    const { data, error } = await this._client
+      .from(window.AppConfig.tabelas.partes)
+      .select('nome')
+      .order('nome');
+    if (error) {
+      console.warn('Não foi possível carregar as partes acrescentadas:', error);
+      return [];
+    }
+    return data.map(linha => linha.nome);
+  },
+
+  // true se ficou na lista (uma parte que já existia também conta).
+  async addParteExtra(nome) {
+    const { error } = await this._client
+      .from(window.AppConfig.tabelas.partes)
+      .insert({ nome });
+    if (error && error.code !== '23505') {
+      console.warn('Não foi possível acrescentar a parte:', error);
+      return false;
+    }
+    return true;
   },
 
   async deleteFicha(id) {
@@ -15058,6 +15091,8 @@ const DecoEditor = (() => {
   const colocacaoVerso = document.getElementById('decoColocacaoVerso');
   const colocacaoTexto = document.getElementById('decoColocacaoTexto');
   const colocacaoPartes = document.getElementById('decoColocacaoPartes');
+  const partesAddButton = document.getElementById('decoPartesAdd');
+  const partesList = document.getElementById('decoPartes');
 
   const fasesEl = document.getElementById('decoFases');
   const finalizarButton = document.getElementById('decoFinalizarButton');
@@ -15464,6 +15499,54 @@ const DecoEditor = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Partes da Colocação: as de fábrica estão no HTML; as que as pessoas
+  // acrescentam ficam numa tabela partilhada e juntam-se à mesma lista.
+  // ---------------------------------------------------------------------
+  let partesExtraCarregadas = false;
+
+  function partesNaLista() {
+    return Array.from(partesList.options).map(o => o.value.trim().toLowerCase());
+  }
+
+  function juntarParte(nome) {
+    if (partesNaLista().includes(nome.trim().toLowerCase())) return;
+    const opcao = document.createElement('option');
+    opcao.value = nome;
+    const seguinte = Array.from(partesList.options).find(o => o.value.localeCompare(nome, 'pt') > 0);
+    partesList.insertBefore(opcao, seguinte || null);
+  }
+
+  async function carregarPartesExtra() {
+    if (partesExtraCarregadas) return;
+    partesExtraCarregadas = true;
+    (await DecoStorage.listPartesExtra()).forEach(juntarParte);
+    atualizarBotaoParte();
+  }
+
+  function atualizarBotaoParte() {
+    const valor = colocacaoPartes.value.trim();
+    const novo = valor && !partesNaLista().includes(valor.toLowerCase());
+    partesAddButton.classList.toggle('hidden', !novo);
+    if (novo) partesAddButton.textContent = `+ Adicionar "${valor}" à lista`;
+  }
+
+  async function acrescentarParte() {
+    const nome = colocacaoPartes.value.trim().replace(/\s+/g, ' ');
+    if (!nome) return;
+    partesAddButton.disabled = true;
+    const ok = await DecoStorage.addParteExtra(nome);
+    partesAddButton.disabled = false;
+    if (!ok) {
+      window.alert('Não foi possível acrescentar à lista. Se o problema continuar, avisa quem gere a aplicação.');
+      return;
+    }
+    colocacaoPartes.value = nome;
+    juntarParte(nome);
+    atualizarBotaoParte();
+    scheduleSave();
+  }
+
+  // ---------------------------------------------------------------------
   // Carregar / guardar
   // ---------------------------------------------------------------------
   function load(entry) {
@@ -15479,6 +15562,8 @@ const DecoEditor = (() => {
     fornecedorInput.value = ficha.fornecedor || '';
     colocacaoTexto.value = ficha.colocacao_texto || '';
     colocacaoPartes.value = ficha.colocacao_partes || '';
+    carregarPartesExtra();
+    atualizarBotaoParte();
     renderColocacao();
     comentariosEl.innerHTML = sanitizeHtml((ficha.comentarios && ficha.comentarios.html) || '');
     renderFases();
@@ -16471,6 +16556,8 @@ const DecoEditor = (() => {
       input.addEventListener('input', scheduleSave);
     });
     [estampadoInput, bordadoInput].forEach(input => input.addEventListener('change', scheduleSave));
+    colocacaoPartes.addEventListener('input', atualizarBotaoParte);
+    partesAddButton.addEventListener('click', acrescentarParte);
 
     document.addEventListener('mouseup', () => { dragSelecting = false; });
     addTamanhoButton.addEventListener('click', addTamanho);

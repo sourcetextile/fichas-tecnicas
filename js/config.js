@@ -23,6 +23,8 @@ window.AppConfig = {
   tabelas: {
     fichas: 'ficha_tecnica_sourcetextile_fichas',
     deco: 'ficha_tecnica_sourcetextile_deco_fichas',
+    // Partes acrescentadas pelas pessoas à lista da Colocação.
+    partes: 'ficha_tecnica_sourcetextile_deco_partes',
     // Todas as tabelas e funções dos Pedidos de Preço começam por isto.
     pedidos: 'pedidos_preco_sourcetextile_'
   },

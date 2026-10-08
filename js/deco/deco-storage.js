@@ -65,6 +65,32 @@ const DecoStorage = {
     return data;
   },
 
+  // Partes acrescentadas pelas pessoas (lista partilhada). Se a tabela ainda
+  // não existir, a lista fica só com as de fábrica.
+  async listPartesExtra() {
+    const { data, error } = await this._client
+      .from(window.AppConfig.tabelas.partes)
+      .select('nome')
+      .order('nome');
+    if (error) {
+      console.warn('Não foi possível carregar as partes acrescentadas:', error);
+      return [];
+    }
+    return data.map(linha => linha.nome);
+  },
+
+  // true se ficou na lista (uma parte que já existia também conta).
+  async addParteExtra(nome) {
+    const { error } = await this._client
+      .from(window.AppConfig.tabelas.partes)
+      .insert({ nome });
+    if (error && error.code !== '23505') {
+      console.warn('Não foi possível acrescentar a parte:', error);
+      return false;
+    }
+    return true;
+  },
+
   async deleteFicha(id) {
     const { error } = await this._client.from(this._table).delete().eq('id', id);
     if (error) console.warn('Não foi possível apagar a ficha de decoração:', error);
