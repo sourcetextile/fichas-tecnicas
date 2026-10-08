@@ -12401,6 +12401,30 @@ const CroquiEditor = (() => {
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const PX_PER_PT = 96 / 72;
 
+  // Colar com Ctrl+V: o evento "paste" so chega ao elemento com foco, e depois
+  // de clicar num botao (ex.: "Importar") ou noutro campo o foco ja nao esta no
+  // painel. Por isso ouve-se no documento e a imagem vai para o painel onde o
+  // rato esteve / se clicou por ultimo. Em campos de texto cola-se texto normal.
+  let painelAtivo = null;
+  document.addEventListener('paste', event => {
+    if (!painelAtivo || !painelAtivo.container.isConnected || !painelAtivo.container.offsetParent) return;
+    const alvo = event.target;
+    if (alvo && alvo.closest && alvo.closest('input, textarea, select, [contenteditable="true"]')) return;
+    const data = event.clipboardData;
+    if (!data) return;
+    let file = null;
+    for (const item of data.items || []) {
+      if (item.kind === 'file' && item.type && item.type.startsWith('image/')) {
+        file = item.getAsFile();
+        break;
+      }
+    }
+    if (!file && data.files) file = Array.from(data.files).find(f => f.type && f.type.startsWith('image/')) || null;
+    if (!file) return;
+    event.preventDefault();
+    painelAtivo.importar(file);
+  });
+
   const DEFAULTS = {
     linha_tracejada: { cor: '#FF0000', espessura: 2.25 },
     linha: { cor: '#FF0000', espessura: 2.25 },
@@ -13669,17 +13693,8 @@ const CroquiEditor = (() => {
         if (file) importFile(file);
       });
 
-      stage.addEventListener('paste', event => {
-        const items = event.clipboardData && event.clipboardData.items;
-        if (!items) return;
-        for (const item of items) {
-          if (item.type && item.type.startsWith('image/')) {
-            importFile(item.getAsFile());
-            event.preventDefault();
-            break;
-          }
-        }
-      });
+      const ativar = () => { painelAtivo = { container: containerEl, importar: importFile }; };
+      ['pointerenter', 'pointerdown', 'focusin'].forEach(nome => containerEl.addEventListener(nome, ativar));
 
       img.addEventListener('pointerdown', onImagePointerDown);
       handle.addEventListener('pointerdown', onHandlePointerDown);
