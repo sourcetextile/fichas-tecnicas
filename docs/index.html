@@ -1251,6 +1251,18 @@ body.is-deco .page-description {
   height: 18px;
 }
 
+.deco-certificacao-row {
+  align-items: center;
+}
+
+.deco-certificacao-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted, #6B6055);
+}
+
 /* --- Editor: barra de ferramentas da tabela ------------------------------ */
 .deco-tamanhos-actions {
   display: flex;
@@ -4682,6 +4694,13 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
               <label class="deco-checkbox"><input type="checkbox" id="decoEstampado"> Estampado</label>
               <label class="deco-checkbox"><input type="checkbox" id="decoBordado"> Bordado</label>
             </div>
+            <!-- Certificação: uma opção ou nenhuma (clicar na já marcada desmarca). -->
+            <div class="deco-checkbox-row deco-certificacao-row" role="group" aria-label="Certificação">
+              <span class="deco-certificacao-label">Certificação</span>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="GOTS"> GOTS</label>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="OCS"> OCS</label>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="OEKO-TEX"> OEKO-TEX</label>
+            </div>
             <div class="header-grid">
               <label class="input-label" for="decoFornecedor">Fornecedor
                 <input id="decoFornecedor" type="text" list="decoFornecedores"
@@ -4723,6 +4742,9 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
                 <option value="A F VILAS BOAS II BORDADOS LDA"></option>
                 <option value="AF Vilas Boas GROUP, Lda."></option>
               </datalist>
+              <label class="input-label" for="decoReferenciaDecoracao">Referência da decoração
+                <input id="decoReferenciaDecoracao" type="text" autocomplete="off">
+              </label>
             </div>
           </div>
 
@@ -14448,6 +14470,8 @@ const DecoCopy = (() => {
 
     if (blocos.includes('identificacao')) {
       destino.fornecedor = origem.fornecedor || null;
+      destino.referencia_decoracao = origem.referencia_decoracao || null;
+      destino.certificacao = origem.certificacao || null;
       destino.estampado = !!origem.estampado;
       destino.bordado = !!origem.bordado;
     }
@@ -14720,6 +14744,8 @@ const DecoPrint = (() => {
 
     const strip = el('div', 'deco-sheet__strip');
     strip.appendChild(tile('Fornecedor', ficha.fornecedor));
+    strip.appendChild(tile('Referência da decoração', ficha.referencia_decoracao));
+    if (ficha.certificacao) strip.appendChild(tile('Certificação', ficha.certificacao));
     sheet.appendChild(strip);
 
     // Ordem da folha: medidas, depois croqui e colocação, comentários e paleta.
@@ -15071,6 +15097,8 @@ const DecoEditor = (() => {
   const ofsInput = document.getElementById('decoOfs');
   const estampadoInput = document.getElementById('decoEstampado');
   const bordadoInput = document.getElementById('decoBordado');
+  const certificacaoInputs = Array.from(document.querySelectorAll('input[name="decoCertificacao"]'));
+  const referenciaDecoracaoInput = document.getElementById('decoReferenciaDecoracao');
   const fornecedorInput = document.getElementById('decoFornecedor');
   const saveStatus = document.getElementById('decoSaveStatus');
   const saveButton = document.getElementById('decoSaveButton');
@@ -15157,9 +15185,9 @@ const DecoEditor = (() => {
   // ---------------------------------------------------------------------
   // Cálculo da medida final
   //
-  //   (medida + valor de costura + queda da costura) × (1 + %C/L)
+  //   (medida + valor de costura − queda da costura) × (1 + %C/L)
   //
-  // Arredondamento pedido: a parte decimal entre .4 e .6 encosta a .5; fora
+  // Arredondamento pedido: a parte decimal entre .26 e .74 encosta a .5; fora
   // desse intervalo vai à unidade mais próxima.
   // ---------------------------------------------------------------------
   function num(value) {
@@ -15173,17 +15201,17 @@ const DecoEditor = (() => {
   function arredondar(valor) {
     const base = Math.floor(valor);
     // Arredondar a parte decimal antes de a comparar: 10 x 1,06 dá
-    // 10,600000000000001 em vírgula flutuante, e o ,6 ficava de fora do
-    // intervalo por um milionésimo.
+    // 10,600000000000001 em vírgula flutuante, e um valor no limite do
+    // intervalo ficava de fora por um milionésimo.
     const fracao = Math.round((valor - base) * 1e6) / 1e6;
-    if (fracao >= 0.4 && fracao <= 0.6) return base + 0.5;
-    return Math.round(valor);
+    if (fracao >= 0.26 && fracao <= 0.74) return base + 0.5;
+    return Math.round(base + fracao);
   }
 
   function calcular(pos, index) {
     const medida = num(pos.valores && pos.valores[index]);
     if (medida === null) return null;
-    const total = (medida + (num(pos.costura) || 0) + (num(pos.queda) || 0))
+    const total = (medida + (num(pos.costura) || 0) - (num(pos.queda) || 0))
       * (1 + (num(pos.mp) || 0) / 100);
     return arredondar(total);
   }
@@ -15244,6 +15272,8 @@ const DecoEditor = (() => {
       estampado: false,
       bordado: false,
       fornecedor: null,
+      referencia_decoracao: null,
+      certificacao: null,
       layout_impressao: 'renovado',
       fase_ativa: FASES[0],
       fases: { [FASES[0]]: { conteudo: clone(conteudo) } }
@@ -15559,7 +15589,9 @@ const DecoEditor = (() => {
     ofsInput.value = ficha.ofs || '';
     estampadoInput.checked = !!ficha.estampado;
     bordadoInput.checked = !!ficha.bordado;
+    certificacaoInputs.forEach(input => { input.checked = input.value === ficha.certificacao; });
     fornecedorInput.value = ficha.fornecedor || '';
+    referenciaDecoracaoInput.value = ficha.referencia_decoracao || '';
     colocacaoTexto.value = ficha.colocacao_texto || '';
     colocacaoPartes.value = ficha.colocacao_partes || '';
     carregarPartesExtra();
@@ -15609,6 +15641,8 @@ const DecoEditor = (() => {
       estampado: estampadoInput.checked,
       bordado: bordadoInput.checked,
       fornecedor: fornecedorInput.value.trim() || null,
+      referencia_decoracao: referenciaDecoracaoInput.value.trim() || null,
+      certificacao: (certificacaoInputs.find(input => input.checked) || {}).value || null,
       layout_impressao: 'renovado',
       fase_ativa: ficha.fase_ativa,
       fases
@@ -15642,6 +15676,8 @@ const DecoEditor = (() => {
       estampado: body.estampado,
       bordado: body.bordado,
       fornecedor: body.fornecedor,
+      referencia_decoracao: body.referencia_decoracao,
+      certificacao: body.certificacao,
       colocacao_tipo: body.colocacao_tipo,
       colocacao_texto: body.colocacao_texto,
       colocacao_partes: body.colocacao_partes,
@@ -16361,7 +16397,7 @@ const DecoEditor = (() => {
       cell.dataset.calcCol = String(range.start);
       if (range.span > 1) cell.colSpan = range.span;
       cell.textContent = formatar(calcular(pos, range.start));
-      cell.title = 'Valor calculado: (medida + costura + queda) × (1 + %)';
+      cell.title = 'Valor calculado: (medida + costura − queda) × (1 + %)';
       tr.appendChild(cell);
     });
 
@@ -16552,9 +16588,15 @@ const DecoEditor = (() => {
   }
 
   function bindEvents() {
-    [refNosso, refCliente, ofsInput, fornecedorInput, colocacaoTexto, colocacaoPartes].forEach(input => {
+    [refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
       input.addEventListener('input', scheduleSave);
     });
+    // Certificação: no máximo uma. Marcar uma desmarca as outras; clicar na
+    // que já está marcada deixa a ficha sem certificação.
+    certificacaoInputs.forEach(input => input.addEventListener('change', () => {
+      if (input.checked) certificacaoInputs.forEach(outro => { if (outro !== input) outro.checked = false; });
+      scheduleSave();
+    }));
     [estampadoInput, bordadoInput].forEach(input => input.addEventListener('change', scheduleSave));
     colocacaoPartes.addEventListener('input', atualizarBotaoParte);
     partesAddButton.addEventListener('click', acrescentarParte);

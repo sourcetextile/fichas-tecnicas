@@ -14,6 +14,8 @@ const DecoEditor = (() => {
   const ofsInput = document.getElementById('decoOfs');
   const estampadoInput = document.getElementById('decoEstampado');
   const bordadoInput = document.getElementById('decoBordado');
+  const certificacaoInputs = Array.from(document.querySelectorAll('input[name="decoCertificacao"]'));
+  const referenciaDecoracaoInput = document.getElementById('decoReferenciaDecoracao');
   const fornecedorInput = document.getElementById('decoFornecedor');
   const saveStatus = document.getElementById('decoSaveStatus');
   const saveButton = document.getElementById('decoSaveButton');
@@ -100,9 +102,9 @@ const DecoEditor = (() => {
   // ---------------------------------------------------------------------
   // Cálculo da medida final
   //
-  //   (medida + valor de costura + queda da costura) × (1 + %C/L)
+  //   (medida + valor de costura − queda da costura) × (1 + %C/L)
   //
-  // Arredondamento pedido: a parte decimal entre .4 e .6 encosta a .5; fora
+  // Arredondamento pedido: a parte decimal entre .26 e .74 encosta a .5; fora
   // desse intervalo vai à unidade mais próxima.
   // ---------------------------------------------------------------------
   function num(value) {
@@ -116,17 +118,17 @@ const DecoEditor = (() => {
   function arredondar(valor) {
     const base = Math.floor(valor);
     // Arredondar a parte decimal antes de a comparar: 10 x 1,06 dá
-    // 10,600000000000001 em vírgula flutuante, e o ,6 ficava de fora do
-    // intervalo por um milionésimo.
+    // 10,600000000000001 em vírgula flutuante, e um valor no limite do
+    // intervalo ficava de fora por um milionésimo.
     const fracao = Math.round((valor - base) * 1e6) / 1e6;
-    if (fracao >= 0.4 && fracao <= 0.6) return base + 0.5;
-    return Math.round(valor);
+    if (fracao >= 0.26 && fracao <= 0.74) return base + 0.5;
+    return Math.round(base + fracao);
   }
 
   function calcular(pos, index) {
     const medida = num(pos.valores && pos.valores[index]);
     if (medida === null) return null;
-    const total = (medida + (num(pos.costura) || 0) + (num(pos.queda) || 0))
+    const total = (medida + (num(pos.costura) || 0) - (num(pos.queda) || 0))
       * (1 + (num(pos.mp) || 0) / 100);
     return arredondar(total);
   }
@@ -187,6 +189,8 @@ const DecoEditor = (() => {
       estampado: false,
       bordado: false,
       fornecedor: null,
+      referencia_decoracao: null,
+      certificacao: null,
       layout_impressao: 'renovado',
       fase_ativa: FASES[0],
       fases: { [FASES[0]]: { conteudo: clone(conteudo) } }
@@ -502,7 +506,9 @@ const DecoEditor = (() => {
     ofsInput.value = ficha.ofs || '';
     estampadoInput.checked = !!ficha.estampado;
     bordadoInput.checked = !!ficha.bordado;
+    certificacaoInputs.forEach(input => { input.checked = input.value === ficha.certificacao; });
     fornecedorInput.value = ficha.fornecedor || '';
+    referenciaDecoracaoInput.value = ficha.referencia_decoracao || '';
     colocacaoTexto.value = ficha.colocacao_texto || '';
     colocacaoPartes.value = ficha.colocacao_partes || '';
     carregarPartesExtra();
@@ -552,6 +558,8 @@ const DecoEditor = (() => {
       estampado: estampadoInput.checked,
       bordado: bordadoInput.checked,
       fornecedor: fornecedorInput.value.trim() || null,
+      referencia_decoracao: referenciaDecoracaoInput.value.trim() || null,
+      certificacao: (certificacaoInputs.find(input => input.checked) || {}).value || null,
       layout_impressao: 'renovado',
       fase_ativa: ficha.fase_ativa,
       fases
@@ -585,6 +593,8 @@ const DecoEditor = (() => {
       estampado: body.estampado,
       bordado: body.bordado,
       fornecedor: body.fornecedor,
+      referencia_decoracao: body.referencia_decoracao,
+      certificacao: body.certificacao,
       colocacao_tipo: body.colocacao_tipo,
       colocacao_texto: body.colocacao_texto,
       colocacao_partes: body.colocacao_partes,
@@ -1304,7 +1314,7 @@ const DecoEditor = (() => {
       cell.dataset.calcCol = String(range.start);
       if (range.span > 1) cell.colSpan = range.span;
       cell.textContent = formatar(calcular(pos, range.start));
-      cell.title = 'Valor calculado: (medida + costura + queda) × (1 + %)';
+      cell.title = 'Valor calculado: (medida + costura − queda) × (1 + %)';
       tr.appendChild(cell);
     });
 
@@ -1495,9 +1505,15 @@ const DecoEditor = (() => {
   }
 
   function bindEvents() {
-    [refNosso, refCliente, ofsInput, fornecedorInput, colocacaoTexto, colocacaoPartes].forEach(input => {
+    [refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
       input.addEventListener('input', scheduleSave);
     });
+    // Certificação: no máximo uma. Marcar uma desmarca as outras; clicar na
+    // que já está marcada deixa a ficha sem certificação.
+    certificacaoInputs.forEach(input => input.addEventListener('change', () => {
+      if (input.checked) certificacaoInputs.forEach(outro => { if (outro !== input) outro.checked = false; });
+      scheduleSave();
+    }));
     [estampadoInput, bordadoInput].forEach(input => input.addEventListener('change', scheduleSave));
     colocacaoPartes.addEventListener('input', atualizarBotaoParte);
     partesAddButton.addEventListener('click', acrescentarParte);

@@ -219,6 +219,8 @@ const DecoCopy = (() => {
 
     if (blocos.includes('identificacao')) {
       destino.fornecedor = origem.fornecedor || null;
+      destino.referencia_decoracao = origem.referencia_decoracao || null;
+      destino.certificacao = origem.certificacao || null;
       destino.estampado = !!origem.estampado;
       destino.bordado = !!origem.bordado;
     }

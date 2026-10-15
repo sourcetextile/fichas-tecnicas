@@ -220,6 +220,13 @@
               <label class="deco-checkbox"><input type="checkbox" id="decoEstampado"> Estampado</label>
               <label class="deco-checkbox"><input type="checkbox" id="decoBordado"> Bordado</label>
             </div>
+            <!-- Certificação: uma opção ou nenhuma (clicar na já marcada desmarca). -->
+            <div class="deco-checkbox-row deco-certificacao-row" role="group" aria-label="Certificação">
+              <span class="deco-certificacao-label">Certificação</span>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="GOTS"> GOTS</label>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="OCS"> OCS</label>
+              <label class="deco-checkbox"><input type="checkbox" name="decoCertificacao" value="OEKO-TEX"> OEKO-TEX</label>
+            </div>
             <div class="header-grid">
               <label class="input-label" for="decoFornecedor">Fornecedor
                 <input id="decoFornecedor" type="text" list="decoFornecedores"
@@ -261,6 +268,9 @@
                 <option value="A F VILAS BOAS II BORDADOS LDA"></option>
                 <option value="AF Vilas Boas GROUP, Lda."></option>
               </datalist>
+              <label class="input-label" for="decoReferenciaDecoracao">Referência da decoração
+                <input id="decoReferenciaDecoracao" type="text" autocomplete="off">
+              </label>
             </div>
           </div>
 

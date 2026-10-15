@@ -205,6 +205,18 @@ body.is-deco .page-description {
   height: 18px;
 }
 
+.deco-certificacao-row {
+  align-items: center;
+}
+
+.deco-certificacao-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted, #6B6055);
+}
+
 /* --- Editor: barra de ferramentas da tabela ------------------------------ */
 .deco-tamanhos-actions {
   display: flex;

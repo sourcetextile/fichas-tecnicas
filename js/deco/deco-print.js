@@ -260,6 +260,8 @@ const DecoPrint = (() => {
 
     const strip = el('div', 'deco-sheet__strip');
     strip.appendChild(tile('Fornecedor', ficha.fornecedor));
+    strip.appendChild(tile('Referência da decoração', ficha.referencia_decoracao));
+    if (ficha.certificacao) strip.appendChild(tile('Certificação', ficha.certificacao));
     sheet.appendChild(strip);
 
     // Ordem da folha: medidas, depois croqui e colocação, comentários e paleta.
