@@ -1,0 +1,454 @@
+/* =====================================================================
+   Ideia de preço - Sourcetextile
+
+   A mesma escala e os mesmos componentes dos Pedidos de preço (barra de
+   ferramentas, vistas, cartões, botões pequenos, avisos), para a app
+   parecer feita pela mesma pessoa. Usa as variáveis de styles.css e de
+   pedidos.css; aqui só está o que é desta secção.
+   ===================================================================== */
+:root {
+  /* As perdas aquecem com o valor: o castanho da Orçamentação em três tons. */
+  --ip-baixa: #E7B99E;
+  --ip-media: #D3804F;
+  --ip-alta: #A8471F;
+}
+
+/* A mesma escala compacta dos Pedidos de preço (definida aqui para esta
+   secção não depender de mexer no pedidos.css). Os avisos (#pedidosToasts)
+   servem as duas secções e vivem fora de ambas. */
+#sectionIdeia,
+#pedidosToasts {
+  --pp-h: 32px;
+  --pp-text: 0.8rem;
+  --pp-label: 0.7rem;
+}
+
+/* --- Cabeçalho da página, mais baixo (igual aos Pedidos de preço) ------- */
+body[data-secao="ideia"] .page-shell {
+  max-width: 1680px;
+  padding-top: 16px;
+  padding-bottom: 24px;
+}
+
+body[data-secao="ideia"] .page-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 6px;
+  margin-bottom: 12px;
+}
+
+body[data-secao="ideia"] #appTabs { grid-area: 1 / 1; margin: 0; }
+body[data-secao="ideia"] #authStatus { grid-area: 1 / 2; justify-self: end; margin: 0; }
+body[data-secao="ideia"] .page-header .eyebrow { display: none; }
+body[data-secao="ideia"] #pageTitle { grid-area: 2 / 1; margin: 0; font-size: 1.35rem; }
+body[data-secao="ideia"] #pageDescription { display: none; }
+
+@media (max-width: 900px) {
+  body[data-secao="ideia"] .page-header { grid-template-columns: 1fr; }
+  body[data-secao="ideia"] #authStatus { grid-area: 1 / 1; justify-self: end; }
+  body[data-secao="ideia"] #appTabs { grid-area: 2 / 1; }
+  body[data-secao="ideia"] #pageTitle { grid-area: 3 / 1; }
+}
+
+/* --- Barra --------------------------------------------------------------- */
+.ip-estado {
+  margin-left: auto;
+  font-size: var(--pp-label);
+  color: var(--muted);
+}
+.ip-estado.is-ok { color: var(--pp-verde-ink); }
+.ip-estado.is-erro { color: var(--pp-vermelho-ink); font-weight: 600; }
+.ip-estado.is-leitura {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-bg);
+}
+
+/* --- Cartões ------------------------------------------------------------- */
+.ip-grelha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.ip-cartao {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.ip-cartao__cab {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+.ip-cartao__cab h3 { margin: 0; font-size: 0.95rem; }
+.ip-cartao__dir { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.ip-ordem .pp-vista { padding: 2px 10px; font-size: var(--pp-label); }
+
+.ip-rodape { margin: 10px 2px 0; font-size: var(--pp-label); color: var(--muted); }
+
+/* --- Perdas: uma barra por operação, todas na mesma escala --------------- */
+.ip-perdas { display: grid; }
+
+.ip-perda {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) minmax(120px, 2fr) 52px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  font: inherit;
+  font-size: var(--pp-text);
+  text-align: left;
+  color: var(--ink);
+}
+.ip-perda:first-child { border-top: 0; }
+.ip-perda.is-clicavel { cursor: pointer; }
+.ip-perda.is-clicavel:hover { background: var(--panel-bg); }
+
+.ip-perda__nome { display: grid; min-width: 0; }
+.ip-perda__nome b { font-weight: 600; }
+.ip-perda__nome small { font-size: var(--pp-label); color: var(--muted); }
+
+/* Ramular (e outras com tipos): uma barra por tipo, na mesma escala. */
+.ip-variantes { grid-column: 2 / 4; display: grid; gap: 3px; }
+.ip-variante {
+  display: grid;
+  grid-template-columns: 64px minmax(80px, 1fr) 52px;
+  align-items: center;
+  gap: 10px;
+}
+.ip-variante__nome { font-size: var(--pp-label); color: var(--muted); }
+
+.ip-pista {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 14px;
+  border-radius: 999px;
+  background: #F1ECE3;
+  overflow: hidden;
+}
+.ip-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ip-baixa);
+}
+.ip-fill.is-media { background: var(--ip-media); }
+.ip-fill.is-alta { background: var(--ip-alta); }
+/* Preços: um só tom, frio, para não se confundir com as perdas. */
+.ip-fill.is-preco { background: #8FA6B0; }
+
+.ip-valor { text-align: right; font-size: var(--pp-text); }
+
+.ip-avaliar {
+  padding: 0 8px;
+  font-size: var(--pp-label);
+  font-weight: 600;
+  color: var(--pp-amarelo-ink);
+}
+.ip-pista.is-avaliar { background: var(--pp-amarelo-bg); }
+
+.ip-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding-top: 4px;
+  font-size: var(--pp-label);
+  color: var(--muted);
+}
+.ip-legenda__item { display: inline-flex; align-items: center; gap: 6px; }
+.ip-legenda__item .ip-fill { width: 18px; height: 8px; }
+
+/* --- Margens: um número grande por cartão -------------------------------- */
+.ip-margens {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.ip-margem {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+}
+.ip-margem.is-clicavel { cursor: pointer; }
+.ip-margem.is-clicavel:hover { border-color: var(--line-strong); }
+.ip-margem__valor { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.ip-margem__nome { font-size: var(--pp-text); font-weight: 600; }
+.ip-margem__nota { font-size: var(--pp-label); color: var(--muted); }
+
+/* O que está por decidir não se confunde com um valor. */
+.ip-margem.is-avaliar {
+  border-style: dashed;
+  border-color: var(--pp-amarelo);
+  background: var(--pp-amarelo-bg);
+}
+.ip-margem.is-avaliar .ip-margem__valor { font-size: 1.15rem; color: var(--pp-amarelo-ink); padding-top: 8px; }
+
+/* --- Edição -------------------------------------------------------------- */
+.ip-ajuda { margin: 0 0 10px; font-size: var(--pp-label); color: var(--muted); }
+
+.ip-ed-grelha { display: grid; gap: 12px; }
+
+.ip-ed-linha {
+  display: grid;
+  grid-template-columns: 48px minmax(150px, 1fr) minmax(220px, 1.2fr) minmax(160px, 1.4fr) 28px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  border-top: 1px solid var(--line);
+  border-radius: 6px;
+  transition: background 0.4s;
+}
+.ip-ed-linha.is-cabecalho {
+  border-top: 0;
+  padding-bottom: 0;
+  font-size: var(--pp-label);
+  font-weight: 700;
+  color: var(--muted);
+}
+.ip-ed-linha.is-nova { background: var(--chip-bg); }
+.ip-ed-linha.is-guardada { background: var(--pp-verde-bg); }
+.ip-ed-linha.is-destaque { outline: 2px solid var(--ink); outline-offset: -1px; }
+
+.ip-ed-mover { display: flex; gap: 2px; }
+
+.ip-ed-campo {
+  width: 100%;
+  height: 30px !important;
+  min-height: 0 !important;
+  padding: 0 8px !important;
+  font-size: var(--pp-text) !important;
+}
+.ip-ed-campo[aria-invalid="true"] {
+  border-color: var(--pp-vermelho) !important;
+  background: var(--pp-vermelho-bg);
+}
+
+.ip-ed-valor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.ip-ed-variantes { display: grid; gap: 4px; flex: 1 1 100%; }
+.ip-ed-variante {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 92px 22px;
+  align-items: center;
+  gap: 6px;
+}
+
+.ip-pct { position: relative; display: inline-flex; width: 92px; }
+.ip-pct .ip-ed-campo { padding-right: 22px !important; text-align: right; }
+.ip-pct__sinal {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--pp-text);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Em branco é "a avaliar": o sinal de % só aparece quando há número. */
+.ip-pct .ip-ed-campo:placeholder-shown { text-align: left; }
+.ip-pct .ip-ed-campo:placeholder-shown + .ip-pct__sinal { display: none; }
+
+.ip-ed-apagar:hover { color: var(--pp-vermelho-ink); }
+
+.ip-ed-mais {
+  justify-self: start;
+  padding: 4px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--pp-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.ip-ed-mais:hover { background: var(--panel-bg); border-style: solid; }
+
+/* --- Consulta: pesquisa, peso, índice ------------------------------------- */
+.ip-consulta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.ip-pesquisa { width: 260px; }
+.ip-peso {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--pp-text);
+  color: var(--muted);
+}
+.ip-peso input {
+  width: 76px;
+  height: 28px !important;
+  min-height: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: var(--pp-text) !important;
+  text-align: right;
+}
+
+.ip-indice { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ip-vazio { margin: 24px 0; text-align: center; color: var(--muted); }
+
+.ip-grelha.is-uma { grid-template-columns: 1fr; }
+/* A coluna da esquerda (perdas e margens) estica até à altura da direita,
+   e quem estica é o cartão das margens. */
+.ip-coluna { display: flex; flex-direction: column; gap: 12px; }
+.ip-cartao.is-estica { flex: 1 1 auto; align-content: start; }
+.ip-cartao { scroll-margin-top: 12px; }
+
+/* --- Tabelas de fornecedor -------------------------------------------------- */
+.ip-docs { display: grid; gap: 12px; margin-top: 12px; }
+
+.ip-validade {
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: var(--pp-label);
+  font-weight: 700;
+}
+.ip-validade.is-valida { background: var(--pp-verde-bg); color: var(--pp-verde-ink); }
+.ip-validade.is-expirada { background: var(--pp-vermelho-bg); color: var(--pp-vermelho-ink); }
+
+.ip-secao { display: grid; gap: 6px; }
+.ip-secao h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+}
+.ip-unidade { font-size: var(--pp-label); font-weight: 600; color: var(--muted); }
+
+.ip-tab-caixa { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.ip-tab {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--pp-text);
+  font-variant-numeric: tabular-nums;
+}
+.ip-tab th,
+.ip-tab td { padding: 5px 10px; border-top: 1px solid var(--line); white-space: nowrap; }
+.ip-tab thead th {
+  border-top: 0;
+  background: var(--panel-bg);
+  font-size: var(--pp-label);
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
+}
+.ip-tab thead th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ip-tab td { text-align: right; }
+.ip-tab td.is-vazio { color: var(--muted); }
+.ip-tab__canto { text-align: left !important; font-weight: 600 !important; }
+/* A primeira coluna fica à vista quando a tabela desliza para o lado. */
+.ip-tab tbody th,
+.ip-tab .ip-tab__canto {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  background: var(--card);
+}
+.ip-tab thead .ip-tab__canto { background: var(--panel-bg); }
+.ip-tab__nome { font-weight: 600; }
+.ip-tab.is-simples { width: auto; min-width: 360px; }
+
+/* Ler o cruzamento: linha e coluna por baixo do rato. */
+.ip-tab tbody tr:hover > * { background: var(--chip-bg); }
+.ip-tab .is-cruz { background: var(--chip-bg); }
+/* Coluna do peso da peça e coluna fixada à mão. */
+.ip-tab .is-peso,
+.ip-tab .is-fixa { background: #FBEEDD !important; color: var(--ink); }
+.ip-tab thead .is-peso,
+.ip-tab thead .is-fixa { box-shadow: inset 0 -3px 0 var(--pp-orcamentacao); color: var(--ink); }
+.ip-tab td.is-peso,
+.ip-tab td.is-fixa { font-weight: 700; }
+/* O preço mais caro da linha: o mesmo destaque da coluna do peso, célula a
+   célula (o mais caro não está sempre na mesma coluna). */
+.ip-tab td.is-max { background: #FBEEDD !important; font-weight: 700; color: var(--ink); }
+
+.ip-aviso { margin: 0; padding: 6px 10px; font-size: var(--pp-label); color: var(--pp-amarelo-ink); background: var(--pp-amarelo-bg); }
+
+.ip-lista { display: grid; margin: 0; border: 1px solid var(--line); border-radius: 8px; }
+.ip-lista__linha {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
+  gap: 10px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--line);
+  font-size: var(--pp-text);
+}
+.ip-lista__linha:first-child { border-top: 0; }
+.ip-lista dt { font-weight: 600; }
+.ip-lista dd { margin: 0; }
+
+.ip-notas { margin: 4px 0 0; padding-left: 18px; font-size: var(--pp-label); color: var(--muted); }
+
+/* --- Edição das tabelas de fornecedor --------------------------------------- */
+.ip-ed-titulo { margin: 8px 0 0; font-size: 1rem; }
+.ip-ed-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: end; }
+.ip-ed-meta__campo { display: grid; gap: 3px; font-size: var(--pp-label); font-weight: 700; color: var(--muted); }
+.ip-ed-meta__campo .ip-ed-campo { min-width: 170px; }
+.ip-ed-meta__campo .ip-ed-campo.is-curto { min-width: 0; width: 90px; }
+.ip-ed-meta__campo.is-inline { display: inline-flex; align-items: center; gap: 6px; }
+.ip-ed-meta__campo.is-notas { display: grid; }
+textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !important; resize: vertical; }
+
+.ip-ed-pdf { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: var(--pp-text); }
+.ip-ed-pdf__nome { color: var(--muted); }
+
+.ip-ed-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ip-ed-maximo { display: inline-flex; align-items: center; gap: 6px; font-size: var(--pp-label); color: var(--muted); }
+.ip-ed-campo.is-titulo { width: 260px; font-weight: 700; }
+
+.ip-tab.is-edicao th,
+.ip-tab.is-edicao td { padding: 3px 4px; }
+.ip-tab.is-edicao .ip-ed-campo { height: 28px !important; }
+.ip-tab.is-edicao .ip-ed-campo.is-valor { width: 72px; text-align: right; }
+.ip-tab.is-edicao .ip-ed-campo.is-coluna { width: 96px; text-align: right; font-weight: 700; }
+.ip-tab.is-edicao .ip-ed-campo.is-nome { width: 210px; }
+
+.ip-ed-lista { display: grid; gap: 4px; }
+.ip-ed-lista__linha { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) 28px; gap: 6px; align-items: center; }
+
+.ip-cartao.is-guardada { box-shadow: 0 0 0 2px var(--pp-verde-bg); }
+
+@media (max-width: 1100px) {
+  .ip-grelha { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .ip-ed-linha { grid-template-columns: 48px 1fr 28px; }
+  .ip-ed-linha > :nth-child(3),
+  .ip-ed-linha > :nth-child(4) { grid-column: 2 / 3; }
+  .ip-ed-linha.is-cabecalho { display: none; }
+  .ip-perda { grid-template-columns: minmax(110px, 1fr) minmax(80px, 1.4fr) 44px; }
+}
