@@ -1302,7 +1302,9 @@ body.is-deco .page-description {
 .deco-posicoes-table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 1160px;
+  /* O min-width vem do JS (renderTable), conforme o número de tamanhos: assim
+     a tabela cabe no cartão sem scroll lateral e só passa a ter scroll se
+     houver tantos tamanhos que já não caibam. */
   table-layout: fixed;
 }
 
@@ -1321,15 +1323,17 @@ body.is-deco .page-description {
 }
 
 .deco-posicoes-table .deco-col-posicao {
-  width: 62px;
+  width: 52px;
 }
 
-/* Larga o suficiente para a frase standard mais comprida ("Da costura lateral
-   esquerda PV ao início da decoração") se ler inteira, sem passar o rato. */
+/* A descrição ocupa uma fatia da tabela (os tamanhos repartem o resto). Uma
+   frase mais comprida ("Da costura lateral esquerda PV ao início da
+   decoração") pode ficar cortada; lê-se inteira ao passar o rato (title). */
 .deco-posicoes-table .deco-col-descricao {
-  width: 340px;
+  width: 26%;
   text-align: left;
 }
+
 
 
 .deco-posicoes-table input {
@@ -2200,6 +2204,20 @@ input.deco-paleta-base-input:focus {
   border-radius: 4px;
 }
 
+/* Colunas de números e tamanhos: pouco espaço lateral, para a tabela caber
+   sem scroll. (O padding geral de 10px dos campos vem de
+   "#sectionDeco input[type=text]", por isso estas regras levam #sectionDeco.) */
+#sectionDeco .deco-posicoes-table th.deco-col-tamanho input,
+#sectionDeco .deco-posicoes-table td.deco-col-tamanho input,
+#sectionDeco .deco-posicoes-table td.deco-col-num input,
+#sectionDeco .deco-posicoes-table th.deco-col-mp-head input {
+  padding: 0 2px;
+}
+
+#sectionDeco .deco-posicoes-table td.deco-col-mp .deco-num-input {
+  padding: 0 2px 0 16px;
+}
+
 #sectionDeco .deco-tamanho-input {
   height: 24px !important;
   font-size: var(--deco-label) !important;
@@ -2390,14 +2408,14 @@ input.deco-paleta-base-input:focus {
 
 /* --- Tabela: colunas numericas e linha calculada -------------------------- */
 .deco-posicoes-table .deco-col-num {
-  width: 74px;
+  width: 56px;
 }
 
 /* A Ficha MP leva um campo de escrita no cabecalho: precisa de mais folego
    do que as outras colunas numericas. */
 .deco-posicoes-table .deco-col-mp-head,
 .deco-posicoes-table .deco-col-mp {
-  width: 96px;
+  width: 68px;
 }
 
 .deco-col-mp {
@@ -16432,6 +16450,9 @@ const DecoEditor = (() => {
     fecharMenuDescricoes();
     table.innerHTML = '';
     const count = ficha.tamanhos.length;
+    // Colunas fixas (posição, costura, queda, Ficha MP: ~232px) + descrição
+    // (~220px) + ~44px por tamanho. Abaixo disto os números deixam de caber.
+    table.style.minWidth = (452 + count * 44) + 'px';
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');

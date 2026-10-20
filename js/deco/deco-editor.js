@@ -816,6 +816,9 @@ const DecoEditor = (() => {
     fecharMenuDescricoes();
     table.innerHTML = '';
     const count = ficha.tamanhos.length;
+    // Colunas fixas (posição, costura, queda, Ficha MP: ~232px) + descrição
+    // (~220px) + ~44px por tamanho. Abaixo disto os números deixam de caber.
+    table.style.minWidth = (452 + count * 44) + 'px';
 
     const thead = document.createElement('thead');
     const headRow = document.createElement('tr');
