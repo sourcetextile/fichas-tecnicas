@@ -16989,6 +16989,28 @@ const DecoEditor = (() => {
     input.select();
   }
 
+  // Ao clicar numa célula que ainda não tinha o foco, o texto fica todo
+  // selecionado (como no Excel): é assim que a primeira seta salta logo, em vez
+  // de só mexer o cursor a meio do número. Um segundo clique já põe o cursor
+  // onde se clicou, para editar o valor; escrever com tudo selecionado
+  // substitui o valor.
+  let clicarParaSelecionar = null;
+
+  function onTabelaMousedown(event) {
+    const alvo = event.target;
+    clicarParaSelecionar = null;
+    if (!(alvo instanceof HTMLInputElement) || alvo === document.activeElement) return;
+    if (event.shiftKey || event.button !== 0) return;
+    if (!alvo.closest('tbody') || alvo.classList.contains('deco-desc-input')) return;
+    clicarParaSelecionar = alvo;
+  }
+
+  function onTabelaMouseup(event) {
+    const alvo = clicarParaSelecionar;
+    clicarParaSelecionar = null;
+    if (alvo && event.target === alvo) alvo.select();
+  }
+
   function onTabelaKeydown(event) {
     const input = event.target;
     // Já tratado (ex.: a lista de descrições aberta usa cima/baixo).
@@ -17213,6 +17235,8 @@ const DecoEditor = (() => {
     partesAddButton.addEventListener('click', acrescentarParte);
 
     table.addEventListener('keydown', onTabelaKeydown);
+    table.addEventListener('mousedown', onTabelaMousedown);
+    table.addEventListener('mouseup', onTabelaMouseup);
     document.addEventListener('mouseup', () => { dragSelecting = false; });
     addTamanhoButton.addEventListener('click', addTamanho);
     addPosicaoButton.addEventListener('click', addPosicao);
