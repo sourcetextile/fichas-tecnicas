@@ -1330,15 +1330,72 @@ const DecoEditor = (() => {
   }
 
   function handleCellKeydown(event, rowIndex, colIndex) {
-    if (event.key === 'Enter' || event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-      const target = rowIndex + (event.key === 'ArrowUp' ? -1 : 1);
+    if (event.key === 'Enter') {
+      const target = rowIndex + 1;
       const cell = table.querySelector(`input[data-row="${target}"][data-col="${colIndex}"]`)
         || table.querySelector(`input[data-row="${target}"]`);
       if (cell) {
         event.preventDefault();
-        cell.focus();
+        focarCelula(cell);
       }
     }
+  }
+
+  // Setas entre células, como no Excel. Cada célula é um campo de texto, por
+  // isso as setas esquerda/direita só saltam quando o cursor já está na ponta
+  // do texto (ou o texto está todo selecionado); sem isso não dava para
+  // corrigir uma letra a meio de um número. Cima/baixo saltam sempre. A célula
+  // de destino fica com o texto selecionado: escrever substitui.
+  function focarCelula(input) {
+    fecharMenuDescricoes();
+    input.focus();
+    input.select();
+  }
+
+  function onTabelaKeydown(event) {
+    const input = event.target;
+    // Já tratado (ex.: a lista de descrições aberta usa cima/baixo).
+    if (event.defaultPrevented || !(input instanceof HTMLInputElement)) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const tecla = event.key;
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(tecla)) return;
+
+    const tr = input.closest('tbody tr.deco-pos-row');
+    if (!tr) return; // cabeçalho (tamanhos, Ficha MP): fica como está
+    const doLinha = Array.from(tr.querySelectorAll('input'));
+    const i = doLinha.indexOf(input);
+    let alvo = null;
+
+    if (tecla === 'ArrowLeft' || tecla === 'ArrowRight') {
+      const fim = input.value.length;
+      const todoSelecionado = input.selectionStart === 0 && input.selectionEnd === fim;
+      const naPonta = input.selectionStart === input.selectionEnd
+        && input.selectionStart === (tecla === 'ArrowLeft' ? 0 : fim);
+      if (!todoSelecionado && !naPonta) return;
+      alvo = doLinha[i + (tecla === 'ArrowLeft' ? -1 : 1)];
+    } else {
+      const linhas = Array.from(table.querySelectorAll('tbody tr.deco-pos-row:not(.deco-pos-row--calc)'));
+      const destino = linhas[linhas.indexOf(tr) + (tecla === 'ArrowUp' ? -1 : 1)];
+      if (!destino) return;
+      const candidatos = Array.from(destino.querySelectorAll('input'));
+      if (input.dataset.col !== undefined) {
+        // Coluna de tamanho: procura a célula que cobre esse tamanho (pode ser
+        // uma célula unida).
+        const col = Number(input.dataset.col);
+        alvo = candidatos.find(candidato => {
+          if (candidato.dataset.col === undefined) return false;
+          const inicio = Number(candidato.dataset.col);
+          const largura = Number(candidato.closest('td').dataset.span || 1);
+          return inicio <= col && col < inicio + largura;
+        });
+      } else {
+        alvo = candidatos[i]; // posição, descrição, costura, queda, Ficha MP
+      }
+    }
+
+    if (!alvo) return;
+    event.preventDefault();
+    focarCelula(alvo);
   }
 
   function handleCellPaste(event, pos, startCol) {
@@ -1518,6 +1575,7 @@ const DecoEditor = (() => {
     colocacaoPartes.addEventListener('input', atualizarBotaoParte);
     partesAddButton.addEventListener('click', acrescentarParte);
 
+    table.addEventListener('keydown', onTabelaKeydown);
     document.addEventListener('mouseup', () => { dragSelecting = false; });
     addTamanhoButton.addEventListener('click', addTamanho);
     addPosicaoButton.addEventListener('click', addPosicao);

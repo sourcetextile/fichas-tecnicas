@@ -220,7 +220,61 @@ const DecoPalette = (() => {
     }
   }
 
+  // Setas entre células, como no Excel. Os nomes são campos de texto: esquerda
+  // e direita só saltam com o cursor na ponta do texto; cima e baixo saltam
+  // sempre. Nas células do X as quatro setas saltam.
+  function focavel(cell) {
+    if (!cell) return null;
+    const campo = cell.querySelector('input');
+    if (campo) return campo;
+    return cell.classList.contains('deco-paleta-mark') ? cell : null;
+  }
+
+  function onTabelaKeydown(event) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const tecla = event.key;
+    if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(tecla)) return;
+
+    const atual = event.target;
+    const cell = atual.closest('td, th');
+    if (!cell || !table.contains(cell)) return;
+
+    if (atual instanceof HTMLInputElement && (tecla === 'ArrowLeft' || tecla === 'ArrowRight')) {
+      const fim = atual.value.length;
+      const todoSelecionado = atual.selectionStart === 0 && atual.selectionEnd === fim;
+      const naPonta = atual.selectionStart === atual.selectionEnd
+        && atual.selectionStart === (tecla === 'ArrowLeft' ? 0 : fim);
+      if (!todoSelecionado && !naPonta) return;
+    } else if (!(atual instanceof HTMLInputElement) && atual !== cell) {
+      return; // um botão dentro da célula: não mexe
+    }
+
+    const linha = cell.parentElement;
+    const linhas = Array.from(table.rows);
+    let r = linhas.indexOf(linha);
+    let c = Array.from(linha.cells).indexOf(cell);
+    const dr = tecla === 'ArrowUp' ? -1 : tecla === 'ArrowDown' ? 1 : 0;
+    const dc = tecla === 'ArrowLeft' ? -1 : tecla === 'ArrowRight' ? 1 : 0;
+
+    // Continua na mesma direção até achar uma célula onde se possa estar
+    // (salta a de cantos e a das ferramentas).
+    for (;;) {
+      r += dr;
+      c += dc;
+      const destino = linhas[r];
+      if (!destino || c < 0 || c >= destino.cells.length) return;
+      const alvo = focavel(destino.cells[c]);
+      if (alvo) {
+        event.preventDefault();
+        alvo.focus();
+        if (alvo instanceof HTMLInputElement) alvo.select();
+        return;
+      }
+    }
+  }
+
   function bindEvents() {
+    table.addEventListener('keydown', onTabelaKeydown);
     tituloInput.addEventListener('input', () => {
       paleta.titulo = tituloInput.value;
       changed();
