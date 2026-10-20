@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="app/css/styles.css">
   <link rel="stylesheet" href="app/css/deco.css">
   <link rel="stylesheet" href="app/css/pedidos.css">
+  <link rel="stylesheet" href="app/css/ideia.css">
 </head>
 <body>
   <div class="page-shell">
@@ -19,6 +20,7 @@
         <button id="tabSectionFicha" type="button" class="tab active" role="tab" aria-selected="true">Ficha técnica</button>
         <button id="tabSectionDeco" type="button" class="tab" role="tab" aria-selected="false">Fichas de decoração</button>
         <button id="tabSectionPedidos" type="button" class="tab" role="tab" aria-selected="false">Pedidos de preço</button>
+        <button id="tabSectionIdeia" type="button" class="tab" role="tab" aria-selected="false">Ideia de preço</button>
       </div>
       <p class="eyebrow">Sourcetextile</p>
       <h1 id="pageTitle">Ficha técnica do produto</h1>
@@ -506,6 +508,27 @@
         <aside id="pedidosDrawer" class="pp-gaveta hidden" aria-label="Detalhe do pedido"></aside>
         <div id="pedidosToasts" class="pp-toasts" role="status" aria-live="polite"></div>
       </div>
+      <div id="sectionIdeia" class="hidden">
+        <section class="screen">
+          <div class="pp-barra" role="toolbar" aria-label="Ideia de preço">
+            <div class="pp-vistas" role="group" aria-label="Vista">
+              <button id="ideiaVistaVer" type="button" class="pp-vista is-ativo" aria-pressed="true">Visualização</button>
+              <button id="ideiaVistaEditar" type="button" class="pp-vista" aria-pressed="false">Edição</button>
+            </div>
+            <div id="ideiaConsulta" class="ip-consulta">
+              <input id="ideiaPesquisa" class="pp-pesquisa ip-pesquisa" type="search" autocomplete="off"
+                     placeholder="Procurar em todas as tabelas" aria-label="Procurar em todas as tabelas">
+              <label class="ip-peso">Peso da peça
+                <input id="ideiaPeso" type="number" min="1" step="1" inputmode="numeric" placeholder="g" aria-label="Peso da peça em gramas">
+                <span>g</span>
+              </label>
+            </div>
+            <span id="ideiaEstado" class="ip-estado" role="status" aria-live="polite"></span>
+          </div>
+          <div id="ideiaVisualizacao"></div>
+          <div id="ideiaEdicao" class="hidden"></div>
+        </section>
+      </div>
     </main>
 
     <footer class="app-credit">
@@ -554,5 +577,10 @@
   <script src="app/js/pedidos/pedidos-kanban.js"></script>
   <script src="app/js/pedidos/pedidos-dashboard.js"></script>
   <script src="app/js/pedidos/pedidos-app.js"></script>
+  <script src="app/js/ideia/ideia-storage.js"></script>
+  <script src="app/js/ideia/ideia-documentos.js"></script>
+  <script src="app/js/ideia/ideia-vista.js"></script>
+  <script src="app/js/ideia/ideia-edicao.js"></script>
+  <script src="app/js/ideia/ideia-app.js"></script>
 </body>
 </html>
