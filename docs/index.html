@@ -4481,6 +4481,463 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
 .pp-exportar { margin-left: auto; }
 
 </style>
+  <style>
+/* =====================================================================
+   Ideia de preço - Sourcetextile
+
+   A mesma escala e os mesmos componentes dos Pedidos de preço (barra de
+   ferramentas, vistas, cartões, botões pequenos, avisos), para a app
+   parecer feita pela mesma pessoa. Usa as variáveis de styles.css e de
+   pedidos.css; aqui só está o que é desta secção.
+   ===================================================================== */
+:root {
+  /* As perdas aquecem com o valor: o castanho da Orçamentação em três tons. */
+  --ip-baixa: #E7B99E;
+  --ip-media: #D3804F;
+  --ip-alta: #A8471F;
+}
+
+/* A mesma escala compacta dos Pedidos de preço (definida aqui para esta
+   secção não depender de mexer no pedidos.css). Os avisos (#pedidosToasts)
+   servem as duas secções e vivem fora de ambas. */
+#sectionIdeia,
+#pedidosToasts {
+  --pp-h: 32px;
+  --pp-text: 0.8rem;
+  --pp-label: 0.7rem;
+}
+
+/* --- Cabeçalho da página, mais baixo (igual aos Pedidos de preço) ------- */
+body[data-secao="ideia"] .page-shell {
+  max-width: 1680px;
+  padding-top: 16px;
+  padding-bottom: 24px;
+}
+
+body[data-secao="ideia"] .page-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  column-gap: 16px;
+  row-gap: 6px;
+  margin-bottom: 12px;
+}
+
+body[data-secao="ideia"] #appTabs { grid-area: 1 / 1; margin: 0; }
+body[data-secao="ideia"] #authStatus { grid-area: 1 / 2; justify-self: end; margin: 0; }
+body[data-secao="ideia"] .page-header .eyebrow { display: none; }
+body[data-secao="ideia"] #pageTitle { grid-area: 2 / 1; margin: 0; font-size: 1.35rem; }
+body[data-secao="ideia"] #pageDescription { display: none; }
+
+@media (max-width: 900px) {
+  body[data-secao="ideia"] .page-header { grid-template-columns: 1fr; }
+  body[data-secao="ideia"] #authStatus { grid-area: 1 / 1; justify-self: end; }
+  body[data-secao="ideia"] #appTabs { grid-area: 2 / 1; }
+  body[data-secao="ideia"] #pageTitle { grid-area: 3 / 1; }
+}
+
+/* --- Barra --------------------------------------------------------------- */
+.ip-estado {
+  margin-left: auto;
+  font-size: var(--pp-label);
+  color: var(--muted);
+}
+.ip-estado.is-ok { color: var(--pp-verde-ink); }
+.ip-estado.is-erro { color: var(--pp-vermelho-ink); font-weight: 600; }
+.ip-estado.is-leitura {
+  padding: 2px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel-bg);
+}
+
+/* --- Cartões ------------------------------------------------------------- */
+.ip-grelha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.ip-cartao {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px 14px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.ip-cartao__cab {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+.ip-cartao__cab h3 { margin: 0; font-size: 0.95rem; }
+.ip-cartao__dir { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+.ip-ordem .pp-vista { padding: 2px 10px; font-size: var(--pp-label); }
+
+.ip-rodape { margin: 10px 2px 0; font-size: var(--pp-label); color: var(--muted); }
+
+/* --- Perdas: uma barra por operação, todas na mesma escala --------------- */
+.ip-perdas { display: grid; }
+
+.ip-perda {
+  display: grid;
+  grid-template-columns: minmax(130px, 0.8fr) minmax(120px, 2fr) 52px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 5px 6px;
+  border: 0;
+  border-top: 1px solid var(--line);
+  background: transparent;
+  font: inherit;
+  font-size: var(--pp-text);
+  text-align: left;
+  color: var(--ink);
+}
+.ip-perda:first-child { border-top: 0; }
+.ip-perda.is-clicavel { cursor: pointer; }
+.ip-perda.is-clicavel:hover { background: var(--panel-bg); }
+
+.ip-perda__nome { display: grid; min-width: 0; }
+.ip-perda__nome b { font-weight: 600; }
+.ip-perda__nome small { font-size: var(--pp-label); color: var(--muted); }
+
+/* Ramular (e outras com tipos): uma barra por tipo, na mesma escala. */
+.ip-variantes { grid-column: 2 / 4; display: grid; gap: 3px; }
+.ip-variante {
+  display: grid;
+  grid-template-columns: 64px minmax(80px, 1fr) 52px;
+  align-items: center;
+  gap: 10px;
+}
+.ip-variante__nome { font-size: var(--pp-label); color: var(--muted); }
+
+.ip-pista {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 14px;
+  border-radius: 999px;
+  background: #F1ECE3;
+  overflow: hidden;
+}
+.ip-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ip-baixa);
+}
+.ip-fill.is-media { background: var(--ip-media); }
+.ip-fill.is-alta { background: var(--ip-alta); }
+/* Preços: um só tom, frio, para não se confundir com as perdas. */
+.ip-fill.is-preco { background: #8FA6B0; }
+
+.ip-valor { text-align: right; font-size: var(--pp-text); }
+
+.ip-avaliar {
+  padding: 0 8px;
+  font-size: var(--pp-label);
+  font-weight: 600;
+  color: var(--pp-amarelo-ink);
+}
+.ip-pista.is-avaliar { background: var(--pp-amarelo-bg); }
+
+.ip-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  padding-top: 4px;
+  font-size: var(--pp-label);
+  color: var(--muted);
+}
+.ip-legenda__item { display: inline-flex; align-items: center; gap: 6px; }
+.ip-legenda__item .ip-fill { width: 18px; height: 8px; }
+
+/* --- Margens: um número grande por cartão -------------------------------- */
+.ip-margens {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+}
+
+.ip-margem {
+  display: grid;
+  gap: 4px;
+  align-content: start;
+  min-height: 96px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel-bg);
+  font: inherit;
+  text-align: left;
+  color: var(--ink);
+}
+.ip-margem.is-clicavel { cursor: pointer; }
+.ip-margem.is-clicavel:hover { border-color: var(--line-strong); }
+.ip-margem__valor { font-size: 1.9rem; font-weight: 800; line-height: 1; }
+.ip-margem__nome { font-size: var(--pp-text); font-weight: 600; }
+.ip-margem__nota { font-size: var(--pp-label); color: var(--muted); }
+
+/* O que está por decidir não se confunde com um valor. */
+.ip-margem.is-avaliar {
+  border-style: dashed;
+  border-color: var(--pp-amarelo);
+  background: var(--pp-amarelo-bg);
+}
+.ip-margem.is-avaliar .ip-margem__valor { font-size: 1.15rem; color: var(--pp-amarelo-ink); padding-top: 8px; }
+
+/* --- Edição -------------------------------------------------------------- */
+.ip-ajuda { margin: 0 0 10px; font-size: var(--pp-label); color: var(--muted); }
+
+.ip-ed-grelha { display: grid; gap: 12px; }
+
+.ip-ed-linha {
+  display: grid;
+  grid-template-columns: 48px minmax(150px, 1fr) minmax(220px, 1.2fr) minmax(160px, 1.4fr) 28px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 2px;
+  border-top: 1px solid var(--line);
+  border-radius: 6px;
+  transition: background 0.4s;
+}
+.ip-ed-linha.is-cabecalho {
+  border-top: 0;
+  padding-bottom: 0;
+  font-size: var(--pp-label);
+  font-weight: 700;
+  color: var(--muted);
+}
+.ip-ed-linha.is-nova { background: var(--chip-bg); }
+.ip-ed-linha.is-guardada { background: var(--pp-verde-bg); }
+.ip-ed-linha.is-destaque { outline: 2px solid var(--ink); outline-offset: -1px; }
+
+.ip-ed-mover { display: flex; gap: 2px; }
+
+.ip-ed-campo {
+  width: 100%;
+  height: 30px !important;
+  min-height: 0 !important;
+  padding: 0 8px !important;
+  font-size: var(--pp-text) !important;
+}
+.ip-ed-campo[aria-invalid="true"] {
+  border-color: var(--pp-vermelho) !important;
+  background: var(--pp-vermelho-bg);
+}
+
+.ip-ed-valor { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.ip-ed-variantes { display: grid; gap: 4px; flex: 1 1 100%; }
+.ip-ed-variante {
+  display: grid;
+  grid-template-columns: minmax(80px, 1fr) 92px 22px;
+  align-items: center;
+  gap: 6px;
+}
+
+.ip-pct { position: relative; display: inline-flex; width: 92px; }
+.ip-pct .ip-ed-campo { padding-right: 22px !important; text-align: right; }
+.ip-pct__sinal {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--pp-text);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Em branco é "a avaliar": o sinal de % só aparece quando há número. */
+.ip-pct .ip-ed-campo:placeholder-shown { text-align: left; }
+.ip-pct .ip-ed-campo:placeholder-shown + .ip-pct__sinal { display: none; }
+
+.ip-ed-apagar:hover { color: var(--pp-vermelho-ink); }
+
+.ip-ed-mais {
+  justify-self: start;
+  padding: 4px 12px;
+  border: 1px dashed var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--pp-text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.ip-ed-mais:hover { background: var(--panel-bg); border-style: solid; }
+
+/* --- Consulta: pesquisa, peso, índice ------------------------------------- */
+.ip-consulta { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.ip-pesquisa { width: 260px; }
+.ip-peso {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--pp-text);
+  color: var(--muted);
+}
+.ip-peso input {
+  width: 76px;
+  height: 28px !important;
+  min-height: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 999px !important;
+  font-size: var(--pp-text) !important;
+  text-align: right;
+}
+
+.ip-indice { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.ip-vazio { margin: 24px 0; text-align: center; color: var(--muted); }
+
+.ip-grelha.is-uma { grid-template-columns: 1fr; }
+/* A coluna da esquerda (perdas e margens) estica até à altura da direita,
+   e quem estica é o cartão das margens. */
+.ip-coluna { display: flex; flex-direction: column; gap: 12px; }
+.ip-cartao.is-estica { flex: 1 1 auto; align-content: start; }
+.ip-cartao { scroll-margin-top: 12px; }
+
+/* --- Tabelas de fornecedor -------------------------------------------------- */
+.ip-docs { display: grid; gap: 12px; margin-top: 12px; }
+
+.ip-validade {
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: var(--pp-label);
+  font-weight: 700;
+}
+.ip-validade.is-valida { background: var(--pp-verde-bg); color: var(--pp-verde-ink); }
+.ip-validade.is-expirada { background: var(--pp-vermelho-bg); color: var(--pp-vermelho-ink); }
+
+.ip-secao { display: grid; gap: 6px; }
+.ip-secao h4 {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+}
+.ip-unidade { font-size: var(--pp-label); font-weight: 600; color: var(--muted); }
+
+.ip-tab-caixa { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.ip-tab {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--pp-text);
+  font-variant-numeric: tabular-nums;
+}
+.ip-tab th,
+.ip-tab td { padding: 5px 10px; border-top: 1px solid var(--line); white-space: nowrap; }
+.ip-tab thead th {
+  border-top: 0;
+  background: var(--panel-bg);
+  font-size: var(--pp-label);
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
+}
+.ip-tab thead th button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.ip-tab td { text-align: right; }
+.ip-tab td.is-vazio { color: var(--muted); }
+.ip-tab__canto { text-align: left !important; font-weight: 600 !important; }
+/* A primeira coluna fica à vista quando a tabela desliza para o lado. */
+.ip-tab tbody th,
+.ip-tab .ip-tab__canto {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  text-align: left;
+  background: var(--card);
+}
+.ip-tab thead .ip-tab__canto { background: var(--panel-bg); }
+.ip-tab__nome { font-weight: 600; }
+.ip-tab.is-simples { width: auto; min-width: 360px; }
+
+/* Ler o cruzamento: linha e coluna por baixo do rato. */
+.ip-tab tbody tr:hover > * { background: var(--chip-bg); }
+.ip-tab .is-cruz { background: var(--chip-bg); }
+/* Coluna do peso da peça e coluna fixada à mão. */
+.ip-tab .is-peso,
+.ip-tab .is-fixa { background: #FBEEDD !important; color: var(--ink); }
+.ip-tab thead .is-peso,
+.ip-tab thead .is-fixa { box-shadow: inset 0 -3px 0 var(--pp-orcamentacao); color: var(--ink); }
+.ip-tab td.is-peso,
+.ip-tab td.is-fixa { font-weight: 700; }
+/* O preço mais caro da linha: o mesmo destaque da coluna do peso, célula a
+   célula (o mais caro não está sempre na mesma coluna). */
+.ip-tab td.is-max { background: #FBEEDD !important; font-weight: 700; color: var(--ink); }
+
+.ip-aviso { margin: 0; padding: 6px 10px; font-size: var(--pp-label); color: var(--pp-amarelo-ink); background: var(--pp-amarelo-bg); }
+
+.ip-lista { display: grid; margin: 0; border: 1px solid var(--line); border-radius: 8px; }
+.ip-lista__linha {
+  display: grid;
+  grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr);
+  gap: 10px;
+  padding: 6px 10px;
+  border-top: 1px solid var(--line);
+  font-size: var(--pp-text);
+}
+.ip-lista__linha:first-child { border-top: 0; }
+.ip-lista dt { font-weight: 600; }
+.ip-lista dd { margin: 0; }
+
+.ip-notas { margin: 4px 0 0; padding-left: 18px; font-size: var(--pp-label); color: var(--muted); }
+
+/* --- Edição das tabelas de fornecedor --------------------------------------- */
+.ip-ed-titulo { margin: 8px 0 0; font-size: 1rem; }
+.ip-ed-meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: end; }
+.ip-ed-meta__campo { display: grid; gap: 3px; font-size: var(--pp-label); font-weight: 700; color: var(--muted); }
+.ip-ed-meta__campo .ip-ed-campo { min-width: 170px; }
+.ip-ed-meta__campo .ip-ed-campo.is-curto { min-width: 0; width: 90px; }
+.ip-ed-meta__campo.is-inline { display: inline-flex; align-items: center; gap: 6px; }
+.ip-ed-meta__campo.is-notas { display: grid; }
+textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !important; resize: vertical; }
+
+.ip-ed-pdf { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: var(--pp-text); }
+.ip-ed-pdf__nome { color: var(--muted); }
+
+.ip-ed-secao__cab { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.ip-ed-maximo { display: inline-flex; align-items: center; gap: 6px; font-size: var(--pp-label); color: var(--muted); }
+.ip-ed-campo.is-titulo { width: 260px; font-weight: 700; }
+
+.ip-tab.is-edicao th,
+.ip-tab.is-edicao td { padding: 3px 4px; }
+.ip-tab.is-edicao .ip-ed-campo { height: 28px !important; }
+.ip-tab.is-edicao .ip-ed-campo.is-valor { width: 72px; text-align: right; }
+.ip-tab.is-edicao .ip-ed-campo.is-coluna { width: 96px; text-align: right; font-weight: 700; }
+.ip-tab.is-edicao .ip-ed-campo.is-nome { width: 210px; }
+
+.ip-ed-lista { display: grid; gap: 4px; }
+.ip-ed-lista__linha { display: grid; grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) 28px; gap: 6px; align-items: center; }
+
+.ip-cartao.is-guardada { box-shadow: 0 0 0 2px var(--pp-verde-bg); }
+
+@media (max-width: 1100px) {
+  .ip-grelha { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  .ip-ed-linha { grid-template-columns: 48px 1fr 28px; }
+  .ip-ed-linha > :nth-child(3),
+  .ip-ed-linha > :nth-child(4) { grid-column: 2 / 3; }
+  .ip-ed-linha.is-cabecalho { display: none; }
+  .ip-perda { grid-template-columns: minmax(110px, 1fr) minmax(80px, 1.4fr) 44px; }
+}
+
+</style>
 </head>
 <body>
   <div class="page-shell">
@@ -4493,6 +4950,7 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
         <button id="tabSectionFicha" type="button" class="tab active" role="tab" aria-selected="true">Ficha técnica</button>
         <button id="tabSectionDeco" type="button" class="tab" role="tab" aria-selected="false">Fichas de decoração</button>
         <button id="tabSectionPedidos" type="button" class="tab" role="tab" aria-selected="false">Pedidos de preço</button>
+        <button id="tabSectionIdeia" type="button" class="tab" role="tab" aria-selected="false">Ideia de preço</button>
       </div>
       <p class="eyebrow">Sourcetextile</p>
       <h1 id="pageTitle">Ficha técnica do produto</h1>
@@ -4979,6 +5437,27 @@ body[data-secao="pedidos"] #pageDescription { display: none; }
         <div id="pedidosDrawerFundo" class="pp-gaveta-fundo hidden"></div>
         <aside id="pedidosDrawer" class="pp-gaveta hidden" aria-label="Detalhe do pedido"></aside>
         <div id="pedidosToasts" class="pp-toasts" role="status" aria-live="polite"></div>
+      </div>
+      <div id="sectionIdeia" class="hidden">
+        <section class="screen">
+          <div class="pp-barra" role="toolbar" aria-label="Ideia de preço">
+            <div class="pp-vistas" role="group" aria-label="Vista">
+              <button id="ideiaVistaVer" type="button" class="pp-vista is-ativo" aria-pressed="true">Visualização</button>
+              <button id="ideiaVistaEditar" type="button" class="pp-vista" aria-pressed="false">Edição</button>
+            </div>
+            <div id="ideiaConsulta" class="ip-consulta">
+              <input id="ideiaPesquisa" class="pp-pesquisa ip-pesquisa" type="search" autocomplete="off"
+                     placeholder="Procurar em todas as tabelas" aria-label="Procurar em todas as tabelas">
+              <label class="ip-peso">Peso da peça
+                <input id="ideiaPeso" type="number" min="1" step="1" inputmode="numeric" placeholder="g" aria-label="Peso da peça em gramas">
+                <span>g</span>
+              </label>
+            </div>
+            <span id="ideiaEstado" class="ip-estado" role="status" aria-live="polite"></span>
+          </div>
+          <div id="ideiaVisualizacao"></div>
+          <div id="ideiaEdicao" class="hidden"></div>
+        </section>
       </div>
     </main>
 
@@ -20354,6 +20833,1582 @@ const PedidosApp = (() => {
   });
 
   return { atualizarBarra, arrancar, medir };
+})();
+
+</script>
+  <script>
+// Ideia de preço: acesso aos dados e o que é comum às duas vistas.
+//
+// Dois tipos de tabela (migrations 0012 e 0013):
+//  - As tabelas de referência (perdas por operação, margens, preço por
+//    operação de tinturaria) vivem todas em `ideia_preco_sourcetextile_linhas`,
+//    uma linha por linha de tabela.
+//  - As tabelas de fornecedor (Lavagens, Tingimento) são documentos com
+//    secções: grelhas de preços (por peso da peça, por cor) e listas de
+//    custos, em `ideia_preco_sourcetextile_documentos`, com o PDF original
+//    anexado num bucket privado.
+// Ao contrário dos Pedidos de preço, aqui escreve-se diretamente nas tabelas:
+// não há histórico a proteger, só valores de referência, e a base de dados
+// (RLS) só deixa escrever a quem pode editar.
+const IdeiaStorage = (() => {
+  const TABELA = 'ideia_preco_sourcetextile_linhas';
+  const DOCUMENTOS = 'ideia_preco_sourcetextile_documentos';
+  const BUCKET = 'ideia-preco-sourcetextile-documentos';
+  let client = null;
+
+  // As tabelas de referência. Uma tabela nova é uma entrada aqui (e um valor
+  // no check da coluna `tabela`, na base de dados).
+  //   valor: 'pct' (percentagem) ou 'preco' (euros)
+  //   ordem: 'alfabetica' (sempre por nome) ou 'manual' (setas na edição).
+  //          Hoje todas estão por ordem alfabética.
+  const TABELAS = [
+    {
+      chave: 'perdas', titulo: 'Perdas por operação', curto: 'Perdas',
+      coluna: 'Operação', rotuloValor: 'Perda', valor: 'pct', ordem: 'alfabetica',
+      novo: 'Adicionar operação', artigo: 'uma operação', contagem: ['operação', 'operações'],
+      variantes: true, maior: 'Maior perda primeiro'
+    },
+    {
+      chave: 'margens', titulo: 'Margens a aplicar', curto: 'Margens',
+      coluna: 'Margem', rotuloValor: 'Percentagem', valor: 'pct', ordem: 'alfabetica',
+      novo: 'Adicionar margem', artigo: 'uma margem', contagem: ['margem', 'margens'],
+      variantes: false
+    },
+    {
+      chave: 'tinturaria', titulo: 'Preço por operação de tinturaria', curto: 'Tinturaria',
+      coluna: 'Operação', rotuloValor: 'Preço', valor: 'preco', ordem: 'alfabetica',
+      novo: 'Adicionar operação', artigo: 'uma operação', contagem: ['operação', 'operações'],
+      variantes: false
+    }
+  ];
+
+  function init(supabase) {
+    client = supabase;
+  }
+
+  // -------------------------------------------------------------------
+  // Números
+  // -------------------------------------------------------------------
+  function lerNumero(texto, maximo) {
+    const limpo = String(texto === null || texto === undefined ? '' : texto)
+      .trim().replace('%', '').replace('€', '').replace(',', '.').trim();
+    if (limpo === '') return { valor: null };
+    const n = Number(limpo);
+    if (!Number.isFinite(n)) return { erro: 'Escreve um número, por exemplo 2 ou 2,5.' };
+    if (n < 0) return { erro: 'O valor não pode ser negativo.' };
+    if (maximo !== undefined && n > maximo) return { erro: 'A percentagem tem de estar entre 0 e 100.' };
+    return { valor: Math.round(n * 1000) / 1000 };
+  }
+
+  // "2", "2,5", "2.5" e "2%" são a mesma coisa. Vazio é "a avaliar".
+  const lerPct = texto => lerNumero(texto, 100);
+  const lerPreco = texto => lerNumero(texto);
+
+  // 2 → "2%"; 2.5 → "2,5%"; vazio → null (quem desenha decide o que mostrar).
+  function pct(valor) {
+    if (valor === null || valor === undefined || valor === '') return null;
+    const n = Number(valor);
+    return (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/0$/, '').replace('.', ',')) + '%';
+  }
+
+  // 0.65 → "0,65 €" (sempre com duas casas, como nas tabelas dos fornecedores).
+  function euro(valor) {
+    if (valor === null || valor === undefined || valor === '') return null;
+    return Number(valor).toFixed(2).replace('.', ',') + ' €';
+  }
+
+  const formatar = (t, valor) => (t.valor === 'preco' ? euro(valor) : pct(valor));
+
+  // Para escrever num campo: 2.5 → "2,5".
+  const paraCampo = valor => (valor === null || valor === undefined ? '' : String(valor).replace('.', ','));
+
+  // "Até 100 g" → [0, 100]; "101 a 200 g" → [101, 200]; o resto → null.
+  function intervaloDe(nome) {
+    const s = String(nome || '').toLowerCase().replace(/\s+/g, ' ');
+    let m = s.match(/^at[eé]\s*(\d+)\s*g/);
+    if (m) return [0, Number(m[1])];
+    m = s.match(/^(\d+)\s*a\s*(\d+)\s*g/);
+    if (m) return [Number(m[1]), Number(m[2])];
+    return null;
+  }
+
+  // -------------------------------------------------------------------
+  // Linhas das tabelas de referência
+  // -------------------------------------------------------------------
+  const num = v => (v === null || v === undefined || v === '' ? null : Number(v));
+
+  function normalizar(l) {
+    return {
+      id: l.id,
+      tabela: l.tabela,
+      ordem: Number(l.ordem) || 0,
+      nome: l.nome || '',
+      percentagem: num(l.percentagem),
+      preco: num(l.preco),
+      variantes: Array.isArray(l.variantes) ? l.variantes.map(v => ({ nome: v.nome || '', percentagem: num(v.percentagem) })) : [],
+      observacoes: l.observacoes || '',
+      updated_by: l.updated_by || null,
+      updated_at: l.updated_at || null
+    };
+  }
+
+  // O valor de uma linha, conforme a tabela (percentagem ou preço).
+  const valorDe = (t, l) => (t.valor === 'preco' ? l.preco : l.percentagem);
+
+  // As mensagens da base de dados não são para pessoas; estas são.
+  function erroLegivel(error, fallback) {
+    const msg = String((error && (error.message || error.details)) || '');
+    console.warn('[ideia]', error);
+    if (/duplicate|unique|_nome_uk/i.test(msg)) return 'Já existe uma linha com esse nome nesta tabela.';
+    if (/row-level security|permission|42501|unauthorized/i.test(msg)) return 'Não tens permissão para editar estas tabelas.';
+    if (/check constraint|percentagem/i.test(msg)) return 'Há um valor fora do permitido.';
+    if (/mime|pdf/i.test(msg)) return 'Só se podem anexar ficheiros PDF.';
+    if (/size|large/i.test(msg)) return 'O PDF é grande demais (máximo 20 MB).';
+    return msg || fallback;
+  }
+
+  async function listar() {
+    const { data, error } = await client.from(TABELA).select('*');
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível carregar as tabelas.'));
+    return (data || []).map(normalizar);
+  }
+
+  async function guardar(linha) {
+    const payload = {
+      id: linha.id,
+      tabela: linha.tabela,
+      ordem: linha.ordem,
+      nome: linha.nome.trim(),
+      percentagem: linha.variantes.length ? null : linha.percentagem,
+      preco: linha.preco,
+      variantes: linha.variantes,
+      observacoes: linha.observacoes.trim() || null
+    };
+    const { data, error } = await client.from(TABELA).upsert(payload).select();
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível guardar.'));
+    return normalizar((data && data[0]) || payload);
+  }
+
+  async function apagar(id) {
+    const { error } = await client.from(TABELA).delete().eq('id', id);
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível apagar.'));
+  }
+
+  // -------------------------------------------------------------------
+  // Tabelas de fornecedor
+  // -------------------------------------------------------------------
+  function normalizarDoc(d) {
+    return {
+      id: d.id,
+      ordem: Number(d.ordem) || 0,
+      nome: d.nome || '',
+      fornecedor: d.fornecedor || '',
+      data_tabela: d.data_tabela || null,
+      validade_meses: d.validade_meses === null || d.validade_meses === undefined ? null : Number(d.validade_meses),
+      secoes: Array.isArray(d.secoes) ? d.secoes.map(s => ({
+        titulo: s.titulo || '',
+        tipo: s.tipo === 'lista' ? 'lista' : 'grelha',
+        unidade: s.unidade || '',
+        // Pôr a negrito o preço mais caro de cada linha (migration 0014).
+        maximo: s.maximo === true,
+        colunas: Array.isArray(s.colunas) ? s.colunas.slice() : [],
+        linhas: Array.isArray(s.linhas) ? s.linhas.map(l => (s.tipo === 'lista'
+          ? { nome: l.nome || '', texto: l.texto || '' }
+          : { nome: l.nome || '', valores: (l.valores || []).map(num) })) : []
+      })) : [],
+      notas: Array.isArray(d.notas) ? d.notas.slice() : [],
+      pdf_path: d.pdf_path || null,
+      pdf_nome: d.pdf_nome || null,
+      updated_by: d.updated_by || null,
+      updated_at: d.updated_at || null
+    };
+  }
+
+  async function listarDocumentos() {
+    const { data, error } = await client.from(DOCUMENTOS).select('*');
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível carregar as tabelas de fornecedor.'));
+    return (data || []).map(normalizarDoc).sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt'));
+  }
+
+  async function guardarDocumento(doc) {
+    const payload = {
+      id: doc.id, ordem: doc.ordem, nome: doc.nome.trim(), fornecedor: doc.fornecedor.trim() || null,
+      data_tabela: doc.data_tabela || null, validade_meses: doc.validade_meses,
+      // Só o que é dado: as marcas da edição (ex.: linha acabada de criar) não vão.
+      secoes: doc.secoes.map(s => {
+        const limpa = { titulo: s.titulo, tipo: s.tipo, unidade: s.unidade, colunas: s.colunas };
+        if (s.tipo === 'grelha' && s.maximo) limpa.maximo = true;
+        limpa.linhas = s.linhas.map(l => (s.tipo === 'lista'
+          ? { nome: l.nome, texto: l.texto }
+          : { nome: l.nome, valores: l.valores }));
+        return limpa;
+      }),
+      notas: doc.notas.filter(n => n.trim()),
+      pdf_path: doc.pdf_path, pdf_nome: doc.pdf_nome
+    };
+    const { data, error } = await client.from(DOCUMENTOS).upsert(payload).select();
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível guardar.'));
+    return normalizarDoc((data && data[0]) || payload);
+  }
+
+  // Validade: data da tabela + N meses. Devolve { ate, expirada } ou null.
+  function validade(doc) {
+    if (!doc.data_tabela || !doc.validade_meses) return null;
+    const [a, m, d] = doc.data_tabela.split('-').map(Number);
+    const ate = new Date(a, m - 1 + doc.validade_meses, d);
+    ate.setDate(ate.getDate() - 1);
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    return { ate, expirada: ate < hoje };
+  }
+
+  async function carregarPdf(doc, ficheiro) {
+    if (!/pdf$/i.test(ficheiro.type || '') && !/\.pdf$/i.test(ficheiro.name || '')) {
+      throw new Error('Só se podem anexar ficheiros PDF.');
+    }
+    const caminho = doc.id + '/' + Date.now() + '.pdf';
+    const { error } = await client.storage.from(BUCKET).upload(caminho, ficheiro, {
+      contentType: 'application/pdf', upsert: true
+    });
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível carregar o PDF.'));
+    const antigo = doc.pdf_path;
+    const novo = await guardarDocumento(Object.assign({}, doc, { pdf_path: caminho, pdf_nome: ficheiro.name }));
+    if (antigo) client.storage.from(BUCKET).remove([antigo]).catch(() => {});
+    return novo;
+  }
+
+  async function retirarPdf(doc) {
+    const antigo = doc.pdf_path;
+    const novo = await guardarDocumento(Object.assign({}, doc, { pdf_path: null, pdf_nome: null }));
+    if (antigo) await client.storage.from(BUCKET).remove([antigo]);
+    return novo;
+  }
+
+  async function urlPdf(doc) {
+    const { data, error } = await client.storage.from(BUCKET).createSignedUrl(doc.pdf_path, 600);
+    if (error) throw new Error(erroLegivel(error, 'Não foi possível abrir o PDF.'));
+    return data.signedUrl;
+  }
+
+  // -------------------------------------------------------------------
+  async function podeEditar() {
+    try {
+      const { data, error } = await client.rpc('ideia_preco_sourcetextile_pode_editar');
+      return !error && data === true;
+    } catch (erro) {
+      return false;
+    }
+  }
+
+  const novoId = () => (window.crypto && crypto.randomUUID
+    ? crypto.randomUUID()
+    : 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2));
+
+  // Ordem alfabética, como as pessoas a leem ("Cardar 2x" antes de "Cardar 10x",
+  // "Ácido" junto de "Acabamento").
+  const porNome = (a, b) => String(a.nome || '').localeCompare(String(b.nome || ''), 'pt', { numeric: true, sensitivity: 'base' });
+
+  // As linhas de uma tabela, já pela ordem certa para ela.
+  function daTabela(linhas, chave) {
+    const t = TABELAS.find(x => x.chave === chave);
+    return linhas
+      .filter(l => l.tabela === chave)
+      .sort((a, b) => (t && t.ordem === 'alfabetica' ? porNome(a, b) : a.ordem - b.ordem || porNome(a, b)));
+  }
+
+  return {
+    TABELAS, init, listar, guardar, apagar, podeEditar,
+    listarDocumentos, guardarDocumento, carregarPdf, retirarPdf, urlPdf, validade,
+    lerPct, lerPreco, pct, euro, formatar, paraCampo, intervaloDe, valorDe, novoId, daTabela, porNome
+  };
+})();
+
+</script>
+  <script>
+// Ideia de preço: as tabelas de fornecedor (Lavagens, Tingimento...).
+//
+// Cada tabela é um documento com secções: grelhas de preços (linhas x
+// colunas, por peso da peça ou por cor) e listas de custos. Ficam
+// digitalizadas para se poderem procurar e ler depressa, e o PDF original
+// fica anexado para quem o quiser ver tal como veio do fornecedor.
+//
+// Ler uma grelha: a linha e a coluna por baixo do rato acendem (cruzamento);
+// escrever o peso da peça na barra destaca a coluna certa; clicar no
+// cabeçalho de uma coluna fixa-a em destaque. Nas grelhas marcadas com
+// "maximo", o preço mais caro de cada linha vai a negrito. As linhas estão
+// sempre por ordem alfabética.
+const IdeiaDocumentos = (() => {
+  const S = IdeiaStorage;
+  const U = PedidosUtil;
+  const el = U.el;
+
+  const norm = s => U.normalizar(String(s || ''));
+  const encaixa = (texto, pesquisa) => !pesquisa || norm(texto).includes(pesquisa);
+  const numero = v => (v === null || v === undefined ? '-' : Number(v).toFixed(2).replace('.', ','));
+  const dataPt = d => d.toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const unidade = s => (s.unidade ? '€ por ' + s.unidade : '€');
+
+  // Coluna fixada à mão em cada grelha ("docId:secção" → índice).
+  const fixadas = new Map();
+
+  // -------------------------------------------------------------------
+  // Vista
+  // -------------------------------------------------------------------
+  function colunaDoPeso(s, peso) {
+    if (!peso) return -1;
+    return s.colunas.findIndex(c => {
+      const i = S.intervaloDe(c);
+      return i && peso >= i[0] && peso <= i[1];
+    });
+  }
+
+  function grelhaVista(doc, s, iSecao, linhas, opcoes) {
+    const chave = doc.id + ':' + iSecao;
+    const porPeso = s.colunas.some(c => S.intervaloDe(c));
+    const doPeso = colunaDoPeso(s, opcoes.peso);
+    const fixa = fixadas.has(chave) ? fixadas.get(chave) : -1;
+
+    const caixa = el('div', 'ip-tab-caixa');
+    const tab = el('table', 'ip-tab' + (s.colunas.length === 1 ? ' is-simples' : ''));
+
+    const thead = el('thead');
+    const tr = el('tr');
+    tr.appendChild(el('th', 'ip-tab__canto', unidade(s)));
+    s.colunas.forEach((c, i) => {
+      const th = el('th', 'ip-tab__col' + (i === doPeso ? ' is-peso' : '') + (i === fixa ? ' is-fixa' : ''));
+      const b = el('button', null, c);
+      b.type = 'button';
+      b.title = i === fixa ? 'Tirar o destaque' : 'Destacar esta coluna';
+      b.addEventListener('click', () => {
+        if (fixadas.get(chave) === i) fixadas.delete(chave); else fixadas.set(chave, i);
+        opcoes.redesenhar();
+      });
+      th.appendChild(b);
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    tab.appendChild(thead);
+
+    // O mais caro de cada linha, só onde a secção o pede e há com que comparar.
+    const comMaximo = s.maximo && s.colunas.length > 1;
+
+    const tbody = el('tbody');
+    linhas.slice().sort(S.porNome).forEach(l => {
+      const r = el('tr');
+      r.appendChild(el('th', 'ip-tab__nome', l.nome));
+      const presentes = l.valores.filter(v => v !== null && v !== undefined);
+      const maximo = comMaximo && presentes.length > 1 ? Math.max.apply(null, presentes) : null;
+      s.colunas.forEach((c, i) => {
+        const v = l.valores[i];
+        const td = el('td', (v === null || v === undefined ? 'is-vazio' : '')
+          + (maximo !== null && v === maximo ? ' is-max' : '')
+          + (i === doPeso ? ' is-peso' : '') + (i === fixa ? ' is-fixa' : ''), numero(v));
+        td.dataset.col = String(i);
+        r.appendChild(td);
+      });
+      tbody.appendChild(r);
+    });
+    tab.appendChild(tbody);
+
+    // Cruzamento: a coluna por baixo do rato acende, como a linha (CSS).
+    tab.addEventListener('mouseover', event => {
+      const td = event.target.closest('td');
+      tab.querySelectorAll('.is-cruz').forEach(n => n.classList.remove('is-cruz'));
+      if (!td) return;
+      const i = Number(td.dataset.col) + 2;
+      tab.querySelectorAll(`tr > :nth-child(${i})`).forEach(n => n.classList.add('is-cruz'));
+    });
+    tab.addEventListener('mouseleave', () => tab.querySelectorAll('.is-cruz').forEach(n => n.classList.remove('is-cruz')));
+
+    caixa.appendChild(tab);
+    if (porPeso && opcoes.peso && doPeso < 0) {
+      caixa.appendChild(el('p', 'ip-aviso', 'O peso indicado (' + opcoes.peso + ' g) não está nesta tabela.'));
+    }
+    return caixa;
+  }
+
+  function listaVista(linhas) {
+    const dl = el('dl', 'ip-lista');
+    linhas.slice().sort(S.porNome).forEach(l => {
+      const linha = el('div', 'ip-lista__linha');
+      linha.appendChild(el('dt', null, l.nome));
+      linha.appendChild(el('dd', null, l.texto));
+      dl.appendChild(linha);
+    });
+    return dl;
+  }
+
+  function vista(doc, opcoes) {
+    const pesquisa = opcoes.pesquisa;
+    const docEncaixa = encaixa(doc.nome + ' ' + doc.fornecedor, pesquisa);
+    const secoes = doc.secoes.map((s, i) => {
+      const tituloEncaixa = docEncaixa || encaixa(s.titulo, pesquisa);
+      const linhas = s.linhas.filter(l => tituloEncaixa || encaixa(l.nome + ' ' + (l.texto || ''), pesquisa));
+      return { s, i, linhas };
+    }).filter(x => x.linhas.length);
+    if (pesquisa && !secoes.length) return null;
+
+    const cartao = el('section', 'ip-cartao ip-doc');
+    cartao.id = 'ip-doc-' + doc.id;
+    cartao.dataset.doc = doc.id;
+    cartao.dataset.nome = doc.nome;
+
+    const cab = el('header', 'ip-cartao__cab');
+    cab.appendChild(el('h3', null, doc.nome));
+    const origem = [doc.fornecedor, doc.data_tabela ? 'tabela de ' + dataPt(new Date(doc.data_tabela + 'T00:00')) : '']
+      .filter(Boolean).join(' · ');
+    if (origem) cab.appendChild(el('span', 'pp-dlegenda', origem));
+    const val = S.validade(doc);
+    if (val) {
+      cab.appendChild(el('span', 'ip-validade ' + (val.expirada ? 'is-expirada' : 'is-valida'),
+        val.expirada ? 'Fora de validade desde ' + dataPt(new Date(val.ate.getTime() + 86400000)) : 'Válida até ' + dataPt(val.ate)));
+    }
+    const dir = el('div', 'ip-cartao__dir');
+    if (doc.pdf_path) {
+      const pdf = el('button', 'pp-mini', 'Ver PDF original');
+      pdf.type = 'button';
+      pdf.addEventListener('click', () => abrirPdf(doc));
+      dir.appendChild(pdf);
+    }
+    cab.appendChild(dir);
+    cartao.appendChild(cab);
+
+    secoes.forEach(({ s, i, linhas }) => {
+      const bloco = el('section', 'ip-secao');
+      const h = el('h4', null, s.titulo);
+      if (s.tipo === 'grelha' && s.unidade) h.appendChild(el('span', 'ip-unidade', 'por ' + s.unidade));
+      bloco.appendChild(h);
+      bloco.appendChild(s.tipo === 'lista' ? listaVista(linhas) : grelhaVista(doc, s, i, linhas, opcoes));
+      cartao.appendChild(bloco);
+    });
+
+    if (doc.notas.length && !pesquisa) {
+      const ul = el('ul', 'ip-notas');
+      doc.notas.forEach(n => ul.appendChild(el('li', null, n)));
+      cartao.appendChild(ul);
+    }
+    return cartao;
+  }
+
+  async function abrirPdf(doc) {
+    // A janela abre-se já (dentro do clique), para o browser não a bloquear.
+    const janela = window.open('', '_blank');
+    try {
+      const url = await S.urlPdf(doc);
+      if (janela) janela.location.href = url; else window.location.href = url;
+    } catch (erro) {
+      if (janela) janela.close();
+      PedidosToast.erro(erro.message);
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // Edição
+  // -------------------------------------------------------------------
+  let dados = null;
+  let aoEstado = () => {};
+
+  const copia = doc => JSON.parse(JSON.stringify(doc));
+
+  async function gravar(doc, cartao) {
+    if (!doc.nome.trim()) {
+      aoEstado('A tabela precisa de um nome.', 'erro');
+      return;
+    }
+    aoEstado('A guardar...', 'aguarda');
+    try {
+      const guardado = await S.guardarDocumento(doc);
+      const i = dados.documentos.findIndex(d => d.id === doc.id);
+      if (i >= 0) dados.documentos[i] = guardado;
+      cartao.classList.add('is-guardada');
+      setTimeout(() => cartao.classList.remove('is-guardada'), 1200);
+      aoEstado('Guardado às ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }), 'ok');
+    } catch (erro) {
+      aoEstado(erro.message, 'erro');
+      PedidosToast.erro(erro.message);
+    }
+  }
+
+  function input(valor, rotulo, classe, tipo) {
+    const i = el('input', 'ip-ed-campo' + (classe ? ' ' + classe : ''));
+    i.type = tipo || 'text';
+    i.value = valor === null || valor === undefined ? '' : valor;
+    i.setAttribute('aria-label', rotulo);
+    return i;
+  }
+
+  function icone(texto, rotulo, fn) {
+    const b = el('button', 'pp-icone-mini', texto);
+    b.type = 'button';
+    b.title = rotulo;
+    b.setAttribute('aria-label', rotulo);
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  // Cada campo grava ao sair dele: liga o campo a uma função que mexe no doc.
+  function ligar(campo, doc, cartao, aplicar) {
+    campo.addEventListener('change', () => {
+      campo.removeAttribute('aria-invalid');
+      const erro = aplicar(campo.value);
+      if (erro) {
+        campo.setAttribute('aria-invalid', 'true');
+        campo.title = erro;
+        aoEstado(erro, 'erro');
+        return;
+      }
+      campo.title = '';
+      gravar(doc, cartao);
+    });
+    campo.addEventListener('keydown', event => { if (event.key === 'Enter') campo.blur(); });
+  }
+
+  function grelhaEdicao(doc, s, cartao) {
+    const caixa = el('div', 'ip-tab-caixa');
+    const tab = el('table', 'ip-tab is-edicao');
+    const thead = el('thead');
+    const tr = el('tr');
+    tr.appendChild(el('th', 'ip-tab__canto', unidade(s)));
+    s.colunas.forEach((c, i) => {
+      const th = el('th');
+      const campo = input(c, 'Coluna ' + (i + 1) + ' de ' + s.titulo, 'is-coluna');
+      ligar(campo, doc, cartao, v => { s.colunas[i] = v.trim(); });
+      th.appendChild(campo);
+      tr.appendChild(th);
+    });
+    tr.appendChild(el('th'));
+    thead.appendChild(tr);
+    tab.appendChild(thead);
+
+    const tbody = el('tbody');
+    s.linhas.forEach((l, li) => {
+      const r = el('tr');
+      const thNome = el('th');
+      const nome = input(l.nome, 'Nome da linha', 'is-nome');
+      ligar(nome, doc, cartao, v => { if (!v.trim()) return 'A linha precisa de um nome.'; l.nome = v.trim(); return null; });
+      thNome.appendChild(nome);
+      r.appendChild(thNome);
+      s.colunas.forEach((c, ci) => {
+        const td = el('td');
+        const campo = input(S.paraCampo(l.valores[ci]), l.nome + ', ' + c, 'is-valor');
+        campo.inputMode = 'decimal';
+        campo.placeholder = '-';
+        ligar(campo, doc, cartao, v => {
+          const lido = S.lerPreco(v);
+          if (lido.erro) return lido.erro;
+          l.valores[ci] = lido.valor;
+          return null;
+        });
+        td.appendChild(campo);
+        r.appendChild(td);
+      });
+      const tdX = el('td');
+      tdX.appendChild(icone('✕', 'Apagar ' + l.nome, () => {
+        s.linhas.splice(li, 1);
+        redesenharDoc(doc, cartao, true);
+      }));
+      r.appendChild(tdX);
+      tbody.appendChild(r);
+    });
+    tab.appendChild(tbody);
+    caixa.appendChild(tab);
+    return caixa;
+  }
+
+  function listaEdicao(doc, s, cartao) {
+    const caixa = el('div', 'ip-ed-lista');
+    s.linhas.forEach((l, li) => {
+      const linha = el('div', 'ip-ed-lista__linha');
+      const nome = input(l.nome, 'Custo', 'is-nome');
+      ligar(nome, doc, cartao, v => { if (!v.trim()) return 'A linha precisa de um nome.'; l.nome = v.trim(); return null; });
+      const texto = input(l.texto, 'Valor de ' + l.nome);
+      ligar(texto, doc, cartao, v => { l.texto = v.trim(); return null; });
+      linha.appendChild(nome);
+      linha.appendChild(texto);
+      linha.appendChild(icone('✕', 'Apagar ' + l.nome, () => {
+        s.linhas.splice(li, 1);
+        redesenharDoc(doc, cartao, true);
+      }));
+      caixa.appendChild(linha);
+    });
+    return caixa;
+  }
+
+  function blocoPdf(doc, cartao) {
+    const bloco = el('div', 'ip-ed-pdf');
+    const ficheiro = el('input');
+    ficheiro.type = 'file';
+    ficheiro.accept = 'application/pdf,.pdf';
+    ficheiro.className = 'hidden';
+    ficheiro.setAttribute('aria-label', 'Escolher o PDF de ' + doc.nome);
+    ficheiro.addEventListener('change', async () => {
+      const f = ficheiro.files && ficheiro.files[0];
+      if (!f) return;
+      aoEstado('A carregar o PDF...', 'aguarda');
+      try {
+        const novo = await S.carregarPdf(doc, f);
+        substituirDoc(novo, cartao);
+        aoEstado('PDF anexado.', 'ok');
+      } catch (erro) {
+        aoEstado(erro.message, 'erro');
+        PedidosToast.erro(erro.message);
+      }
+    });
+    bloco.appendChild(ficheiro);
+
+    if (doc.pdf_path) {
+      bloco.appendChild(el('span', 'ip-ed-pdf__nome', 'PDF original: ' + (doc.pdf_nome || 'documento.pdf')));
+      const ver = el('button', 'pp-mini', 'Ver');
+      ver.type = 'button';
+      ver.addEventListener('click', () => abrirPdf(doc));
+      bloco.appendChild(ver);
+      const trocar = el('button', 'pp-mini', 'Trocar');
+      trocar.type = 'button';
+      trocar.addEventListener('click', () => ficheiro.click());
+      bloco.appendChild(trocar);
+      const retirar = el('button', 'pp-mini', 'Retirar');
+      retirar.type = 'button';
+      retirar.addEventListener('click', async () => {
+        try {
+          const novo = await S.retirarPdf(doc);
+          substituirDoc(novo, cartao);
+          aoEstado('PDF retirado.', 'ok');
+        } catch (erro) {
+          PedidosToast.erro(erro.message);
+        }
+      });
+      bloco.appendChild(retirar);
+    } else {
+      bloco.appendChild(el('span', 'ip-ed-pdf__nome', 'Sem PDF original.'));
+      const anexar = el('button', 'pp-mini', 'Anexar PDF');
+      anexar.type = 'button';
+      anexar.addEventListener('click', () => ficheiro.click());
+      bloco.appendChild(anexar);
+    }
+    return bloco;
+  }
+
+  // Por ordem alfabética, como na consulta; a linha acabada de criar fica no
+  // fim, onde a pessoa a está a escrever, até ao próximo desenho.
+  function ordenarLinhas(doc) {
+    doc.secoes.forEach(s => {
+      s.linhas.sort((a, b) => (a._nova ? 1 : 0) - (b._nova ? 1 : 0) || S.porNome(a, b));
+    });
+  }
+
+  function cartaoEdicao(doc) {
+    ordenarLinhas(doc);
+    const cartao = el('section', 'ip-cartao is-edicao ip-doc');
+    cartao.dataset.doc = doc.id;
+    cartao.id = 'ip-ed-doc-' + doc.id;
+
+    const cab = el('header', 'ip-cartao__cab');
+    cab.appendChild(el('h3', null, doc.nome || 'Tabela de fornecedor'));
+    cartao.appendChild(cab);
+
+    const meta = el('div', 'ip-ed-meta');
+    const campo = (rotulo, controlo) => {
+      const l = el('label', 'ip-ed-meta__campo');
+      l.appendChild(el('span', null, rotulo));
+      l.appendChild(controlo);
+      return l;
+    };
+    const nome = input(doc.nome, 'Nome da tabela');
+    ligar(nome, doc, cartao, v => { if (!v.trim()) return 'A tabela precisa de um nome.'; doc.nome = v.trim(); cab.querySelector('h3').textContent = doc.nome; return null; });
+    const forn = input(doc.fornecedor, 'Fornecedor');
+    ligar(forn, doc, cartao, v => { doc.fornecedor = v.trim(); return null; });
+    const data = input(doc.data_tabela || '', 'Data da tabela', null, 'date');
+    ligar(data, doc, cartao, v => { doc.data_tabela = v || null; return null; });
+    const val = input(doc.validade_meses === null ? '' : doc.validade_meses, 'Validade em meses', 'is-curto', 'number');
+    val.min = '1';
+    val.max = '60';
+    ligar(val, doc, cartao, v => {
+      if (v === '') { doc.validade_meses = null; return null; }
+      const n = Number(v);
+      if (!Number.isInteger(n) || n < 1 || n > 60) return 'A validade é um número de meses, de 1 a 60.';
+      doc.validade_meses = n;
+      return null;
+    });
+    meta.appendChild(campo('Nome', nome));
+    meta.appendChild(campo('Fornecedor', forn));
+    meta.appendChild(campo('Data da tabela', data));
+    meta.appendChild(campo('Validade (meses)', val));
+    cartao.appendChild(meta);
+    cartao.appendChild(blocoPdf(doc, cartao));
+
+    doc.secoes.forEach(s => {
+      const bloco = el('section', 'ip-secao');
+      const h = el('div', 'ip-ed-secao__cab');
+      const titulo = input(s.titulo, 'Título da secção', 'is-titulo');
+      ligar(titulo, doc, cartao, v => { s.titulo = v.trim(); return null; });
+      h.appendChild(titulo);
+      if (s.tipo === 'grelha') {
+        const un = input(s.unidade, 'Unidade de ' + s.titulo, 'is-curto');
+        un.placeholder = 'peça, kg';
+        ligar(un, doc, cartao, v => { s.unidade = v.trim(); return null; });
+        const l = el('label', 'ip-ed-meta__campo is-inline');
+        l.appendChild(el('span', null, '€ por'));
+        l.appendChild(un);
+        h.appendChild(l);
+        if (s.colunas.length > 1) {
+          const marca = el('label', 'ip-ed-maximo');
+          const caixa = el('input');
+          caixa.type = 'checkbox';
+          caixa.checked = !!s.maximo;
+          caixa.addEventListener('change', () => { s.maximo = caixa.checked; gravar(doc, cartao); });
+          marca.appendChild(caixa);
+          marca.appendChild(document.createTextNode('Destacar o preço mais caro de cada linha'));
+          h.appendChild(marca);
+        }
+      }
+      bloco.appendChild(h);
+      bloco.appendChild(s.tipo === 'grelha' ? grelhaEdicao(doc, s, cartao) : listaEdicao(doc, s, cartao));
+      const mais = el('button', 'ip-ed-mais', '+ Linha em ' + (s.titulo || 'esta secção'));
+      mais.type = 'button';
+      mais.addEventListener('click', () => {
+        s.linhas.push(s.tipo === 'grelha'
+          ? { nome: 'Nova linha', valores: s.colunas.map(() => null), _nova: true }
+          : { nome: 'Novo custo', texto: '', _nova: true });
+        redesenharDoc(doc, cartao, true, s.tipo === 'grelha' ? 'tbody tr:last-child .is-nome' : '.ip-ed-lista__linha:last-child .is-nome', bloco);
+      });
+      bloco.appendChild(mais);
+      cartao.appendChild(bloco);
+    });
+
+    const notas = el('label', 'ip-ed-meta__campo is-notas');
+    notas.appendChild(el('span', null, 'Notas (uma por linha)'));
+    const ta = el('textarea', 'ip-ed-campo is-notas');
+    ta.rows = Math.max(2, doc.notas.length);
+    ta.value = doc.notas.join('\n');
+    ta.setAttribute('aria-label', 'Notas de ' + doc.nome);
+    ta.addEventListener('change', () => {
+      doc.notas = ta.value.split('\n').map(n => n.trim()).filter(Boolean);
+      gravar(doc, cartao);
+    });
+    notas.appendChild(ta);
+    cartao.appendChild(notas);
+    return cartao;
+  }
+
+  // Depois de acrescentar ou tirar uma linha: grava e desenha outra vez.
+  function redesenharDoc(doc, cartao, gravarJa, focar, bloco) {
+    const iSecao = bloco ? [...cartao.querySelectorAll('.ip-secao')].indexOf(bloco) : -1;
+    const novo = cartaoEdicao(doc);
+    cartao.replaceWith(novo);
+    if (gravarJa) gravar(doc, novo);
+    if (focar && iSecao >= 0) {
+      const alvo = novo.querySelectorAll('.ip-secao')[iSecao].querySelector(focar);
+      if (alvo) { alvo.focus(); alvo.select(); }
+    }
+  }
+
+  function substituirDoc(guardado, cartao) {
+    const i = dados.documentos.findIndex(d => d.id === guardado.id);
+    if (i >= 0) dados.documentos[i] = guardado;
+    cartao.replaceWith(cartaoEdicao(copia(guardado)));
+  }
+
+  function edicao(alvo, partilhados, opcoes) {
+    dados = partilhados;
+    aoEstado = (opcoes && opcoes.aoEstado) || (() => {});
+    const bloco = el('div', 'ip-docs');
+    bloco.appendChild(el('h2', 'ip-ed-titulo', 'Tabelas de fornecedor'));
+    dados.documentos.forEach(d => bloco.appendChild(cartaoEdicao(copia(d))));
+    alvo.appendChild(bloco);
+  }
+
+  return { vista, edicao };
+})();
+
+</script>
+  <script>
+// Ideia de preço: a visualização.
+//
+// Feita para consultar depressa:
+//  - um índice no topo salta para qualquer tabela num clique;
+//  - a pesquisa procura em todas as tabelas ao mesmo tempo (perdas, margens,
+//    tinturaria e as tabelas dos fornecedores) e mostra só o que encaixa;
+//  - nas tabelas por peso da peça, escrever o peso destaca a coluna certa.
+//
+// Gestão visual: cada perda e cada preço é uma barra com o comprimento do
+// seu valor, todas na mesma escala dentro da tabela; nas perdas a cor
+// aquece com o valor. As margens são números grandes, e o que está por
+// decidir aparece como tal ("A avaliar"), em vez de um zero.
+//
+// Esta vista é só para ler: editar faz-se na vista Edição (botão no topo).
+// Todas as tabelas estão por ordem alfabética.
+const IdeiaVista = (() => {
+  const S = IdeiaStorage;
+  const U = PedidosUtil;
+  const el = U.el;
+
+  // Ordem escolhida nas tabelas que a deixam mudar (t.maior): 'alfabetica'
+  // ou 'maior'. A tinturaria está sempre por ordem alfabética.
+  const ordens = { perdas: 'alfabetica' };
+
+  const norm = s => U.normalizar(String(s || ''));
+  const encaixa = (texto, pesquisa) => !pesquisa || norm(texto).includes(pesquisa);
+
+  // Três tons do mesmo castanho da app: baixa, média, alta (só nas perdas).
+  const tom = (t, v) => (t.valor === 'preco' ? 'preco' : v >= 6 ? 'alta' : v >= 4 ? 'media' : 'baixa');
+
+  const valorParaOrdenar = (t, l) => {
+    if (l.variantes.length) return Math.max.apply(null, l.variantes.map(v => (v.percentagem === null ? -1 : v.percentagem)));
+    const v = S.valorDe(t, l);
+    return v === null ? -1 : v;
+  };
+
+  function barra(t, valor, escala) {
+    const pista = el('div', 'ip-pista');
+    if (valor === null) {
+      pista.classList.add('is-avaliar');
+      pista.appendChild(el('span', 'ip-avaliar', 'A avaliar'));
+      return pista;
+    }
+    const fill = el('span', 'ip-fill is-' + tom(t, valor));
+    fill.style.width = (escala ? valor / escala * 100 : 0) + '%';
+    fill.dataset.valor = String(valor);
+    pista.appendChild(fill);
+    return pista;
+  }
+
+  function contagem(t, n) {
+    return n + ' ' + (n === 1 ? t.contagem[0] : t.contagem[1]);
+  }
+
+  // -------------------------------------------------------------------
+  // Tabelas com barras: perdas e tinturaria
+  // -------------------------------------------------------------------
+  function cartaoValores(t, todas, opcoes) {
+    const pesquisa = opcoes.pesquisa;
+    const tituloEncaixa = encaixa(t.titulo, pesquisa);
+    const lista = S.daTabela(todas, t.chave).filter(l => tituloEncaixa
+      || encaixa([l.nome, l.observacoes].concat(l.variantes.map(v => v.nome)).join(' '), pesquisa));
+    if (pesquisa && !lista.length) return null;
+
+    const cartao = el('section', 'ip-cartao');
+    cartao.dataset.tabela = t.chave;
+    cartao.id = 'ip-' + t.chave;
+
+    // Escala: todos os valores da tabela (não só os filtrados), para uma
+    // barra não mudar de tamanho por se estar a pesquisar.
+    const valores = [];
+    S.daTabela(todas, t.chave).forEach(l => {
+      if (l.variantes.length) l.variantes.forEach(v => { if (v.percentagem !== null) valores.push(v.percentagem); });
+      else if (S.valorDe(t, l) !== null) valores.push(S.valorDe(t, l));
+    });
+    const escala = Math.max.apply(null, valores.concat([t.valor === 'preco' ? 0.01 : 1]));
+
+    const cab = el('header', 'ip-cartao__cab');
+    cab.appendChild(el('h3', null, t.titulo));
+    cab.appendChild(el('span', 'pp-dlegenda', contagem(t, lista.length)
+      + (valores.length && !pesquisa
+        ? ' · entre ' + S.formatar(t, Math.min.apply(null, valores)) + ' e ' + S.formatar(t, Math.max.apply(null, valores))
+        : '')));
+    const dir = el('div', 'ip-cartao__dir');
+    if (t.maior) {
+      const seg = el('div', 'pp-vistas ip-ordem');
+      seg.setAttribute('role', 'group');
+      seg.setAttribute('aria-label', 'Ordenar ' + t.curto);
+      [['alfabetica', 'A a Z'], ['maior', t.maior]].forEach(([k, texto]) => {
+        const b = el('button', 'pp-vista' + (ordens[t.chave] === k ? ' is-ativo' : ''), texto);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', String(ordens[t.chave] === k));
+        b.addEventListener('click', () => { ordens[t.chave] = k; opcoes.redesenhar(); });
+        seg.appendChild(b);
+      });
+      dir.appendChild(seg);
+    }
+    cab.appendChild(dir);
+    cartao.appendChild(cab);
+
+    if (!lista.length) {
+      cartao.appendChild(el('p', 'pp-dcard__nota', 'Ainda não há linhas.'));
+      return cartao;
+    }
+
+    const ordenada = t.maior && ordens[t.chave] === 'maior'
+      ? lista.slice().sort((a, b) => valorParaOrdenar(t, b) - valorParaOrdenar(t, a))
+      : lista;
+
+    const corpo = el('div', 'ip-perdas');
+    ordenada.forEach(l => {
+      const linha = el('div', 'ip-perda');
+      linha.dataset.id = l.id;
+
+      const nome = el('span', 'ip-perda__nome');
+      nome.appendChild(el('b', null, l.nome));
+      if (l.observacoes) nome.appendChild(el('small', null, l.observacoes));
+      linha.appendChild(nome);
+
+      if (l.variantes.length) {
+        const vs = el('span', 'ip-variantes');
+        l.variantes.forEach(v => {
+          const vl = el('span', 'ip-variante');
+          vl.appendChild(el('span', 'ip-variante__nome', v.nome || 'Sem nome'));
+          vl.appendChild(barra(t, v.percentagem, escala));
+          vl.appendChild(el('b', 'ip-valor', S.formatar(t, v.percentagem) || '-'));
+          vs.appendChild(vl);
+        });
+        linha.appendChild(vs);
+      } else {
+        const v = S.valorDe(t, l);
+        linha.appendChild(barra(t, v, escala));
+        linha.appendChild(el('b', 'ip-valor', S.formatar(t, v) || ''));
+      }
+      corpo.appendChild(linha);
+    });
+    cartao.appendChild(corpo);
+
+    if (t.chave === 'perdas') {
+      const legenda = el('div', 'ip-legenda');
+      [['baixa', 'até 3%'], ['media', '4% a 5%'], ['alta', '6% ou mais']].forEach(([k, texto]) => {
+        const item = el('span', 'ip-legenda__item');
+        item.appendChild(el('i', 'ip-fill is-' + k));
+        item.appendChild(document.createTextNode(texto));
+        legenda.appendChild(item);
+      });
+      cartao.appendChild(legenda);
+    }
+    return cartao;
+  }
+
+  // -------------------------------------------------------------------
+  // Margens: um número grande por cartão
+  // -------------------------------------------------------------------
+  function cartaoMargens(t, todas, opcoes) {
+    const pesquisa = opcoes.pesquisa;
+    const tituloEncaixa = encaixa(t.titulo, pesquisa);
+    const lista = S.daTabela(todas, t.chave).filter(l => tituloEncaixa || encaixa(l.nome + ' ' + l.observacoes, pesquisa));
+    if (pesquisa && !lista.length) return null;
+
+    const cartao = el('section', 'ip-cartao');
+    cartao.dataset.tabela = t.chave;
+    cartao.id = 'ip-' + t.chave;
+
+    const cab = el('header', 'ip-cartao__cab');
+    cab.appendChild(el('h3', null, t.titulo));
+    const porAvaliar = lista.filter(l => l.percentagem === null).length;
+    cab.appendChild(el('span', 'pp-dlegenda', contagem(t, lista.length) + (porAvaliar ? ' · ' + porAvaliar + ' a avaliar' : '')));
+    cartao.appendChild(cab);
+
+    if (!lista.length) {
+      cartao.appendChild(el('p', 'pp-dcard__nota', 'Ainda não há margens.'));
+      return cartao;
+    }
+
+    const grelha = el('div', 'ip-margens');
+    lista.forEach(l => {
+      const tile = el('div', 'ip-margem' + (l.percentagem === null ? ' is-avaliar' : ''));
+      tile.dataset.id = l.id;
+      tile.appendChild(el('span', 'ip-margem__valor', S.pct(l.percentagem) || 'A avaliar'));
+      tile.appendChild(el('span', 'ip-margem__nome', l.nome));
+      if (l.observacoes) tile.appendChild(el('small', 'ip-margem__nota', l.observacoes));
+      grelha.appendChild(tile);
+    });
+    cartao.appendChild(grelha);
+    return cartao;
+  }
+
+  // -------------------------------------------------------------------
+  // Índice e rodapé
+  // -------------------------------------------------------------------
+  function indice(cartoes) {
+    const nav = el('nav', 'ip-indice');
+    nav.setAttribute('aria-label', 'Ir para a tabela');
+    cartoes.forEach(([id, texto]) => {
+      const b = el('button', 'pp-gp', texto);
+      b.type = 'button';
+      b.addEventListener('click', () => {
+        const alvo = document.getElementById(id);
+        if (alvo) alvo.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      nav.appendChild(b);
+    });
+    return nav;
+  }
+
+  function rodape(dados) {
+    const todas = dados.linhas.concat(dados.documentos);
+    const datas = todas.filter(l => l.updated_at).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+    if (!datas.length) return null;
+    const u = datas[0];
+    return el('p', 'ip-rodape', 'Última alteração a ' + U.dataHora(u.updated_at) + (u.updated_by ? ' por ' + u.updated_by : '') + '.');
+  }
+
+  function desenhar(raiz, dados, opcoes) {
+    const o = Object.assign({}, opcoes, { pesquisa: norm(opcoes.pesquisa).trim() });
+    raiz.innerHTML = '';
+    const T = chave => S.TABELAS.find(t => t.chave === chave);
+
+    const perdas = cartaoValores(T('perdas'), dados.linhas, o);
+    const margens = cartaoMargens(T('margens'), dados.linhas, o);
+    const tinturaria = cartaoValores(T('tinturaria'), dados.linhas, o);
+    const docs = dados.documentos.map(d => IdeiaDocumentos.vista(d, o)).filter(Boolean);
+
+    const presentes = [];
+    if (perdas) presentes.push(['ip-perdas', T('perdas').curto]);
+    if (margens) presentes.push(['ip-margens', T('margens').curto]);
+    if (tinturaria) presentes.push(['ip-tinturaria', T('tinturaria').curto]);
+    docs.forEach(c => presentes.push([c.id, c.dataset.nome]));
+
+    if (!presentes.length) {
+      raiz.appendChild(el('p', 'ip-vazio', 'Nada encontrado para "' + opcoes.pesquisa.trim() + '".'));
+      return;
+    }
+    if (presentes.length > 1) raiz.appendChild(indice(presentes));
+
+    // À esquerda as perdas e, por baixo, as margens; à direita a tinturaria.
+    // As duas colunas acabam à mesma altura: as margens esticam até lá.
+    if (perdas || margens || tinturaria) {
+      const esquerda = perdas || margens;
+      const grelha = el('div', 'ip-grelha' + (esquerda && tinturaria ? '' : ' is-uma'));
+      if (esquerda) {
+        const coluna = el('div', 'ip-coluna');
+        if (perdas) coluna.appendChild(perdas);
+        if (margens) {
+          margens.classList.add('is-estica');
+          coluna.appendChild(margens);
+        }
+        grelha.appendChild(coluna);
+      }
+      if (tinturaria) grelha.appendChild(tinturaria);
+      raiz.appendChild(grelha);
+    }
+    if (docs.length) {
+      const bloco = el('div', 'ip-docs');
+      docs.forEach(c => bloco.appendChild(c));
+      raiz.appendChild(bloco);
+    }
+    const r = rodape(dados);
+    if (r) raiz.appendChild(r);
+  }
+
+  return { desenhar };
+})();
+
+</script>
+  <script>
+// Ideia de preço: a edição das tabelas.
+//
+// Tudo se edita no sítio, sem botão de guardar: cada campo grava ao sair
+// dele, como a nota de um pedido. Acrescentar é um clique (a linha nova
+// abre com o cursor no nome) e apagar é um clique com "Desfazer" no aviso.
+// As perdas e a tinturaria estão sempre por ordem alfabética; só as margens
+// se ordenam à mão, com as setas. Um valor em branco fica "a avaliar".
+//
+// Nas tabelas que o permitem (as perdas), uma linha pode ter um valor por
+// tipo de malha (ex.: Ramular - Jersey 5%, Outros 3%).
+const IdeiaEdicao = (() => {
+  const S = IdeiaStorage;
+  const U = PedidosUtil;
+  const el = U.el;
+
+  let dados = null;         // { linhas: [...] }, partilhado com a visualização
+  let raiz = null;
+  let aoEstado = () => {};
+
+  // -------------------------------------------------------------------
+  // Gravar
+  // -------------------------------------------------------------------
+  function marcarErro(campo, mensagem) {
+    campo.setAttribute('aria-invalid', 'true');
+    campo.title = mensagem;
+    aoEstado(mensagem, 'erro');
+  }
+
+  function limparErro(campo) {
+    campo.removeAttribute('aria-invalid');
+    campo.title = '';
+  }
+
+  async function gravar(linha, no) {
+    if (!linha.nome.trim()) {
+      const nome = no.querySelector('[data-campo="nome"]');
+      if (nome) marcarErro(nome, 'Dá um nome à linha antes de a guardar.');
+      return false;
+    }
+    const repetida = dados.linhas.some(l => l.id !== linha.id && l.tabela === linha.tabela
+      && l.nome.trim().toLowerCase() === linha.nome.trim().toLowerCase());
+    if (repetida) {
+      const nome = no.querySelector('[data-campo="nome"]');
+      if (nome) marcarErro(nome, 'Já existe uma linha com esse nome nesta tabela.');
+      return false;
+    }
+    aoEstado('A guardar...', 'aguarda');
+    try {
+      const guardada = await S.guardar(linha);
+      const i = dados.linhas.findIndex(l => l.id === linha.id);
+      if (i >= 0) dados.linhas[i] = guardada; else dados.linhas.push(guardada);
+      linha.novo = false;
+      no.classList.remove('is-nova');
+      no.classList.add('is-guardada');
+      setTimeout(() => no.classList.remove('is-guardada'), 1200);
+      aoEstado('Guardado às ' + new Date().toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }), 'ok');
+      return true;
+    } catch (erro) {
+      aoEstado(erro.message, 'erro');
+      PedidosToast.erro(erro.message);
+      return false;
+    }
+  }
+
+  // Lê os campos da linha para o objeto. Devolve false se algum não é válido.
+  function lerLinha(t, linha, no) {
+    let valido = true;
+    const nome = no.querySelector('[data-campo="nome"]');
+    linha.nome = nome.value;
+    limparErro(nome);
+
+    const obs = no.querySelector('[data-campo="obs"]');
+    linha.observacoes = obs.value;
+
+    if (linha.variantes.length) {
+      linha.variantes = [...no.querySelectorAll('.ip-ed-variante')].map(v => {
+        const campoPct = v.querySelector('[data-campo="vpct"]');
+        const lido = S.lerPct(campoPct.value);
+        limparErro(campoPct);
+        if (lido.erro) { marcarErro(campoPct, lido.erro); valido = false; }
+        return { nome: v.querySelector('[data-campo="vnome"]').value.trim(), percentagem: lido.erro ? null : lido.valor };
+      });
+      linha.percentagem = null;
+    } else {
+      const campoPct = no.querySelector('[data-campo="pct"]');
+      const lido = t.valor === 'preco' ? S.lerPreco(campoPct.value) : S.lerPct(campoPct.value);
+      limparErro(campoPct);
+      if (lido.erro) { marcarErro(campoPct, lido.erro); valido = false; }
+      else if (t.valor === 'preco') linha.preco = lido.valor;
+      else linha.percentagem = lido.valor;
+    }
+    return valido;
+  }
+
+  async function aoMudar(t, linha, no) {
+    if (!lerLinha(t, linha, no)) return;
+    // Uma linha nova sem nome ainda não se grava: está a ser escrita.
+    if (linha.novo && !linha.nome.trim()) return;
+    await gravar(linha, no);
+  }
+
+  // -------------------------------------------------------------------
+  // Peças da linha
+  // -------------------------------------------------------------------
+  function campoTexto(valor, campo, rotulo, placeholder) {
+    const i = el('input', 'ip-ed-campo');
+    i.type = 'text';
+    i.value = valor || '';
+    i.dataset.campo = campo;
+    i.setAttribute('aria-label', rotulo);
+    if (placeholder) i.placeholder = placeholder;
+    return i;
+  }
+
+  function campoPct(valor, campo, rotulo, sinal) {
+    const caixa = el('span', 'ip-pct');
+    const i = el('input', 'ip-ed-campo');
+    i.type = 'text';
+    i.inputMode = 'decimal';
+    i.value = S.paraCampo(valor);
+    i.placeholder = 'A avaliar';
+    i.dataset.campo = campo;
+    i.setAttribute('aria-label', rotulo);
+    caixa.appendChild(i);
+    caixa.appendChild(el('span', 'ip-pct__sinal', sinal || '%'));
+    return caixa;
+  }
+
+  function icone(texto, rotulo, fn, classe) {
+    const b = el('button', 'pp-icone-mini ' + (classe || ''), texto);
+    b.type = 'button';
+    b.title = rotulo;
+    b.setAttribute('aria-label', rotulo);
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function celulaValor(t, linha, no) {
+    const celula = el('div', 'ip-ed-valor');
+    if (linha.variantes.length) {
+      const lista = el('div', 'ip-ed-variantes');
+      linha.variantes.forEach((v, i) => {
+        const vl = el('div', 'ip-ed-variante');
+        vl.appendChild(campoTexto(v.nome, 'vnome', 'Tipo de malha', 'Tipo de malha'));
+        vl.appendChild(campoPct(v.percentagem, 'vpct', 'Perda de ' + (v.nome || 'este tipo')));
+        vl.appendChild(icone('✕', 'Tirar este tipo', () => {
+          lerLinha(t, linha, no);
+          linha.variantes.splice(i, 1);
+          // Com um só tipo, deixa de haver divisão: fica esse valor.
+          if (linha.variantes.length === 1) {
+            linha.percentagem = linha.variantes[0].percentagem;
+            linha.variantes = [];
+          }
+          substituir(t, linha, no, true);
+        }));
+        lista.appendChild(vl);
+      });
+      celula.appendChild(lista);
+      const mais = el('button', 'pp-mini', '+ Tipo');
+      mais.type = 'button';
+      mais.addEventListener('click', () => {
+        lerLinha(t, linha, no);
+        linha.variantes.push({ nome: '', percentagem: null });
+        substituir(t, linha, no, false, '.ip-ed-variante:last-child [data-campo="vnome"]');
+      });
+      celula.appendChild(mais);
+    } else {
+      celula.appendChild(t.valor === 'preco'
+        ? campoPct(linha.preco, 'pct', t.rotuloValor + ' de ' + (linha.nome || 'esta linha'), '€')
+        : campoPct(linha.percentagem, 'pct', t.rotuloValor + ' de ' + (linha.nome || 'esta linha')));
+      if (t.variantes) {
+        const dividir = el('button', 'pp-mini', 'Por tipo');
+        dividir.type = 'button';
+        dividir.title = 'Um valor diferente por tipo de malha (ex.: Jersey e Outros)';
+        dividir.addEventListener('click', () => {
+          lerLinha(t, linha, no);
+          linha.variantes = [
+            { nome: 'Jersey', percentagem: linha.percentagem },
+            { nome: 'Outros', percentagem: linha.percentagem }
+          ];
+          linha.percentagem = null;
+          substituir(t, linha, no, true, '[data-campo="vpct"]');
+        });
+        celula.appendChild(dividir);
+      }
+    }
+    return celula;
+  }
+
+  // Volta a desenhar uma linha (quando muda de valor único para tipos).
+  function substituir(t, linha, no, gravarJa, focar) {
+    const novo = linhaEditavel(t, linha);
+    no.replaceWith(novo);
+    if (focar) {
+      const alvo = novo.querySelector(focar);
+      if (alvo) alvo.focus();
+    }
+    if (gravarJa && !linha.novo) gravar(linha, novo);
+  }
+
+  function linhaEditavel(t, linha) {
+    const no = el('div', 'ip-ed-linha' + (linha.novo ? ' is-nova' : ''));
+    no.dataset.id = linha.id;
+    no.dataset.nome = linha.nome;
+
+    const mover = el('div', 'ip-ed-mover');
+    if (t.ordem === 'manual') {
+      mover.appendChild(icone('↑', 'Subir', () => trocar(t, linha, -1)));
+      mover.appendChild(icone('↓', 'Descer', () => trocar(t, linha, 1)));
+    }
+    no.appendChild(mover);
+
+    no.appendChild(campoTexto(linha.nome, 'nome', t.coluna, 'Nome'));
+    no.appendChild(celulaValor(t, linha, no));
+    no.appendChild(campoTexto(linha.observacoes, 'obs', 'Observações', 'Observações'));
+    no.appendChild(icone('✕', 'Apagar ' + (linha.nome || 'esta linha'), () => apagar(t, linha, no), 'ip-ed-apagar'));
+
+    // Grava ao sair de um campo que mudou. Enter também conta como sair.
+    no.addEventListener('change', event => {
+      if (event.target.matches('input')) aoMudar(t, linha, no);
+    });
+    no.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && event.target.matches('input')) event.target.blur();
+    });
+    return no;
+  }
+
+  // -------------------------------------------------------------------
+  // Acrescentar, apagar, ordenar
+  // -------------------------------------------------------------------
+  function acrescentar(t) {
+    const daTabela = S.daTabela(dados.linhas, t.chave);
+    const linha = {
+      id: S.novoId(), tabela: t.chave, ordem: (daTabela.length ? daTabela[daTabela.length - 1].ordem : 0) + 1,
+      nome: '', percentagem: null, preco: null, variantes: [], observacoes: '', novo: true
+    };
+    const corpo = raiz.querySelector(`.ip-cartao[data-tabela="${t.chave}"] .ip-ed-corpo`);
+    const vazio = corpo.querySelector('.pp-dcard__nota');
+    if (vazio) vazio.remove();
+    const no = linhaEditavel(t, linha);
+    corpo.appendChild(no);
+    no.querySelector('[data-campo="nome"]').focus();
+  }
+
+  async function apagar(t, linha, no) {
+    if (linha.novo) { no.remove(); return; }
+    const copia = Object.assign({}, linha, { variantes: linha.variantes.map(v => Object.assign({}, v)) });
+    try {
+      await S.apagar(linha.id);
+    } catch (erro) {
+      PedidosToast.erro(erro.message);
+      return;
+    }
+    dados.linhas = dados.linhas.filter(l => l.id !== linha.id);
+    desenharTabela(t);
+    aoEstado('Apagado.', 'ok');
+    PedidosToast.ok(`Linha "${linha.nome}" apagada.`, {
+      rotulo: 'Desfazer',
+      fn: async () => {
+        try {
+          const reposta = await S.guardar(copia);
+          dados.linhas.push(reposta);
+          desenharTabela(t);
+          aoEstado('Reposto.', 'ok');
+        } catch (erro) {
+          PedidosToast.erro(erro.message);
+        }
+      }
+    });
+  }
+
+  async function trocar(t, linha, sentido) {
+    const lista = S.daTabela(dados.linhas, t.chave);
+    const i = lista.findIndex(l => l.id === linha.id);
+    const j = i + sentido;
+    if (i < 0 || j < 0 || j >= lista.length) return;
+    const a = lista[i];
+    const b = lista[j];
+    // Ordens iguais (linhas antigas) trocam-se por posição, não por valor.
+    const oa = a.ordem === b.ordem ? j + 1 : b.ordem;
+    const ob = a.ordem === b.ordem ? i + 1 : a.ordem;
+    aoEstado('A guardar...', 'aguarda');
+    try {
+      const [na, nb] = await Promise.all([
+        S.guardar(Object.assign({}, a, { ordem: oa })),
+        S.guardar(Object.assign({}, b, { ordem: ob }))
+      ]);
+      dados.linhas = dados.linhas.map(l => (l.id === na.id ? na : l.id === nb.id ? nb : l));
+      desenharTabela(t, a.id, sentido < 0 ? 'Subir' : 'Descer');
+      aoEstado('Ordem guardada.', 'ok');
+    } catch (erro) {
+      PedidosToast.erro(erro.message);
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // Desenho
+  // -------------------------------------------------------------------
+  function cartaoTabela(t) {
+    const cartao = el('section', 'ip-cartao is-edicao');
+    cartao.dataset.tabela = t.chave;
+    const cab = el('header', 'ip-cartao__cab');
+    cab.appendChild(el('h3', null, t.titulo));
+    cab.appendChild(el('span', 'pp-dlegenda ip-ed-contagem'));
+    if (t.ordem === 'alfabetica') cab.appendChild(el('span', 'pp-dlegenda', '· por ordem alfabética'));
+    cartao.appendChild(cab);
+
+    const titulos = el('div', 'ip-ed-linha is-cabecalho');
+    ['', t.coluna, t.rotuloValor + (t.valor === 'preco' ? ' (€)' : ''), 'Observações', '']
+      .forEach(x => titulos.appendChild(el('span', null, x)));
+    cartao.appendChild(titulos);
+
+    cartao.appendChild(el('div', 'ip-ed-corpo'));
+
+    const mais = el('button', 'ip-ed-mais', '+ ' + t.novo);
+    mais.type = 'button';
+    mais.addEventListener('click', () => acrescentar(t));
+    cartao.appendChild(mais);
+    return cartao;
+  }
+
+  function desenharTabela(t, focoId, focoBotao) {
+    const cartao = raiz.querySelector(`.ip-cartao[data-tabela="${t.chave}"]`);
+    const corpo = cartao.querySelector('.ip-ed-corpo');
+    corpo.innerHTML = '';
+    const lista = S.daTabela(dados.linhas, t.chave);
+    cartao.querySelector('.ip-ed-contagem').textContent = lista.length + (lista.length === 1 ? ' linha' : ' linhas');
+    if (!lista.length) corpo.appendChild(el('p', 'pp-dcard__nota', 'Ainda não há linhas. Acrescenta ' + t.artigo + '.'));
+    lista.forEach(l => corpo.appendChild(linhaEditavel(t, Object.assign({}, l, {
+      variantes: l.variantes.map(v => Object.assign({}, v))
+    }))));
+    if (focoId) {
+      const no = corpo.querySelector(`.ip-ed-linha[data-id="${focoId}"]`);
+      const b = no && no.querySelector(`[aria-label="${focoBotao}"]`);
+      if (b) b.focus();
+    }
+  }
+
+  function desenhar(alvo, partilhados, opcoes) {
+    raiz = alvo;
+    dados = partilhados;
+    aoEstado = (opcoes && opcoes.aoEstado) || (() => {});
+    raiz.innerHTML = '';
+    raiz.appendChild(el('p', 'ip-ajuda',
+      'As alterações gravam-se sozinhas ao sair de cada campo. Um valor em branco fica "a avaliar".'));
+    const grelha = el('div', 'ip-ed-grelha');
+    S.TABELAS.forEach(t => grelha.appendChild(cartaoTabela(t)));
+    raiz.appendChild(grelha);
+    S.TABELAS.forEach(t => desenharTabela(t));
+    IdeiaDocumentos.edicao(raiz, dados, { aoEstado });
+
+    if (opcoes && opcoes.doc) {
+      const doc = raiz.querySelector(`#ip-ed-doc-${CSS.escape(opcoes.doc)}`);
+      if (doc) doc.scrollIntoView({ block: 'start' });
+      return;
+    }
+
+    // Vindo de um clique na visualização: a linha certa, com o cursor lá.
+    if (opcoes && opcoes.tabela) {
+      const cartao = raiz.querySelector(`.ip-cartao[data-tabela="${opcoes.tabela}"]`);
+      const no = opcoes.id && cartao.querySelector(`.ip-ed-linha[data-id="${opcoes.id}"]`);
+      const alvoFoco = no
+        ? (no.querySelector('[data-campo="pct"]') || no.querySelector('[data-campo="vpct"]'))
+        : null;
+      (no || cartao).scrollIntoView({ block: 'center' });
+      if (no) {
+        no.classList.add('is-destaque');
+        if (alvoFoco) alvoFoco.focus();
+      }
+    }
+  }
+
+  return { desenhar };
+})();
+
+</script>
+  <script>
+// Secção "Ideia de preço": arranque e as duas vistas (Visualização e Edição).
+//
+// Regista-se em window.AppSecoes, como os Pedidos de preço: tem separador
+// próprio sem mexer nas outras secções. Os dados carregam-se uma vez e as
+// duas vistas trabalham sobre os mesmos objetos, por isso o que se edita
+// aparece logo na visualização.
+//
+// Na visualização, a barra tem a pesquisa (procura em todas as tabelas) e
+// o peso da peça (destaca a coluna certa nas tabelas por peso).
+const IdeiaApp = (() => {
+  const U = PedidosUtil;
+  const el = U.el;
+
+  const vistaVer = document.getElementById('ideiaVistaVer');
+  const vistaEditar = document.getElementById('ideiaVistaEditar');
+  const raizVer = document.getElementById('ideiaVisualizacao');
+  const raizEditar = document.getElementById('ideiaEdicao');
+  const estadoEl = document.getElementById('ideiaEstado');
+  const consulta = document.getElementById('ideiaConsulta');
+  const pesquisaEl = document.getElementById('ideiaPesquisa');
+  const pesoEl = document.getElementById('ideiaPeso');
+
+  const dados = { linhas: [], documentos: [] };
+  let iniciado = false;
+  let podeEditar = false;
+  let carregado = false;
+  let erro = null;
+  let vista = 'ver';
+
+  function estado(texto, tipo) {
+    estadoEl.textContent = texto || '';
+    estadoEl.className = 'ip-estado' + (tipo ? ' is-' + tipo : '');
+  }
+
+  function erroCarga(raiz) {
+    raiz.innerHTML = '';
+    const b = el('div', 'pp-hero');
+    b.appendChild(el('h3', null, 'Não foi possível carregar as tabelas'));
+    b.appendChild(el('p', null, erro));
+    const t = el('button', 'primary', 'Tentar de novo');
+    t.type = 'button';
+    t.addEventListener('click', () => carregar().then(() => mostrar(vista)));
+    b.appendChild(t);
+    raiz.appendChild(b);
+  }
+
+  async function carregar() {
+    try {
+      const [linhas, documentos] = await Promise.all([IdeiaStorage.listar(), IdeiaStorage.listarDocumentos()]);
+      dados.linhas = linhas;
+      dados.documentos = documentos;
+      erro = null;
+      carregado = true;
+    } catch (e) {
+      erro = e.message;
+    }
+  }
+
+  const peso = () => {
+    const n = Number(String(pesoEl.value || '').replace(',', '.'));
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
+
+  function desenharVista() {
+    IdeiaVista.desenhar(raizVer, dados, {
+      podeEditar,
+      pesquisa: pesquisaEl.value,
+      peso: peso(),
+      redesenhar: desenharVista
+    });
+  }
+
+  function mostrar(qual, foco) {
+    vista = qual === 'editar' && podeEditar ? 'editar' : 'ver';
+    const editar = vista === 'editar';
+    raizVer.classList.toggle('hidden', editar);
+    raizEditar.classList.toggle('hidden', !editar);
+    consulta.classList.toggle('hidden', editar);
+    [[vistaVer, !editar], [vistaEditar, editar]].forEach(([b, ligado]) => {
+      b.classList.toggle('is-ativo', ligado);
+      b.setAttribute('aria-pressed', String(ligado));
+    });
+    const raiz = editar ? raizEditar : raizVer;
+    if (erro) { erroCarga(raiz); return; }
+    if (!carregado) { raiz.innerHTML = ''; raiz.appendChild(el('p', 'pp-dcard__nota', 'A carregar...')); return; }
+    if (editar) {
+      IdeiaEdicao.desenhar(raizEditar, dados, Object.assign({ aoEstado: estado }, foco || {}));
+    } else {
+      estado(podeEditar ? '' : 'Só leitura', podeEditar ? null : 'leitura');
+      desenharVista();
+    }
+  }
+
+  // Os avisos (PedidosToast) usam a caixa #pedidosToasts. Se ela estiver dentro
+  // da secção dos Pedidos, fica escondida quando esta secção está aberta; tira-se
+  // para fora, sem mexer em mais nada (a posição dela é fixa no ecrã).
+  function libertarAvisos() {
+    const caixa = document.getElementById('pedidosToasts');
+    const pedidos = document.getElementById('sectionPedidos');
+    if (caixa && pedidos && pedidos.contains(caixa)) pedidos.parentNode.insertBefore(caixa, pedidos.nextSibling);
+  }
+
+  async function arrancar() {
+    libertarAvisos();
+    if (!iniciado) {
+      iniciado = true;
+      IdeiaStorage.init(window.Auth.client);
+      podeEditar = await IdeiaStorage.podeEditar();
+      vistaEditar.classList.toggle('hidden', !podeEditar);
+    }
+    mostrar(vista);
+    await carregar();
+    mostrar(vista);
+  }
+
+  vistaVer.addEventListener('click', () => mostrar('ver'));
+  vistaEditar.addEventListener('click', () => mostrar('editar'));
+
+  // Pesquisa e peso redesenham já, a cada tecla.
+  let pendente = null;
+  const agendar = () => {
+    if (pendente) return;
+    pendente = requestAnimationFrame(() => { pendente = null; if (vista === 'ver' && carregado) desenharVista(); });
+  };
+  pesquisaEl.addEventListener('input', agendar);
+  pesoEl.addEventListener('input', agendar);
+  pesquisaEl.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && pesquisaEl.value) { pesquisaEl.value = ''; agendar(); }
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (!window.AppSecoes) return;
+    window.AppSecoes.registar({
+      chave: 'ideia',
+      tab: 'tabSectionIdeia',
+      seccao: 'sectionIdeia',
+      titulo: 'Ideia de preço',
+      descricao: '',
+      aoAbrir: arrancar
+    });
+  });
+
+  return { mostrar };
 })();
 
 </script>
