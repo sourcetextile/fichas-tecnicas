@@ -205,6 +205,48 @@ button, input, textarea, select {
   gap: var(--s2);
 }
 
+/* Fichas guardadas agrupadas por cliente (um <details> por cliente). */
+.saved-group {
+  margin-bottom: var(--s3);
+}
+
+.saved-group-title {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  margin-bottom: var(--s1);
+  padding: 4px 2px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.saved-group-title::-webkit-details-marker {
+  display: none;
+}
+
+.saved-group-title::before {
+  content: '▾';
+  font-size: 0.85em;
+  color: var(--muted);
+}
+
+.saved-group:not([open]) > .saved-group-title::before {
+  content: '▸';
+}
+
+.saved-group-count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.08);
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 .saved-item {
   display: flex;
   align-items: center;
@@ -5018,7 +5060,7 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
           <div class="section-bar">
             <h2><span class="step-number">✓</span> Fichas guardadas</h2>
           </div>
-          <input id="savedFilter" type="text" class="saved-filter" placeholder="Pesquisar por nome da ficha ou modelo (referência do artigo)...">
+          <input id="savedFilter" type="text" class="saved-filter" placeholder="Pesquisar por nome, modelo (referência do artigo) ou cliente...">
           <div id="savedList" class="saved-list"></div>
         </div>
       </section>
@@ -12008,67 +12050,116 @@ const App = (() => {
     renderSavedListFiltered();
   }
 
+  // Texto sem acentos nem maiúsculas, para pesquisar e para agrupar.
+  const normalizar = texto => String(texto || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+
+  // Grupos de clientes que a pessoa fechou (só enquanto a página está aberta).
+  const clientesFechados = new Set();
+
+  function criarItemGuardado(entry) {
+    const item = document.createElement('div');
+    item.className = 'saved-item card';
+
+    const info = document.createElement('div');
+    info.className = 'saved-info';
+    const name = document.createElement('p');
+    name.className = 'saved-name';
+    name.textContent = entry.name;
+    const meta = document.createElement('p');
+    meta.className = 'saved-meta';
+    const date = new Date(entry.savedAt);
+    const ref = (entry.header && entry.header.referencia || '').trim();
+    const bits = [];
+    if (ref) bits.push(ref);
+    bits.push(entry.type);
+    bits.push(`${date.toLocaleDateString('pt-PT')} ${date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`);
+    meta.textContent = bits.join(' · ');
+    info.appendChild(name);
+    info.appendChild(meta);
+    item.appendChild(info);
+
+    const actions = document.createElement('div');
+    actions.className = 'saved-actions';
+    const openButton = document.createElement('button');
+    openButton.type = 'button';
+    openButton.className = 'primary saved-open';
+    openButton.textContent = 'Abrir';
+    openButton.addEventListener('click', () => openSaved(entry));
+    const deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.className = 'secondary saved-delete';
+    deleteButton.textContent = 'Apagar';
+    deleteButton.addEventListener('click', async () => {
+      await Storage.deleteSaved(entry.id);
+      await renderSavedList();
+    });
+    actions.appendChild(openButton);
+    actions.appendChild(deleteButton);
+    item.appendChild(actions);
+    return item;
+  }
+
   function renderSavedListFiltered() {
-    // Procura no nome da ficha e no modelo (Referência do artigo), sem
-    // distinguir maiúsculas nem acentos.
-    const normalizar = texto => String(texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-    const query = normalizar((savedFilter.value || '').trim());
+    // Procura no nome da ficha, no modelo (Referência do artigo) e no cliente,
+    // sem distinguir maiúsculas nem acentos.
+    const query = normalizar(savedFilter.value);
+    const campo = (entry, nome) => normalizar(entry.header && entry.header[nome]);
     const list = query
       ? savedListCache.filter(entry => normalizar(entry.name).includes(query)
-        || normalizar(entry.header && entry.header.referencia).includes(query))
+        || campo(entry, 'referencia').includes(query)
+        || campo(entry, 'cliente').includes(query))
       : savedListCache;
     savedList.innerHTML = '';
     if (!list.length) {
       const empty = document.createElement('p');
       empty.className = 'saved-empty';
       empty.textContent = query
-        ? 'Nenhuma ficha encontrada com esse nome ou modelo.'
+        ? 'Nenhuma ficha encontrada com esse nome, modelo ou cliente.'
         : 'Ainda não há fichas guardadas. Preenche uma ficha e usa o botão "Guardar ficha".';
       savedList.appendChild(empty);
       return;
     }
+
+    // Agrupa por cliente. "Silva" e "silva " são o mesmo cliente; dentro de
+    // cada grupo mantém-se a ordem da lista (mais recentes primeiro). Os
+    // clientes ficam por ordem alfabética e as fichas sem cliente no fim.
+    const grupos = new Map();
     list.forEach(entry => {
-      const item = document.createElement('div');
-      item.className = 'saved-item card';
+      const nome = (entry.header && entry.header.cliente || '').trim().replace(/\s+/g, ' ');
+      const chave = normalizar(nome);
+      if (!grupos.has(chave)) grupos.set(chave, { nome, fichas: [] });
+      grupos.get(chave).fichas.push(entry);
+    });
+    const ordenados = Array.from(grupos.entries()).sort(([chaveA, a], [chaveB, b]) => {
+      if (!chaveA !== !chaveB) return chaveA ? -1 : 1;
+      return a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' });
+    });
 
-      const info = document.createElement('div');
-      info.className = 'saved-info';
-      const name = document.createElement('p');
-      name.className = 'saved-name';
-      name.textContent = entry.name;
-      const meta = document.createElement('p');
-      meta.className = 'saved-meta';
-      const date = new Date(entry.savedAt);
-      const ref = (entry.header && entry.header.referencia || '').trim();
-      const bits = [];
-      if (ref) bits.push(ref);
-      bits.push(entry.type);
-      bits.push(`${date.toLocaleDateString('pt-PT')} ${date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}`);
-      meta.textContent = bits.join(' · ');
-      info.appendChild(name);
-      info.appendChild(meta);
-      item.appendChild(info);
-
-      const actions = document.createElement('div');
-      actions.className = 'saved-actions';
-      const openButton = document.createElement('button');
-      openButton.type = 'button';
-      openButton.className = 'primary saved-open';
-      openButton.textContent = 'Abrir';
-      openButton.addEventListener('click', () => openSaved(entry));
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.className = 'secondary saved-delete';
-      deleteButton.textContent = 'Apagar';
-      deleteButton.addEventListener('click', async () => {
-        await Storage.deleteSaved(entry.id);
-        await renderSavedList();
+    ordenados.forEach(([chave, grupo]) => {
+      const bloco = document.createElement('details');
+      bloco.className = 'saved-group';
+      // Com uma pesquisa ativa os grupos ficam abertos, para se ver o que se encontrou.
+      bloco.open = !!query || !clientesFechados.has(chave);
+      const titulo = document.createElement('summary');
+      titulo.className = 'saved-group-title';
+      const nomeEl = document.createElement('span');
+      nomeEl.textContent = grupo.nome || 'Sem cliente';
+      const contagem = document.createElement('span');
+      contagem.className = 'saved-group-count';
+      contagem.textContent = String(grupo.fichas.length);
+      titulo.appendChild(nomeEl);
+      titulo.appendChild(contagem);
+      bloco.appendChild(titulo);
+      bloco.addEventListener('toggle', () => {
+        if (query) return;
+        if (bloco.open) clientesFechados.delete(chave); else clientesFechados.add(chave);
       });
-      actions.appendChild(openButton);
-      actions.appendChild(deleteButton);
-      item.appendChild(actions);
 
-      savedList.appendChild(item);
+      const itens = document.createElement('div');
+      itens.className = 'saved-list';
+      grupo.fichas.forEach(entry => itens.appendChild(criarItemGuardado(entry)));
+      bloco.appendChild(itens);
+      savedList.appendChild(bloco);
     });
   }
 
