@@ -87,6 +87,13 @@ button, input, textarea, select {
 /* A página usa a largura do ecrã (até 1680 px) e tem o cabeçalho compacto em
    todos os separadores, como nos Pedidos de preço: logótipo, separadores e
    sessão na primeira linha; título (e descrição ao lado) na segunda. */
+/* Reserva sempre o espaço da barra de scroll: sem isto o conteúdo desloca-se
+   uns pixels para os lados ao mudar para um separador mais curto ou mais
+   comprido, e o menu dos separadores "salta". */
+html {
+  scrollbar-gutter: stable;
+}
+
 .page-shell {
   max-width: 1680px;
   margin: 0 auto;
@@ -5146,6 +5153,12 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
   }
   #appLogo {
     display: none;
+  }
+  /* Sem o logótipo no cabeçalho, os separadores começam na primeira coluna,
+     alinhados com o título e com o resto do conteúdo. (O body repete-se para
+     ganhar aos cabeçalhos dos Pedidos e da Ideia de preço.) */
+  body .page-header #appTabs {
+    grid-area: 1 / 1;
   }
 }
 

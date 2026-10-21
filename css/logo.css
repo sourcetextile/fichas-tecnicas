@@ -36,6 +36,12 @@
   #appLogo {
     display: none;
   }
+  /* Sem o logótipo no cabeçalho, os separadores começam na primeira coluna,
+     alinhados com o título e com o resto do conteúdo. (O body repete-se para
+     ganhar aos cabeçalhos dos Pedidos e da Ideia de preço.) */
+  body .page-header #appTabs {
+    grid-area: 1 / 1;
+  }
 }
 
 @media print {
