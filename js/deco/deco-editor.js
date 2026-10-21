@@ -14,6 +14,7 @@ const DecoEditor = (() => {
   const ofsInput = document.getElementById('decoOfs');
   const estampadoInput = document.getElementById('decoEstampado');
   const bordadoInput = document.getElementById('decoBordado');
+  const clienteInput = document.getElementById('decoCliente');
   const certificacaoInputs = Array.from(document.querySelectorAll('input[name="decoCertificacao"]'));
   const referenciaDecoracaoInput = document.getElementById('decoReferenciaDecoracao');
   const fornecedorInput = document.getElementById('decoFornecedor');
@@ -185,6 +186,7 @@ const DecoEditor = (() => {
       id: uid(),
       ref_nosso_modelo: 'Nova ficha',
       ref_modelo_cliente: null,
+      cliente: null,
       ofs: null,
       estampado: false,
       bordado: false,
@@ -501,6 +503,7 @@ const DecoEditor = (() => {
     selection = null;
 
     formTitle.textContent = `${ficha.ref_nosso_modelo || 'Ficha de decoração'} · ${ficha.fase_ativa}`;
+    clienteInput.value = ficha.cliente || '';
     refNosso.value = ficha.ref_nosso_modelo || '';
     refCliente.value = ficha.ref_modelo_cliente || '';
     ofsInput.value = ficha.ofs || '';
@@ -552,6 +555,7 @@ const DecoEditor = (() => {
 
     return Object.assign({
       id: ficha.id,
+      cliente: clienteInput.value.trim() || null,
       ref_nosso_modelo: refNosso.value.trim() || 'Sem referência',
       ref_modelo_cliente: refCliente.value.trim() || null,
       ofs: ofsInput.value.trim() || null,
@@ -587,6 +591,7 @@ const DecoEditor = (() => {
     // tabela e os painéis do croqui escrevem diretamente nesses objetos, e
     // substitui-los aqui faria perder tudo o que se escrevesse a seguir.
     Object.assign(ficha, {
+      cliente: body.cliente,
       ref_nosso_modelo: body.ref_nosso_modelo,
       ref_modelo_cliente: body.ref_modelo_cliente,
       ofs: body.ofs,
@@ -1587,7 +1592,7 @@ const DecoEditor = (() => {
   }
 
   function bindEvents() {
-    [refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
+    [clienteInput, refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
       input.addEventListener('input', scheduleSave);
     });
     // Certificação: no máximo uma. Marcar uma desmarca as outras; clicar na

@@ -1379,6 +1379,13 @@ body.is-deco .page-description {
   height: 18px;
 }
 
+/* O Cliente ocupa uma linha só para ele, por cima do Cód. Modelo, e tem a
+   largura de uma coluna da grelha. */
+.deco-cliente-label {
+  grid-column: 1 / -1;
+  max-width: 420px;
+}
+
 .deco-certificacao-row {
   align-items: center;
 }
@@ -5248,7 +5255,7 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
             </div>
           </div>
           <div class="deco-list-filters">
-            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por modelo, referência, OF, fornecedor...">
+            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por cliente, modelo, referência, OF, fornecedor...">
             <select id="decoListEstado" aria-label="Filtrar por fase">
                 <option value="">Todas as fases</option>
                 <option value="SMS">Com SMS</option>
@@ -5289,10 +5296,13 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
 
           <div class="card deco-header-card">
             <div class="header-grid">
-              <label class="input-label" for="decoRefNosso">Ref. Nosso Modelo
+              <label class="input-label deco-cliente-label" for="decoCliente">Cliente
+                <input id="decoCliente" type="text" autocomplete="off">
+              </label>
+              <label class="input-label" for="decoRefNosso">Cód. Modelo
                 <input id="decoRefNosso" type="text">
               </label>
-              <label class="input-label" for="decoRefCliente">Ref. Modelo Cliente
+              <label class="input-label" for="decoRefCliente">Ref. Cliente
                 <input id="decoRefCliente" type="text">
               </label>
               <label class="input-label" for="decoOfs">OF's
@@ -15099,6 +15109,7 @@ const DecoCopy = (() => {
     const candidatas = outrasFases.concat(outrasFichas.map(ficha => {
       const bits = [];
       if (mesmoModelo(ficha)) bits.push('mesmo modelo');
+      if (ficha.cliente) bits.push(ficha.cliente);
       if (ficha.ref_modelo_cliente) bits.push(ficha.ref_modelo_cliente);
       if (ficha.ofs) bits.push('OF ' + ficha.ofs);
       if (ficha.fornecedor) bits.push(ficha.fornecedor);
@@ -15122,7 +15133,7 @@ const DecoCopy = (() => {
     function combina(origem, query) {
       if (!query) return true;
       const ficha = origem.dados;
-      return [origem.etiqueta, ficha.ref_nosso_modelo, ficha.ref_modelo_cliente, ficha.ofs, ficha.fornecedor]
+      return [origem.etiqueta, ficha.cliente, ficha.ref_nosso_modelo, ficha.ref_modelo_cliente, ficha.ofs, ficha.fornecedor]
         .some(valor => (valor || '').toLowerCase().includes(query));
     }
 
@@ -15221,6 +15232,7 @@ const DecoCopy = (() => {
 
     if (blocos.includes('identificacao')) {
       destino.fornecedor = origem.fornecedor || null;
+      destino.cliente = origem.cliente || null;
       destino.referencia_decoracao = origem.referencia_decoracao || null;
       destino.certificacao = origem.certificacao || null;
       destino.estampado = !!origem.estampado;
@@ -15639,7 +15651,7 @@ const DecoList = (() => {
   }
 
   function matchesQuery(f, query) {
-    return [f.ref_nosso_modelo, f.ref_modelo_cliente, f.ofs, f.fornecedor]
+    return [f.cliente, f.ref_nosso_modelo, f.ref_modelo_cliente, f.ofs, f.fornecedor]
       .some(v => (v || '').toLowerCase().includes(query));
   }
 
@@ -15685,6 +15697,7 @@ const DecoList = (() => {
     const meta = document.createElement('p');
     meta.className = 'saved-meta';
     const bits = [];
+    if (ficha.cliente) bits.push(ficha.cliente);
     if (ficha.ofs) bits.push(`OF ${ficha.ofs}`);
     bits.push(tipoLabel(ficha));
     if (ficha.fornecedor) bits.push(ficha.fornecedor);
@@ -15806,7 +15819,8 @@ const DecoList = (() => {
     useButton.addEventListener('click', async () => {
       const saved = await DecoStorage.upsertFicha(blankEntry({
         ref_nosso_modelo: ficha.nome,
-        ref_modelo_cliente: (ficha.header && ficha.header.referencia) || null
+        ref_modelo_cliente: (ficha.header && ficha.header.referencia) || null,
+        cliente: (ficha.header && ficha.header.cliente) || null
       }));
       if (saved) DecoApp.openEditor(saved.id);
     });
@@ -15848,6 +15862,7 @@ const DecoEditor = (() => {
   const ofsInput = document.getElementById('decoOfs');
   const estampadoInput = document.getElementById('decoEstampado');
   const bordadoInput = document.getElementById('decoBordado');
+  const clienteInput = document.getElementById('decoCliente');
   const certificacaoInputs = Array.from(document.querySelectorAll('input[name="decoCertificacao"]'));
   const referenciaDecoracaoInput = document.getElementById('decoReferenciaDecoracao');
   const fornecedorInput = document.getElementById('decoFornecedor');
@@ -16019,6 +16034,7 @@ const DecoEditor = (() => {
       id: uid(),
       ref_nosso_modelo: 'Nova ficha',
       ref_modelo_cliente: null,
+      cliente: null,
       ofs: null,
       estampado: false,
       bordado: false,
@@ -16335,6 +16351,7 @@ const DecoEditor = (() => {
     selection = null;
 
     formTitle.textContent = `${ficha.ref_nosso_modelo || 'Ficha de decoração'} · ${ficha.fase_ativa}`;
+    clienteInput.value = ficha.cliente || '';
     refNosso.value = ficha.ref_nosso_modelo || '';
     refCliente.value = ficha.ref_modelo_cliente || '';
     ofsInput.value = ficha.ofs || '';
@@ -16386,6 +16403,7 @@ const DecoEditor = (() => {
 
     return Object.assign({
       id: ficha.id,
+      cliente: clienteInput.value.trim() || null,
       ref_nosso_modelo: refNosso.value.trim() || 'Sem referência',
       ref_modelo_cliente: refCliente.value.trim() || null,
       ofs: ofsInput.value.trim() || null,
@@ -16421,6 +16439,7 @@ const DecoEditor = (() => {
     // tabela e os painéis do croqui escrevem diretamente nesses objetos, e
     // substitui-los aqui faria perder tudo o que se escrevesse a seguir.
     Object.assign(ficha, {
+      cliente: body.cliente,
       ref_nosso_modelo: body.ref_nosso_modelo,
       ref_modelo_cliente: body.ref_modelo_cliente,
       ofs: body.ofs,
@@ -17421,7 +17440,7 @@ const DecoEditor = (() => {
   }
 
   function bindEvents() {
-    [refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
+    [clienteInput, refNosso, refCliente, ofsInput, fornecedorInput, referenciaDecoracaoInput, colocacaoTexto, colocacaoPartes].forEach(input => {
       input.addEventListener('input', scheduleSave);
     });
     // Certificação: no máximo uma. Marcar uma desmarca as outras; clicar na

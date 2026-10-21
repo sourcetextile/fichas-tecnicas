@@ -97,6 +97,7 @@ const DecoCopy = (() => {
     const candidatas = outrasFases.concat(outrasFichas.map(ficha => {
       const bits = [];
       if (mesmoModelo(ficha)) bits.push('mesmo modelo');
+      if (ficha.cliente) bits.push(ficha.cliente);
       if (ficha.ref_modelo_cliente) bits.push(ficha.ref_modelo_cliente);
       if (ficha.ofs) bits.push('OF ' + ficha.ofs);
       if (ficha.fornecedor) bits.push(ficha.fornecedor);
@@ -120,7 +121,7 @@ const DecoCopy = (() => {
     function combina(origem, query) {
       if (!query) return true;
       const ficha = origem.dados;
-      return [origem.etiqueta, ficha.ref_nosso_modelo, ficha.ref_modelo_cliente, ficha.ofs, ficha.fornecedor]
+      return [origem.etiqueta, ficha.cliente, ficha.ref_nosso_modelo, ficha.ref_modelo_cliente, ficha.ofs, ficha.fornecedor]
         .some(valor => (valor || '').toLowerCase().includes(query));
     }
 
@@ -219,6 +220,7 @@ const DecoCopy = (() => {
 
     if (blocos.includes('identificacao')) {
       destino.fornecedor = origem.fornecedor || null;
+      destino.cliente = origem.cliente || null;
       destino.referencia_decoracao = origem.referencia_decoracao || null;
       destino.certificacao = origem.certificacao || null;
       destino.estampado = !!origem.estampado;

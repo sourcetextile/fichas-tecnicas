@@ -56,7 +56,7 @@ const DecoList = (() => {
   }
 
   function matchesQuery(f, query) {
-    return [f.ref_nosso_modelo, f.ref_modelo_cliente, f.ofs, f.fornecedor]
+    return [f.cliente, f.ref_nosso_modelo, f.ref_modelo_cliente, f.ofs, f.fornecedor]
       .some(v => (v || '').toLowerCase().includes(query));
   }
 
@@ -102,6 +102,7 @@ const DecoList = (() => {
     const meta = document.createElement('p');
     meta.className = 'saved-meta';
     const bits = [];
+    if (ficha.cliente) bits.push(ficha.cliente);
     if (ficha.ofs) bits.push(`OF ${ficha.ofs}`);
     bits.push(tipoLabel(ficha));
     if (ficha.fornecedor) bits.push(ficha.fornecedor);
@@ -223,7 +224,8 @@ const DecoList = (() => {
     useButton.addEventListener('click', async () => {
       const saved = await DecoStorage.upsertFicha(blankEntry({
         ref_nosso_modelo: ficha.nome,
-        ref_modelo_cliente: (ficha.header && ficha.header.referencia) || null
+        ref_modelo_cliente: (ficha.header && ficha.header.referencia) || null,
+        cliente: (ficha.header && ficha.header.cliente) || null
       }));
       if (saved) DecoApp.openEditor(saved.id);
     });

@@ -205,6 +205,13 @@ body.is-deco .page-description {
   height: 18px;
 }
 
+/* O Cliente ocupa uma linha só para ele, por cima do Cód. Modelo, e tem a
+   largura de uma coluna da grelha. */
+.deco-cliente-label {
+  grid-column: 1 / -1;
+  max-width: 420px;
+}
+
 .deco-certificacao-row {
   align-items: center;
 }

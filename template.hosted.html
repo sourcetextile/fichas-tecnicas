@@ -168,7 +168,7 @@
             </div>
           </div>
           <div class="deco-list-filters">
-            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por modelo, referência, OF, fornecedor...">
+            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por cliente, modelo, referência, OF, fornecedor...">
             <select id="decoListEstado" aria-label="Filtrar por fase">
                 <option value="">Todas as fases</option>
                 <option value="SMS">Com SMS</option>
@@ -209,10 +209,13 @@
 
           <div class="card deco-header-card">
             <div class="header-grid">
-              <label class="input-label" for="decoRefNosso">Ref. Nosso Modelo
+              <label class="input-label deco-cliente-label" for="decoCliente">Cliente
+                <input id="decoCliente" type="text" autocomplete="off">
+              </label>
+              <label class="input-label" for="decoRefNosso">Cód. Modelo
                 <input id="decoRefNosso" type="text">
               </label>
-              <label class="input-label" for="decoRefCliente">Ref. Modelo Cliente
+              <label class="input-label" for="decoRefCliente">Ref. Cliente
                 <input id="decoRefCliente" type="text">
               </label>
               <label class="input-label" for="decoOfs">OF's
