@@ -1,4 +1,5 @@
-// Ecrã de lista das Fichas de decoração: pesquisa, agrupamento por modelo,
+// Ecrã de lista das Fichas de decoração: pesquisa, agrupamento por cliente (e
+// dentro de cada cliente, por modelo),
 // duplicar/apagar, e o fluxo "Nova ficha" (em branco ou a importar o
 // cabeçalho de uma ficha técnica já existente e partilhada).
 const DecoList = (() => {
@@ -40,20 +41,68 @@ const DecoList = (() => {
       decoListEl.appendChild(empty);
       return;
     }
-    groupByModelo(list).forEach(group => {
-      const groupEl = document.createElement('div');
-      groupEl.className = 'deco-group';
-      const header = document.createElement('div');
-      header.className = 'deco-group-header';
-      const heading = document.createElement('h3');
-      heading.className = 'deco-group-title';
-      heading.textContent = `${group.ref || '(sem referência)'} · ${group.items.length} ficha${group.items.length === 1 ? '' : 's'}`;
-      header.appendChild(heading);
-      groupEl.appendChild(header);
-      group.items.forEach(ficha => groupEl.appendChild(renderCard(ficha)));
-      decoListEl.appendChild(groupEl);
+    // Uma caixa por cliente, como nas fichas guardadas da Ficha técnica:
+    // fechadas por defeito, por ordem alfabética, "Sem cliente" no fim. Com
+    // uma pesquisa ativa abrem, para se ver o que se encontrou.
+    const clientes = new Map();
+    list.forEach(ficha => {
+      const nome = (ficha.cliente || '').trim().replace(/\s+/g, ' ');
+      const chave = normalizar(nome);
+      if (!clientes.has(chave)) clientes.set(chave, { nome, fichas: [] });
+      clientes.get(chave).fichas.push(ficha);
+    });
+    const ordenados = Array.from(clientes.entries()).sort(([chaveA, a], [chaveB, b]) => {
+      if (!chaveA !== !chaveB) return chaveA ? -1 : 1;
+      return a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' });
+    });
+
+    ordenados.forEach(([chave, cliente]) => {
+      const bloco = document.createElement('details');
+      bloco.className = 'saved-group';
+      bloco.open = !!query || clientesAbertos.has(chave);
+      const titulo = document.createElement('summary');
+      titulo.className = 'saved-group-title';
+      const nomeEl = document.createElement('span');
+      nomeEl.textContent = cliente.nome || 'Sem cliente';
+      const contagem = document.createElement('span');
+      contagem.className = 'saved-group-count';
+      contagem.textContent = String(cliente.fichas.length);
+      titulo.appendChild(nomeEl);
+      titulo.appendChild(contagem);
+      bloco.appendChild(titulo);
+      bloco.addEventListener('toggle', () => {
+        if (query) return;
+        if (bloco.open) clientesAbertos.add(chave); else clientesAbertos.delete(chave);
+      });
+
+      // Dentro do cliente, as fichas continuam agrupadas por modelo.
+      const itens = document.createElement('div');
+      itens.className = 'saved-group-items';
+      groupByModelo(cliente.fichas).forEach(group => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'deco-group';
+        const header = document.createElement('div');
+        header.className = 'deco-group-header';
+        const heading = document.createElement('h3');
+        heading.className = 'deco-group-title';
+        heading.textContent = `${group.ref || '(sem referência)'} · ${group.items.length} ficha${group.items.length === 1 ? '' : 's'}`;
+        header.appendChild(heading);
+        groupEl.appendChild(header);
+        group.items.forEach(ficha => groupEl.appendChild(renderCard(ficha)));
+        itens.appendChild(groupEl);
+      });
+      bloco.appendChild(itens);
+      decoListEl.appendChild(bloco);
     });
   }
+
+  // Sem acentos nem maiúsculas: "Zara", "zara " e "ZARA" são o mesmo cliente.
+  function normalizar(texto) {
+    return String(texto || '').replace(/\s+/g, ' ').trim().normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  }
+
+  // Clientes que a pessoa abriu (só enquanto a página está aberta).
+  const clientesAbertos = new Set();
 
   function matchesQuery(f, query) {
     return [f.cliente, f.ref_nosso_modelo, f.ref_modelo_cliente, f.ofs, f.fornecedor]

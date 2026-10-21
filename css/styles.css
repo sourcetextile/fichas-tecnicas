@@ -235,20 +235,26 @@ button, input, textarea, select {
    por ordem alfabética primeiro na horizontal e depois na vertical (A B C /
    D E F). Fechadas por defeito; ao abrir, a caixa ocupa a linha toda para as
    fichas terem espaço. */
-#savedList {
+#savedList,
+#decoList {
+  display: grid;
+  gap: var(--s2);
   grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: start;
 }
 
 @media (max-width: 1000px) {
-  #savedList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  #savedList,
+  #decoList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
-  #savedList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #savedList,
+  #decoList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
-#savedList > .saved-empty {
+#savedList > .saved-empty,
+#decoList > .saved-empty {
   grid-column: 1 / -1;
 }
 
