@@ -45,19 +45,20 @@ body[data-secao="pedidos"] .page-shell {
 
 body[data-secao="pedidos"] .page-header {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
   column-gap: 16px;
   row-gap: 6px;
   margin-bottom: 12px;
 }
 
-body[data-secao="pedidos"] #appTabs { grid-area: 1 / 1; margin: 0; }
-body[data-secao="pedidos"] #authStatus { grid-area: 1 / 2; justify-self: end; margin: 0; }
+body[data-secao="pedidos"] #appLogo { grid-area: 1 / 1; }
+body[data-secao="pedidos"] #appTabs { grid-area: 1 / 2; margin: 0; }
+body[data-secao="pedidos"] #authStatus { grid-area: 1 / 3; justify-self: end; margin: 0; }
 body[data-secao="pedidos"] .page-header .eyebrow { display: none; }
-body[data-secao="pedidos"] #pageTitle { grid-area: 2 / 1; margin: 0; font-size: 1.35rem; }
+body[data-secao="pedidos"] #pageTitle { grid-area: 2 / 1 / 2 / 3; margin: 0; font-size: 1.35rem; }
 body[data-secao="pedidos"] #pageDescription {
-  grid-area: 2 / 2;
+  grid-area: 2 / 3;
   margin: 0;
   max-width: none;
   align-self: center;
@@ -1150,9 +1151,10 @@ body[data-secao="pedidos"] #pageDescription {
 
   body[data-secao="pedidos"] .page-header { grid-template-columns: 1fr; }
   body[data-secao="pedidos"] #authStatus { grid-area: 1 / 1; justify-self: end; }
-  body[data-secao="pedidos"] #appTabs { grid-area: 2 / 1; }
-  body[data-secao="pedidos"] #pageTitle { grid-area: 3 / 1; }
-  body[data-secao="pedidos"] #pageDescription { grid-area: 4 / 1; }
+  body[data-secao="pedidos"] #appLogo { grid-area: 2 / 1; }
+  body[data-secao="pedidos"] #appTabs { grid-area: 3 / 1; }
+  body[data-secao="pedidos"] #pageTitle { grid-area: 4 / 1; }
+  body[data-secao="pedidos"] #pageDescription { grid-area: 5 / 1; }
 }
 
 /* Quem pede menos movimento não o leva. */

@@ -171,8 +171,9 @@ const App = (() => {
   // Texto sem acentos nem maiúsculas, para pesquisar e para agrupar.
   const normalizar = texto => String(texto || '').normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
 
-  // Grupos de clientes que a pessoa fechou (só enquanto a página está aberta).
-  const clientesFechados = new Set();
+  // Clientes que a pessoa abriu (só enquanto a página está aberta). Por
+  // defeito todos os clientes aparecem fechados.
+  const clientesAbertos = new Set();
 
   function criarItemGuardado(entry) {
     const item = document.createElement('div');
@@ -256,8 +257,8 @@ const App = (() => {
     ordenados.forEach(([chave, grupo]) => {
       const bloco = document.createElement('details');
       bloco.className = 'saved-group';
-      // Com uma pesquisa ativa os grupos ficam abertos, para se ver o que se encontrou.
-      bloco.open = !!query || !clientesFechados.has(chave);
+      // Fechados por defeito; com uma pesquisa ativa abrem, para se ver o que se encontrou.
+      bloco.open = !!query || clientesAbertos.has(chave);
       const titulo = document.createElement('summary');
       titulo.className = 'saved-group-title';
       const nomeEl = document.createElement('span');
@@ -270,11 +271,11 @@ const App = (() => {
       bloco.appendChild(titulo);
       bloco.addEventListener('toggle', () => {
         if (query) return;
-        if (bloco.open) clientesFechados.delete(chave); else clientesFechados.add(chave);
+        if (bloco.open) clientesAbertos.add(chave); else clientesAbertos.delete(chave);
       });
 
       const itens = document.createElement('div');
-      itens.className = 'saved-list';
+      itens.className = 'saved-group-items';
       grupo.fichas.forEach(entry => itens.appendChild(criarItemGuardado(entry)));
       bloco.appendChild(itens);
       savedList.appendChild(bloco);

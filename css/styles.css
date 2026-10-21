@@ -87,38 +87,28 @@ button, input, textarea, select {
   margin-bottom: var(--s4);
 }
 
-/* --- Linha de topo: logótipo à esquerda, sessão à direita ----------------- */
-.page-topbar {
+/* --- Logótipo + separadores na mesma linha --------------------------------- */
+/* O logótipo fica à esquerda dos separadores. Pedidos de preço e Ideia de
+   preço põem o cabeçalho numa grelha própria (ver pedidos.css / ideia.css):
+   aí esta linha desaparece (display: contents) e o logótipo e os separadores
+   passam a ser células dessa grelha. */
+.page-navrow {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: var(--s2);
+  gap: var(--s3);
+  flex-wrap: wrap;
   margin-bottom: var(--s2);
 }
 
-.page-topbar {
-  flex-wrap: wrap;
-}
-
-.page-topbar .auth-status {
+/* A margem de baixo passa para a linha, para o logótipo ficar alinhado com
+   os separadores. (O #appTabs leva #: ganha à regra do deco.css.) */
+.page-navrow #appTabs {
   margin-bottom: 0;
-  margin-left: auto;
 }
 
-/* Pedidos de preço e Ideia de preço põem o cabeçalho numa grelha compacta
-   (separadores à esquerda, sessão à direita). A linha de topo ocupa o lugar
-   que lá era da sessão, com o logótipo ao lado dela. */
-body[data-secao="pedidos"] .page-topbar,
-body[data-secao="ideia"] .page-topbar {
-  grid-area: 1 / 2;
-  margin: 0;
-}
-
-@media (max-width: 900px) {
-  body[data-secao="pedidos"] .page-topbar,
-  body[data-secao="ideia"] .page-topbar {
-    grid-area: 1 / 1;
-  }
+body[data-secao="pedidos"] .page-navrow,
+body[data-secao="ideia"] .page-navrow {
+  display: contents;
 }
 
 /* O SVG é vertical (41 x 341); deita-se 90° para ficar horizontal. A caixa
@@ -251,21 +241,51 @@ body[data-secao="ideia"] .page-topbar {
   gap: var(--s2);
 }
 
-/* Fichas guardadas agrupadas por cliente (um <details> por cliente). */
+/* Fichas guardadas agrupadas por cliente: uma caixa por cliente, ordenadas
+   por ordem alfabética primeiro na horizontal e depois na vertical (A B C /
+   D E F). Fechadas por defeito; ao abrir, a caixa ocupa a linha toda para as
+   fichas terem espaço. */
+#savedList {
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  align-items: start;
+}
+
+#savedList > .saved-empty {
+  grid-column: 1 / -1;
+}
+
 .saved-group {
-  margin-bottom: var(--s3);
+  min-width: 0;
+}
+
+.saved-group[open] {
+  grid-column: 1 / -1;
 }
 
 .saved-group-title {
   display: flex;
   align-items: center;
   gap: var(--s1);
-  margin-bottom: var(--s1);
-  padding: 4px 2px;
+  padding: 14px 16px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   cursor: pointer;
   list-style: none;
+  user-select: none;
+}
+
+.saved-group-title:hover {
+  border-color: var(--line-strong);
+}
+
+.saved-group[open] > .saved-group-title {
+  max-width: 330px;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #FFF;
 }
 
 .saved-group-title::-webkit-details-marker {
@@ -273,24 +293,37 @@ body[data-secao="ideia"] .page-topbar {
 }
 
 .saved-group-title::before {
-  content: '▾';
+  content: '▸';
   font-size: 0.85em;
   color: var(--muted);
 }
 
-.saved-group:not([open]) > .saved-group-title::before {
-  content: '▸';
+.saved-group[open] > .saved-group-title::before {
+  content: '▾';
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .saved-group-count {
-  min-width: 22px;
-  padding: 1px 7px;
+  margin-left: auto;
+  min-width: 24px;
+  padding: 1px 8px;
   border-radius: 999px;
   background: rgba(26, 26, 26, 0.08);
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 600;
   text-align: center;
+}
+
+.saved-group[open] > .saved-group-title .saved-group-count {
+  background: rgba(255, 255, 255, 0.18);
+  color: #FFF;
+}
+
+.saved-group-items {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s2);
 }
 
 .saved-item {
