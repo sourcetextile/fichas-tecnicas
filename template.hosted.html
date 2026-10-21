@@ -12,9 +12,13 @@
 <body>
   <div class="page-shell">
     <header class="page-header">
-      <div id="authStatus" class="auth-status hidden">
-        <span id="authEmail"></span>
-        <button id="signOutButton" type="button" class="secondary">Sair</button>
+      <div class="page-topbar">
+        <!-- Logótipo: preenchido por js/brand.js (a partir do deco-logo.js). -->
+        <div id="appLogo" class="app-logo" role="img" aria-label="Sourcetextile"></div>
+        <div id="authStatus" class="auth-status hidden">
+          <span id="authEmail"></span>
+          <button id="signOutButton" type="button" class="secondary">Sair</button>
+        </div>
       </div>
       <div id="appTabs" class="screen-tabs hidden" role="tablist">
         <button id="tabSectionFicha" type="button" class="tab active" role="tab" aria-selected="true">Ficha técnica</button>
@@ -560,6 +564,7 @@
   <script src="app/js/deco/deco-annotate.js"></script>
   <script src="app/js/deco/deco-dialog.js"></script>
   <script src="app/js/deco/deco-logo.js"></script>
+  <script src="app/js/brand.js"></script>
   <script src="app/js/deco/deco-palette.js"></script>
   <script src="app/js/deco/deco-copy.js"></script>
   <script src="app/js/deco/deco-print.js"></script>

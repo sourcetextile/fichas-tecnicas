@@ -87,6 +87,59 @@ button, input, textarea, select {
   margin-bottom: var(--s4);
 }
 
+/* --- Linha de topo: logótipo à esquerda, sessão à direita ----------------- */
+.page-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s2);
+  margin-bottom: var(--s2);
+}
+
+.page-topbar {
+  flex-wrap: wrap;
+}
+
+.page-topbar .auth-status {
+  margin-bottom: 0;
+  margin-left: auto;
+}
+
+/* Pedidos de preço e Ideia de preço põem o cabeçalho numa grelha compacta
+   (separadores à esquerda, sessão à direita). A linha de topo ocupa o lugar
+   que lá era da sessão, com o logótipo ao lado dela. */
+body[data-secao="pedidos"] .page-topbar,
+body[data-secao="ideia"] .page-topbar {
+  grid-area: 1 / 2;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  body[data-secao="pedidos"] .page-topbar,
+  body[data-secao="ideia"] .page-topbar {
+    grid-area: 1 / 1;
+  }
+}
+
+/* O SVG é vertical (41 x 341); deita-se 90° para ficar horizontal. A caixa
+   tem o tamanho do logótipo já deitado (largura = altura do SVG). */
+.app-logo {
+  position: relative;
+  flex: 0 0 auto;
+  width: 170px;
+  height: 23px;
+}
+
+.app-logo svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 170px;
+  width: auto;
+  display: block;
+  transform: translate(-50%, -50%) rotate(90deg);
+}
+
 /* --- Sessão (build hospedado only) --------------------------------------- */
 .auth-status {
   display: flex;
