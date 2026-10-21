@@ -87,7 +87,7 @@ button, input, textarea, select {
   margin-bottom: var(--s4);
 }
 
-/* --- Logótipo + separadores na mesma linha --------------------------------- */
+/* --- Logótipo + separadores na mesma linha (o logótipo está em logo.css) -- */
 /* O logótipo fica à esquerda dos separadores. Pedidos de preço e Ideia de
    preço põem o cabeçalho numa grelha própria (ver pedidos.css / ideia.css):
    aí esta linha desaparece (display: contents) e o logótipo e os separadores
@@ -109,25 +109,6 @@ button, input, textarea, select {
 body[data-secao="pedidos"] .page-navrow,
 body[data-secao="ideia"] .page-navrow {
   display: contents;
-}
-
-/* O SVG é vertical (41 x 341); deita-se 90° para ficar horizontal. A caixa
-   tem o tamanho do logótipo já deitado (largura = altura do SVG). */
-.app-logo {
-  position: relative;
-  flex: 0 0 auto;
-  width: 170px;
-  height: 23px;
-}
-
-.app-logo svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 170px;
-  width: auto;
-  display: block;
-  transform: translate(-50%, -50%) rotate(90deg);
 }
 
 /* --- Sessão (build hospedado only) --------------------------------------- */
