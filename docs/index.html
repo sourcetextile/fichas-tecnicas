@@ -84,43 +84,47 @@ button, input, textarea, select {
 }
 
 /* --- Estrutura da página --------------------------------------------- */
+/* A página usa a largura do ecrã (até 1680 px) e tem o cabeçalho compacto em
+   todos os separadores, como nos Pedidos de preço: logótipo, separadores e
+   sessão na primeira linha; título (e descrição ao lado) na segunda. */
 .page-shell {
-  max-width: 1120px;
+  max-width: 1680px;
   margin: 0 auto;
-  padding: var(--s4) var(--s3) var(--s5);
+  padding: 16px var(--s3) 24px;
 }
 
 .page-header {
-  margin-bottom: var(--s4);
-}
-
-/* --- Logótipo + separadores na mesma linha (o logótipo está em logo.css) -- */
-/* O logótipo fica à esquerda dos separadores. Pedidos de preço e Ideia de
-   preço põem o cabeçalho numa grelha própria (ver pedidos.css / ideia.css):
-   aí esta linha desaparece (display: contents) e o logótipo e os separadores
-   passam a ser células dessa grelha. */
-.page-navrow {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
-  gap: var(--s3);
-  flex-wrap: wrap;
-  margin-bottom: var(--s2);
+  column-gap: 16px;
+  row-gap: 6px;
+  margin-bottom: 12px;
 }
 
-/* A margem de baixo passa para a linha, para o logótipo ficar alinhado com
-   os separadores. (O #appTabs leva #: ganha à regra do deco.css.) */
-.page-navrow #appTabs {
-  margin-bottom: 0;
+/* A linha do logótipo/separadores/sessão não é uma caixa: os três são células
+   da grelha do cabeçalho. */
+.page-header .page-navrow { display: contents; }
+.page-header #appLogo { grid-area: 1 / 1; }
+.page-header #appTabs { grid-area: 1 / 2; margin: 0; }
+.page-header #authStatus { grid-area: 1 / 3; justify-self: end; margin: 0; }
+.page-header .eyebrow { display: none; }
+.page-header #pageTitle { grid-area: 2 / 1 / 2 / 3; margin: 0; font-size: 1.35rem; }
+.page-header #pageDescription {
+  grid-area: 2 / 3;
+  margin: 0;
+  max-width: none;
+  align-self: center;
+  font-size: 0.8rem;
 }
 
-/* Email e Sair ficam no canto superior direito da mesma linha. */
-.page-navrow .auth-status {
-  margin: 0 0 0 auto;
-}
-
-body[data-secao="pedidos"] .page-navrow,
-body[data-secao="ideia"] .page-navrow {
-  display: contents;
+@media (max-width: 900px) {
+  .page-header { grid-template-columns: 1fr; }
+  .page-header #authStatus { grid-area: 1 / 1; justify-self: end; }
+  .page-header #appLogo { grid-area: 2 / 1; }
+  .page-header #appTabs { grid-area: 3 / 1; }
+  .page-header #pageTitle { grid-area: 4 / 1; }
+  .page-header #pageDescription { grid-area: 5 / 1; }
 }
 
 /* --- Sessão (build hospedado only) --------------------------------------- */
@@ -5109,53 +5113,32 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
 
 .app-logo {
   flex: 0 0 auto;
-  height: 96px;
+  height: 72px;
   aspect-ratio: 663 / 2000;
   background: #161615;
   -webkit-mask: var(--logo-sourcetextile) center / contain no-repeat;
   mask: var(--logo-sourcetextile) center / contain no-repeat;
 }
 
-/* Nos cabeçalhos compactos (Pedidos de preço, Ideia de preço) o logótipo é mais baixo. */
-body[data-secao="pedidos"] .app-logo,
-body[data-secao="ideia"] .app-logo {
-  height: 72px;
-}
-
 /* --- Logótipo na margem esquerda -------------------------------------------
-   Em ecrãs largos o logótipo sai do cabeçalho e fica fixo na margem esquerda,
-   junto ao conteúdo, em todos os separadores. Em ecrãs sem margem livre fica o
-   do cabeçalho (#appLogo). A posição acompanha o conteúdo, que está centrado:
-   Ficha técnica e Fichas de decoração têm 1072 px de conteúdo; Pedidos e Ideia
-   de preço têm 1632 px (e só ganham margem acima de ~1870 px de largura). */
+   Em ecrãs largos (a página tem 1680 px de largura máxima) o logótipo sai do
+   cabeçalho e fica fixo na margem esquerda, junto ao conteúdo, em todos os
+   separadores. Em ecrãs sem margem livre fica o do cabeçalho (#appLogo). */
 .app-logo--lateral {
   display: none;
   position: fixed;
   top: 28px;
-  left: calc(50vw - 630px);
+  left: calc(50vw - 926px);
   width: 70px;
   height: auto;
   z-index: 5;
 }
 
-@media (min-width: 1280px) {
-  body:not([data-secao="pedidos"]):not([data-secao="ideia"]) .app-logo--lateral {
-    display: block;
-  }
-  body:not([data-secao="pedidos"]):not([data-secao="ideia"]) #appLogo {
-    display: none;
-  }
-}
-
 @media (min-width: 1872px) {
-  body[data-secao="pedidos"] .app-logo--lateral,
-  body[data-secao="ideia"] .app-logo--lateral {
+  .app-logo--lateral {
     display: block;
-    left: calc(50vw - 926px);
-    height: auto; /* anula o 72px dos cabeçalhos compactos */
   }
-  body[data-secao="pedidos"] #appLogo,
-  body[data-secao="ideia"] #appLogo {
+  #appLogo {
     display: none;
   }
 }
