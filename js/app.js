@@ -169,16 +169,20 @@ const App = (() => {
   }
 
   function renderSavedListFiltered() {
-    const query = (savedFilter.value || '').trim().toLowerCase();
+    // Procura no nome da ficha e no modelo (Referência do artigo), sem
+    // distinguir maiúsculas nem acentos.
+    const normalizar = texto => String(texto || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+    const query = normalizar((savedFilter.value || '').trim());
     const list = query
-      ? savedListCache.filter(entry => entry.name.toLowerCase().includes(query))
+      ? savedListCache.filter(entry => normalizar(entry.name).includes(query)
+        || normalizar(entry.header && entry.header.referencia).includes(query))
       : savedListCache;
     savedList.innerHTML = '';
     if (!list.length) {
       const empty = document.createElement('p');
       empty.className = 'saved-empty';
       empty.textContent = query
-        ? 'Nenhuma ficha encontrada com esse nome.'
+        ? 'Nenhuma ficha encontrada com esse nome ou modelo.'
         : 'Ainda não há fichas guardadas. Preenche uma ficha e usa o botão "Guardar ficha".';
       savedList.appendChild(empty);
       return;
