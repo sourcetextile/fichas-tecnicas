@@ -106,6 +106,11 @@ button, input, textarea, select {
   margin-bottom: 0;
 }
 
+/* Email e Sair ficam no canto superior direito da mesma linha. */
+.page-navrow .auth-status {
+  margin: 0 0 0 auto;
+}
+
 body[data-secao="pedidos"] .page-navrow,
 body[data-secao="ideia"] .page-navrow {
   display: contents;
@@ -227,8 +232,16 @@ body[data-secao="ideia"] .page-navrow {
    D E F). Fechadas por defeito; ao abrir, a caixa ocupa a linha toda para as
    fichas terem espaço. */
 #savedList {
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   align-items: start;
+}
+
+@media (max-width: 1000px) {
+  #savedList { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  #savedList { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 #savedList > .saved-empty {
@@ -247,12 +260,12 @@ body[data-secao="ideia"] .page-navrow {
   display: flex;
   align-items: center;
   gap: var(--s1);
-  padding: 14px 16px;
+  padding: 11px 13px;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   font-weight: 700;
-  font-size: 1.02rem;
+  font-size: 0.98rem;
   cursor: pointer;
   list-style: none;
   user-select: none;
@@ -263,7 +276,7 @@ body[data-secao="ideia"] .page-navrow {
 }
 
 .saved-group[open] > .saved-group-title {
-  max-width: 330px;
+  max-width: 240px;
   background: var(--ink);
   border-color: var(--ink);
   color: #FFF;
