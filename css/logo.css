@@ -20,3 +20,47 @@ body[data-secao="pedidos"] .app-logo,
 body[data-secao="ideia"] .app-logo {
   height: 72px;
 }
+
+/* --- Logótipo na margem esquerda -------------------------------------------
+   Em ecrãs largos o logótipo sai do cabeçalho e fica fixo na margem esquerda,
+   junto ao conteúdo, em todos os separadores. Em ecrãs sem margem livre fica o
+   do cabeçalho (#appLogo). A posição acompanha o conteúdo, que está centrado:
+   Ficha técnica e Fichas de decoração têm 1072 px de conteúdo; Pedidos e Ideia
+   de preço têm 1632 px (e só ganham margem acima de ~1870 px de largura). */
+.app-logo--lateral {
+  display: none;
+  position: fixed;
+  top: 28px;
+  left: calc(50vw - 630px);
+  width: 70px;
+  height: auto;
+  z-index: 5;
+}
+
+@media (min-width: 1280px) {
+  body:not([data-secao="pedidos"]):not([data-secao="ideia"]) .app-logo--lateral {
+    display: block;
+  }
+  body:not([data-secao="pedidos"]):not([data-secao="ideia"]) #appLogo {
+    display: none;
+  }
+}
+
+@media (min-width: 1872px) {
+  body[data-secao="pedidos"] .app-logo--lateral,
+  body[data-secao="ideia"] .app-logo--lateral {
+    display: block;
+    left: calc(50vw - 926px);
+    height: auto; /* anula o 72px dos cabeçalhos compactos */
+  }
+  body[data-secao="pedidos"] #appLogo,
+  body[data-secao="ideia"] #appLogo {
+    display: none;
+  }
+}
+
+@media print {
+  .app-logo--lateral {
+    display: none !important;
+  }
+}
