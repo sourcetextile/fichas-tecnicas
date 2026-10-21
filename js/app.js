@@ -926,6 +926,8 @@ const App = (() => {
       });
     });
     Object.values(headerFields).forEach(field => field.addEventListener('input', handleHeaderInput));
+    // Clientes já usados nas fichas: escolhe-se da lista ou acrescenta-se um novo.
+    if (window.Clientes) window.Clientes.ligar(headerFields.cliente);
 
     // Garante persistência ao fechar/recarregar mesmo com um save por gravar.
     window.addEventListener('beforeunload', flushSave);

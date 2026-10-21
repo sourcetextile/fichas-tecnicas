@@ -403,6 +403,15 @@ body.is-deco .page-description {
   background: rgba(26, 26, 26, 0.07);
 }
 
+/* Menu dos clientes (js/clientes.js): a opção de acrescentar fica separada e destacada. */
+.clientes-menu__novo {
+  margin-top: 4px;
+  padding-top: 9px !important;
+  border-top: 1px solid var(--line) !important;
+  border-radius: 0 0 6px 6px !important;
+  font-weight: 700;
+}
+
 .deco-tamanho-input {
   font-weight: 700;
   font-size: 0.8rem !important;

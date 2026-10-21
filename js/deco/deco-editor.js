@@ -1605,6 +1605,8 @@ const DecoEditor = (() => {
     colocacaoPartes.addEventListener('input', atualizarBotaoParte);
     partesAddButton.addEventListener('click', acrescentarParte);
 
+    // Clientes já usados nas fichas: escolhe-se da lista ou acrescenta-se um novo.
+    if (window.Clientes) window.Clientes.ligar(clienteInput);
     table.addEventListener('keydown', onTabelaKeydown);
     table.addEventListener('mousedown', onTabelaMousedown);
     table.addEventListener('mouseup', onTabelaMouseup);
