@@ -381,7 +381,7 @@ const DecoEditor = (() => {
   }
 
   function nomeDe(email) {
-    return (email || '').split('@')[0].replace(/[._]/g, ' ');
+    return DecoNomes.deEmail(email);
   }
 
   async function trocarFase(nome) {

@@ -1488,40 +1488,27 @@ input.deco-paleta-base-input:focus {
 }
 
 /* --- cabecalho --- */
+/* Três blocos em linha: logótipo à esquerda, modelo/OF/técnica ao centro e os
+   dados da fase à direita, todos centrados na vertical. */
 .deco-sheet__hero {
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 18px;
-  padding-bottom: 10px;
+  align-items: center;
+  gap: 20px;
+  padding-bottom: 12px;
   border-bottom: 3px solid var(--src-brown);
 }
 
-.deco-sheet__hero-side {
-  flex: 0 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 10px;
-}
-
-/* O ficheiro do logótipo é um lockup VERTICAL (41,4 x 341,6). Para ficar
-   deitado no canto superior direito, deita-se com uma rotação e a caixa fica
-   com as medidas já trocadas. */
+/* Logótipo empilhado (símbolo em cima, nome por baixo). É a imagem do
+   css/logo.css (--logo-sourcetextile, branca sobre transparente) usada como
+   máscara: a cor é a do background. Na impressão precisa de print-color-adjust
+   (ver @media print), senão o browser omite o fundo. */
 .deco-sheet__logo {
-  position: relative;
-  width: 196px;
-  height: 26px;
-}
-
-.deco-sheet__logo svg {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 196px;
-  width: auto;
-  display: block;
-  transform: translate(-50%, -50%) rotate(90deg);
+  flex: 0 0 auto;
+  height: 104px;
+  aspect-ratio: 663 / 2000;
+  background: #161615;
+  -webkit-mask: var(--logo-sourcetextile) center / contain no-repeat;
+  mask: var(--logo-sourcetextile) center / contain no-repeat;
 }
 
 .deco-sheet__hero-main {
@@ -1880,6 +1867,7 @@ input.deco-paleta-base-input:focus {
   }
 
   .deco-sheet__hero-of,
+  .deco-sheet__logo,
   .deco-sheet__table th,
   .deco-sheet__table tbody tr:nth-child(even) td,
   .deco-sheet__note {

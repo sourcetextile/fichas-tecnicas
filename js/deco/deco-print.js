@@ -29,8 +29,9 @@ const DecoPrint = (() => {
     return el('div', 'deco-sheet__band', text);
   }
 
+  // Nome de quem finalizou/atualizou a ficha (ver deco-nomes.js).
   function nomeDe(email) {
-    return (email || '').split('@')[0].replace(/[._]/g, ' ');
+    return DecoNomes.deEmail(email);
   }
 
   function dataCurta(iso) {
@@ -230,6 +231,12 @@ const DecoPrint = (() => {
 
     const hero = el('div', 'deco-sheet__hero');
 
+    // Logótipo empilhado à esquerda (desenhado por css/deco.css).
+    const logo = el('div', 'deco-sheet__logo');
+    logo.setAttribute('role', 'img');
+    logo.setAttribute('aria-label', 'Sourcetextile');
+    hero.appendChild(logo);
+
     const heroMain = el('div', 'deco-sheet__hero-main');
     heroMain.appendChild(el('p', 'deco-sheet__hero-eyebrow', 'Ficha de decorações'));
     const titulo = el('h1', 'deco-sheet__hero-title');
@@ -238,12 +245,6 @@ const DecoPrint = (() => {
     heroMain.appendChild(titulo);
     heroMain.appendChild(el('p', 'deco-sheet__hero-sub', tecnicaLabel(ficha)));
     hero.appendChild(heroMain);
-
-    // Logótipo deitado, no canto superior direito da folha.
-    const heroSide = el('div', 'deco-sheet__hero-side');
-    const logo = el('div', 'deco-sheet__logo');
-    logo.innerHTML = typeof DECO_LOGO_SVG === 'string' ? DECO_LOGO_SVG : '';
-    heroSide.appendChild(logo);
 
     const heroMeta = el('div', 'deco-sheet__hero-meta');
     heroMeta.appendChild(metaLine('Fase', ficha.fase_ativa || 'SMS'));
@@ -254,8 +255,7 @@ const DecoPrint = (() => {
       heroMeta.appendChild(metaLine('Atualizada', dataCurta(ficha.updated_at)));
       heroMeta.appendChild(metaLine('Por', nomeDe(ficha.updated_by)));
     }
-    heroSide.appendChild(heroMeta);
-    hero.appendChild(heroSide);
+    hero.appendChild(heroMeta);
     sheet.appendChild(hero);
 
     const strip = el('div', 'deco-sheet__strip');
