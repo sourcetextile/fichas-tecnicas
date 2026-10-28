@@ -104,6 +104,11 @@ async function onSignedIn(session) {
   Storage.init(supabase, TABLE);
   window.Auth.email = email;
   authEmail.textContent = email;
+  const portalLink = document.getElementById('portalLink');
+  if (portalLink && window.AppConfig.portalUrl) {
+    portalLink.href = window.AppConfig.portalUrl;
+    portalLink.classList.remove('hidden');
+  }
   authStatus.classList.remove('hidden');
   loginScreen.classList.add('hidden');
   selectionScreen.classList.remove('hidden');

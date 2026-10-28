@@ -20,6 +20,10 @@ window.AppConfig = {
   // Quem entra na aplicação. Domínios inteiros ou emails completos.
   acessos: ['sourcetextile.pt', 'kaizen.com'],
 
+  // Portal de Aplicações (na rede da empresa): o botão "← Portal" do topo volta
+  // para lá. Vazio = o botão não aparece.
+  portalUrl: 'http://192.168.1.150:4800/',
+
   tabelas: {
     fichas: 'ficha_tecnica_sourcetextile_fichas',
     deco: 'ficha_tecnica_sourcetextile_deco_fichas',

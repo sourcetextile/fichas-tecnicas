@@ -68,6 +68,10 @@ const App = (() => {
   let formState = {};
   let headerState = {};
   let latestModel = null;
+  // Como o formulário estava ao abrir (ou ao guardar): serve para saber, ao
+  // voltar atrás, se há alterações por guardar. null = não se sabe.
+  let baseline = null;
+  const snapshot = () => JSON.stringify({ header: headerState, form: formState });
 
   // --- Auto-save (debounce enquanto se escreve; imediato nas alterações estruturais) ---
   let saveTimer = null;
@@ -125,9 +129,46 @@ const App = (() => {
       name.textContent = type;
       button.appendChild(name);
 
-      button.addEventListener('click', () => selectType(type));
+      button.addEventListener('click', () => abrirNovo(type));
       typeGrid.appendChild(button);
     });
+  }
+
+  // Há alguma coisa escrita? (texto, opção marcada, linha acrescentada...)
+  function temConteudo(valor) {
+    if (typeof valor === 'string') return valor.trim() !== '';
+    if (Array.isArray(valor)) return valor.some(temConteudo);
+    if (valor && typeof valor === 'object') return Object.values(valor).some(temConteudo);
+    return false;
+  }
+
+  // "Nova ficha" de um tipo. O rascunho de cada tipo fica guardado neste
+  // computador; se tiver dados por guardar, pergunta o que fazer em vez de os
+  // mostrar sem avisar (parecia uma ficha nova já preenchida).
+  async function abrirNovo(type) {
+    const cabecalho = Storage.loadHeader(type);
+    if (temConteudo(Storage.load(type)) || temConteudo(cabecalho)) {
+      const nome = ((cabecalho && (cabecalho.nome || cabecalho.referencia)) || '').trim();
+      const mensagem = `Tens dados de ${type} por guardar${nome ? ` ("${nome}")` : ''}. `
+        + 'Queres continuar esse rascunho ou começar uma ficha em branco?';
+      let escolha;
+      if (typeof DecoDialog !== 'undefined') {
+        escolha = await DecoDialog.escolher({
+          titulo: `Rascunho de ${type} por guardar`,
+          mensagem,
+          opcoes: [
+            { etiqueta: 'Continuar o rascunho', valor: 'continuar', destaque: true },
+            { etiqueta: 'Começar em branco', valor: 'branco' }
+          ]
+        });
+      } else {
+        escolha = window.confirm(mensagem + '\n\nOK = continuar o rascunho; Cancelar = começar em branco.')
+          ? 'continuar' : 'branco';
+      }
+      if (!escolha) return;
+      if (escolha === 'branco') Storage.clear(type);
+    }
+    selectType(type);
   }
 
   // --- Fichas guardadas -----------------------------------------------------
@@ -151,6 +192,7 @@ const App = (() => {
       form: JSON.parse(JSON.stringify(formState))
     };
     await Storage.upsertSaved(entry);
+    baseline = snapshot();
 
     const original = saveButton.textContent;
     saveButton.textContent = 'Guardada ✓';
@@ -286,7 +328,7 @@ const App = (() => {
     // Repõe o snapshot como rascunho ativo e abre o formulário
     Storage.saveHeader(entry.type, entry.header || {});
     Storage.save(entry.type, entry.form || {});
-    selectType(entry.type);
+    selectType(entry.type, true);
   }
 
   // --- Estado do formulário ------------------------------------------------
@@ -364,13 +406,18 @@ const App = (() => {
   }
 
   // --- Navegação -----------------------------------------------------------
-  function selectType(type) {
+  // desdeGuardada: o formulário vem de uma ficha já guardada (fica a "base" para
+  // saber se houve alterações). Um rascunho a meio, retomado, NÃO é base: está
+  // por guardar, e voltar atrás sem mexer não o pode apagar.
+  function selectType(type, desdeGuardada) {
     currentType = type;
     currentRows = allRows.filter(row => row.tipoPeca === type);
     formTitle.textContent = type;
     initHeaderState();
     initFormState();
     renderForm();
+    const vazio = !temConteudo(headerState) && !temConteudo(formState);
+    baseline = (desdeGuardada || vazio) ? snapshot() : null;
     latestModel = null;
     resultsPanel.classList.add('hidden');
     formScreen.classList.remove('hidden');
@@ -381,6 +428,10 @@ const App = (() => {
 
   function goBack() {
     flushSave();
+    // Sem alterações desde que se abriu (ou guardou), o rascunho é só uma cópia
+    // da ficha que já está guardada: apaga-se, senão o tipo voltava a abrir
+    // preenchido com os dados dessa ficha. Com alterações por guardar, fica.
+    if (currentType && baseline !== null && snapshot() === baseline) Storage.clear(currentType);
     selectionScreen.classList.remove('hidden');
     formScreen.classList.add('hidden');
     Storage.saveLastType(null);
@@ -885,6 +936,7 @@ const App = (() => {
     initHeaderState();
     initFormState();
     renderForm();
+    baseline = snapshot();
     latestModel = null;
     resultsPanel.classList.add('hidden');
     flushSave();
@@ -948,7 +1000,10 @@ const App = (() => {
   // portátil, onde não existe window.Auth).
   function afterAuth() {
     const last = Storage.loadLastType();
-    if (last && typesInData.has(last)) selectType(last);
+    if (last && typesInData.has(last)) {
+      selectType(last);
+      baseline = null; // recarregou a página a meio: pode haver alterações por guardar
+    }
   }
 
   return { init, afterAuth };
