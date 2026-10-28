@@ -12128,16 +12128,80 @@ window.Clientes = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Criar um cliente novo
+  //
+  // Não pode acontecer por acaso (escrever "10" a meio de "10 Days" e sair do
+  // campo criava um cliente "10"). Só se cria por uma ação deliberada, e com
+  // confirmação: "+ Adicionar novo cliente" no menu, ou escrever um nome que
+  // não existe e confirmar quando a aplicação pergunta. Se já existir um
+  // cliente parecido, sugere-se esse primeiro.
+  // ---------------------------------------------------------------------
+  // Enquanto uma janela nossa está aberta, os campos ignoram o "blur" (a janela
+  // tira-lhes o foco, e isso não pode disparar outra pergunta).
+  let ocupado = false;
+
+  // Devolve o nome do cliente a usar (existente ou criado agora) ou null.
+  async function novoCliente(texto) {
+    ocupado = true;
+    try {
+      let nome = limpar(texto);
+      if (!nome) {
+        const escrito = await DecoDialog.pedirTexto({
+          titulo: 'Novo cliente',
+          mensagem: 'Escreve o nome do cliente. Vai ficar disponível para todas as pessoas, por isso confirma que está escrito como deve ser.',
+          etiqueta: 'Nome do cliente',
+          confirmar: 'Continuar'
+        });
+        nome = limpar(escrito);
+        if (!nome) return null;
+      }
+
+      const igual = existente(nome);
+      if (igual) return igual.nome;
+
+      const chave = normalizar(nome);
+      const parecidos = lista.filter(c =>
+        (c.chave.length >= 2 && chave.includes(c.chave)) || (chave.length >= 2 && c.chave.includes(chave)));
+      if (parecidos.length) {
+        const escolha = await DecoDialog.escolher({
+          titulo: 'Já existe um cliente parecido',
+          mensagem: `Já existe: ${parecidos.map(c => c.nome).join(', ')}. Queres usar um deles ou criar "${nome}" como cliente novo?`,
+          opcoes: parecidos.slice(0, 4)
+            .map(c => ({ etiqueta: 'Usar ' + c.nome, valor: 'usar:' + c.nome, destaque: true }))
+            .concat([{ etiqueta: `Criar "${nome}" como novo`, valor: 'criar' }])
+        });
+        if (!escolha) return null;
+        if (escolha.startsWith('usar:')) return escolha.slice(5);
+      } else {
+        const confirmado = await DecoDialog.confirmar({
+          titulo: `Criar o cliente "${nome}"?`,
+          mensagem: 'Vai ficar disponível para todas as pessoas. Confirma que o nome está escrito como deve ser.',
+          confirmar: 'Criar cliente'
+        });
+        if (!confirmado) return null;
+      }
+      const criado = adicionar(nome);
+      return criado ? criado.nome : nome;
+    } finally {
+      ocupado = false;
+    }
+  }
+
+  // ---------------------------------------------------------------------
   // Menu do campo
   // ---------------------------------------------------------------------
   function ligar(input) {
     if (!input || input.dataset.clientesLigado) return;
     input.dataset.clientesLigado = '1';
     input.autocomplete = 'off';
-    if (!input.placeholder) input.placeholder = 'Escolhe da lista ou escreve um novo';
+    input.placeholder = 'Escolhe da lista';
 
     let fecharMenu = null;
     let interno = false;
+    // O que o resto da aplicação já tem como valor deste campo. Escrever no
+    // campo só chega à aplicação quando é um cliente que existe (ou vazio);
+    // enquanto isso, o rascunho e o guardar automático não veem texto a meio.
+    let ultimoValido = input.value;
 
     // Muda o valor como se a pessoa o tivesse escrito: quem guarda o rascunho
     // ouve o evento "input".
@@ -12163,7 +12227,7 @@ window.Clientes = (() => {
       if (!existente(texto)) {
         opcoes.push({
           novo: true,
-          rotulo: texto ? `+ Adicionar "${texto}" como novo cliente` : '+ Adicionar novo cliente'
+          rotulo: texto ? `+ Criar o cliente "${texto}"…` : '+ Adicionar novo cliente…'
         });
       }
       // Corrigir ou eliminar clientes: só quando já há clientes na lista.
@@ -12175,23 +12239,22 @@ window.Clientes = (() => {
       menu.setAttribute('role', 'listbox');
       let ativo = -1;
 
-      function escolher(opcao) {
+      async function escolher(opcao) {
         fechar();
         if (opcao.gerir) {
-          gerir();
+          ocupado = true;
+          try { await gerir(); } finally { ocupado = false; }
           return;
         }
         if (!opcao.novo) {
           escrever(opcao.nome);
           return;
         }
-        if (texto) {
-          const cliente = adicionar(texto);
-          escrever(cliente ? cliente.nome : texto);
-        } else {
-          input.placeholder = 'Escreve o nome do novo cliente';
-          input.focus();
-        }
+        // Cliente novo: só com confirmação (e a escrever o nome, se o campo estava vazio).
+        input.value = ultimoValido;
+        const criado = await novoCliente(texto);
+        if (criado) escrever(criado);
+        else input.focus();
       }
 
       const itens = opcoes.map(opcao => {
@@ -12284,20 +12347,45 @@ window.Clientes = (() => {
       if (document.activeElement === input) abrir(filtrar);
     }
 
-    input.addEventListener('focus', () => abrirComLista(false));
-    input.addEventListener('click', () => { if (!fecharMenu) abrirComLista(false); });
-    input.addEventListener('input', () => {
-      if (!interno) abrirComLista(true);
+    input.addEventListener('focus', () => {
+      ultimoValido = input.value;
+      abrirComLista(false);
     });
-    input.addEventListener('blur', () => {
+    input.addEventListener('click', () => { if (!fecharMenu) abrirComLista(false); });
+
+    // Ao escrever, o menu filtra; e só chega ao resto da aplicação (rascunho,
+    // guardar automático) o que é um cliente que existe, ou o campo vazio. É
+    // um listener de captura: corre antes dos da aplicação neste campo.
+    input.addEventListener('input', evento => {
+      if (interno) {
+        ultimoValido = input.value;
+        return;
+      }
+      abrirComLista(true);
+      if (limpar(input.value) && !existente(input.value)) {
+        evento.stopImmediatePropagation();
+        return;
+      }
+      ultimoValido = input.value;
+    }, true);
+
+    input.addEventListener('blur', async () => {
+      if (ocupado) return;
       fechar();
       const texto = limpar(input.value);
       if (!texto) return;
-      // Uma grafia diferente de um cliente que já existe passa à da lista; um
-      // nome novo fica na lista para os outros campos.
-      const cliente = existente(texto) || adicionar(texto);
-      const final = cliente ? cliente.nome : texto;
-      if (final !== input.value) escrever(final);
+      await carregar();
+      const cliente = existente(texto);
+      if (cliente) {
+        // Grafia diferente de um cliente que já existe: passa à da lista.
+        if (cliente.nome !== input.value) escrever(cliente.nome);
+        return;
+      }
+      // Nome que não existe: não fica no campo. Volta ao valor anterior (já é
+      // o que a aplicação tem) e só se cria o cliente se a pessoa confirmar.
+      input.value = ultimoValido;
+      const criado = await novoCliente(texto);
+      if (criado) escrever(criado);
     });
   }
 
