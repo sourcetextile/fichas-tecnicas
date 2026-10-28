@@ -12,7 +12,8 @@
 window.Clientes = (() => {
   const TTL_MS = 60 * 1000;
 
-  // chave (sem acentos nem maiúsculas) -> { nome, grafias: Map(grafia -> vezes) }
+  // chave (sem acentos nem maiúsculas) ->
+  //   { nome, grafias: Map(grafia -> vezes), brutos: Set(texto exato na base) }
   const porChave = new Map();
   let lista = [];
   let carregadoEm = 0;
@@ -21,13 +22,16 @@ window.Clientes = (() => {
   const limpar = texto => String(texto || '').replace(/\s+/g, ' ').trim();
   const normalizar = texto => limpar(texto).normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 
-  function contar(nome, vezes) {
+  // "bruto" é o texto tal como está na base (com espaços a mais, etc.): é com
+  // ele que se encontram as fichas para corrigir ou eliminar um cliente.
+  function contar(nome, vezes, bruto) {
     const grafia = limpar(nome);
     const chave = normalizar(grafia);
     if (!chave) return;
-    if (!porChave.has(chave)) porChave.set(chave, { nome: grafia, grafias: new Map() });
+    if (!porChave.has(chave)) porChave.set(chave, { nome: grafia, grafias: new Map(), brutos: new Set() });
     const cliente = porChave.get(chave);
     cliente.grafias.set(grafia, (cliente.grafias.get(grafia) || 0) + vezes);
+    if (bruto !== undefined) cliente.brutos.add(bruto);
   }
 
   function reconstruir() {
@@ -35,11 +39,13 @@ window.Clientes = (() => {
     porChave.forEach((cliente, chave) => {
       let melhor = cliente.nome;
       let max = 0;
+      let total = 0;
       cliente.grafias.forEach((vezes, grafia) => {
+        total += vezes;
         if (vezes > max) { max = vezes; melhor = grafia; }
       });
       cliente.nome = melhor;
-      lista.push({ nome: melhor, chave });
+      lista.push({ nome: melhor, chave, total: cliente.brutos.size ? total : 0 });
     });
     lista.sort((a, b) => a.nome.localeCompare(b.nome, 'pt', { sensitivity: 'base' }));
   }
@@ -71,7 +77,7 @@ window.Clientes = (() => {
           const locais = [];
           porChave.forEach(cliente => cliente.grafias.forEach((_, g) => locais.push(g)));
           porChave.clear();
-          nomes.forEach(nome => contar(nome, 1));
+          nomes.forEach(nome => { if (nome !== null && nome !== undefined) contar(nome, 1, String(nome)); });
           locais.forEach(nome => { if (!porChave.has(normalizar(nome))) contar(nome, 1); });
           reconstruir();
           carregadoEm = Date.now();
@@ -100,6 +106,122 @@ window.Clientes = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Corrigir ou eliminar um cliente
+  //
+  // Não há uma tabela de clientes: um cliente existe enquanto houver fichas
+  // com o seu nome. Por isso, mudar o nome ou eliminar é mudar essas fichas
+  // (Ficha técnica: o cliente está no cabeçalho; Fichas de decoração: coluna
+  // "cliente"). Eliminar NÃO apaga fichas: só lhes tira o cliente.
+  // ---------------------------------------------------------------------
+  // Campos "Cliente" abertos neste momento, para os acertar depois de uma
+  // alteração (senão o rascunho voltava a gravar o nome antigo).
+  const campos = [];
+
+  async function alterarNaBase(brutos, novo) {
+    const cliente = window.Auth.client;
+    const tabelas = window.AppConfig.tabelas;
+    let alteradas = 0;
+    let erros = 0;
+    for (const bruto of brutos) {
+      const deco = await cliente.from(tabelas.deco).update({ cliente: novo }).eq('cliente', bruto).select('id');
+      if (deco.error) erros += 1; else alteradas += deco.data.length;
+
+      const fichas = await cliente.from(tabelas.fichas).select('id, header').eq('header->>cliente', bruto);
+      if (fichas.error) { erros += 1; continue; }
+      for (const linha of fichas.data) {
+        const header = Object.assign({}, linha.header, { cliente: novo || '' });
+        const resultado = await cliente.from(tabelas.fichas).update({ header }).eq('id', linha.id);
+        if (resultado.error) erros += 1; else alteradas += 1;
+      }
+    }
+    return { alteradas, erros };
+  }
+
+  // Muda o nome (novoNome) ou elimina (novoNome = null) o cliente com esta chave.
+  async function alterar(chave, novoNome) {
+    const atual = porChave.get(chave);
+    if (!atual) return { alteradas: 0, erros: 0 };
+    const resultado = await alterarNaBase(Array.from(atual.brutos), novoNome);
+    if (!resultado.erros) porChave.delete(chave);
+    // Os campos abertos que ainda tinham o nome antigo passam ao novo (ou ficam vazios).
+    campos.forEach(campo => {
+      if (normalizar(campo.input.value) === chave) campo.escrever(novoNome || '');
+    });
+    await carregar(true);
+    if (novoNome && !existente(novoNome)) adicionar(novoNome);
+    return resultado;
+  }
+
+  const plural = (n, um, varios) => n + ' ' + (n === 1 ? um : varios);
+
+  async function gerir() {
+    await carregar(true);
+    if (!lista.length) return;
+
+    const chave = await DecoDialog.escolher({
+      titulo: 'Gerir clientes',
+      mensagem: 'Escolhe o cliente que queres corrigir ou eliminar. O número é o de fichas que o usam.',
+      opcoes: lista.map(c => ({ etiqueta: `${c.nome} (${c.total})`, valor: c.chave }))
+    });
+    if (!chave) return;
+    const cliente = lista.find(c => c.chave === chave);
+    if (!cliente) return;
+
+    const acao = await DecoDialog.escolher({
+      titulo: cliente.nome,
+      mensagem: cliente.total
+        ? `${plural(cliente.total, 'ficha usa', 'fichas usam')} este cliente (Ficha técnica e Fichas de decoração).`
+        : 'Nenhuma ficha usa este cliente.',
+      opcoes: [
+        { etiqueta: 'Mudar o nome / juntar a outro cliente', valor: 'renomear', destaque: true },
+        { etiqueta: 'Eliminar o cliente', valor: 'eliminar' }
+      ]
+    });
+    if (!acao) return;
+
+    let novoNome = null;
+    if (acao === 'renomear') {
+      const texto = await DecoDialog.pedirTexto({
+        titulo: 'Novo nome do cliente',
+        mensagem: 'Se escreveres o nome de um cliente que já existe, os dois ficam juntos.',
+        etiqueta: 'Nome do cliente',
+        valor: cliente.nome,
+        confirmar: 'Mudar o nome'
+      });
+      const limpo = limpar(texto);
+      if (!limpo || limpo === cliente.nome) return;
+      const igual = existente(limpo);
+      novoNome = igual && igual.chave !== chave ? igual.nome : limpo;
+    } else {
+      const confirmado = await DecoDialog.confirmar({
+        titulo: `Eliminar "${cliente.nome}"?`,
+        mensagem: cliente.total
+          ? `As ${plural(cliente.total, 'ficha', 'fichas')} que usam este cliente ficam sem cliente (não se apagam). Esta ação não pode ser anulada.`
+          : 'Nenhuma ficha o usa; só sai da lista.',
+        confirmar: 'Eliminar cliente',
+        perigo: true
+      });
+      if (!confirmado) return;
+    }
+
+    document.body.style.cursor = 'progress';
+    let resultado;
+    try {
+      resultado = await alterar(chave, novoNome);
+    } finally {
+      document.body.style.cursor = '';
+    }
+    if (resultado.erros) {
+      await DecoDialog.confirmar({
+        titulo: 'Nem tudo foi alterado',
+        mensagem: `Houve ${plural(resultado.erros, 'erro', 'erros')} ao alterar as fichas. Tenta outra vez; se continuar, avisa quem gere a aplicação.`,
+        confirmar: 'Ok',
+        cancelar: 'Fechar'
+      });
+    }
+  }
+
+  // ---------------------------------------------------------------------
   // Menu do campo
   // ---------------------------------------------------------------------
   function ligar(input) {
@@ -119,6 +241,7 @@ window.Clientes = (() => {
       input.dispatchEvent(new Event('input', { bubbles: true }));
       interno = false;
     }
+    campos.push({ input, escrever });
 
     function fechar() {
       if (fecharMenu) fecharMenu();
@@ -137,6 +260,8 @@ window.Clientes = (() => {
           rotulo: texto ? `+ Adicionar "${texto}" como novo cliente` : '+ Adicionar novo cliente'
         });
       }
+      // Corrigir ou eliminar clientes: só quando já há clientes na lista.
+      if (lista.length) opcoes.push({ gerir: true, rotulo: 'Gerir clientes… (mudar o nome, eliminar)' });
       if (!opcoes.length) return;
 
       const menu = document.createElement('div');
@@ -146,6 +271,10 @@ window.Clientes = (() => {
 
       function escolher(opcao) {
         fechar();
+        if (opcao.gerir) {
+          gerir();
+          return;
+        }
         if (!opcao.novo) {
           escrever(opcao.nome);
           return;
@@ -162,9 +291,11 @@ window.Clientes = (() => {
       const itens = opcoes.map(opcao => {
         const item = document.createElement('button');
         item.type = 'button';
-        item.className = 'deco-desc-menu__item' + (opcao.novo ? ' clientes-menu__novo' : '');
+        item.className = 'deco-desc-menu__item'
+          + (opcao.novo ? ' clientes-menu__novo' : '')
+          + (opcao.gerir ? ' clientes-menu__gerir' : '');
         item.setAttribute('role', 'option');
-        item.textContent = opcao.novo ? opcao.rotulo : opcao.nome;
+        item.textContent = opcao.novo || opcao.gerir ? opcao.rotulo : opcao.nome;
         // Sem isto o mousedown tira o foco do campo antes de o clique chegar.
         item.addEventListener('mousedown', evento => evento.preventDefault());
         item.addEventListener('click', () => escolher(opcao));
@@ -264,5 +395,5 @@ window.Clientes = (() => {
     });
   }
 
-  return { carregar, ligar, adicionar, lista: () => lista.map(c => c.nome) };
+  return { carregar, ligar, adicionar, gerir, lista: () => lista.map(c => c.nome) };
 })();

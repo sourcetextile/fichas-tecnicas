@@ -412,6 +412,12 @@ body.is-deco .page-description {
   font-weight: 700;
 }
 
+.clientes-menu__gerir {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
 .deco-tamanho-input {
   font-weight: 700;
   font-size: 0.8rem !important;
