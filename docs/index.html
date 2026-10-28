@@ -15713,6 +15713,39 @@ const DecoPrint = (() => {
     return table;
   }
 
+  // --- imagens -------------------------------------------------------------
+  // As imagens (croqui e fotos da paleta) estão num bucket privado e chegam por
+  // URL assinado: primeiro um pedido ao Supabase pelo URL, depois a descarga da
+  // imagem. Cada carregamento fica registado em "coletor" (um por folha) para o
+  // imprimir() esperar por TODOS antes de abrir a caixa de impressão. Esperar um
+  // tempo fixo não chega: com o URL a demorar mais do que isso, a impressão
+  // arrancava com os painéis vazios.
+  let coletor = null;
+
+  function carregarImagem(img, caminho, descricao) {
+    const tarefa = (async () => {
+      // Duas tentativas: o URL assinado ou a descarga podem falhar uma vez.
+      for (let tentativa = 0; tentativa < 2; tentativa += 1) {
+        const url = await DecoImages.getSignedUrl(caminho);
+        if (!url) continue;
+        const ok = await new Promise(resolve => {
+          img.onload = () => resolve(true);
+          img.onerror = () => resolve(false);
+          img.src = url;
+        });
+        if (ok) {
+          // Descodificada antes de imprimir (uma imagem grande pode estar
+          // "carregada" mas ainda por desenhar).
+          try { await img.decode(); } catch (erro) { /* já está desenhável */ }
+          return { ok: true, descricao };
+        }
+      }
+      return { ok: false, descricao };
+    })();
+    if (coletor) coletor.push(tarefa);
+    return tarefa;
+  }
+
   // --- croqui --------------------------------------------------------------
   function croquiPanel(ficha, key, title) {
     const data = (ficha.croqui && ficha.croqui[key]) || { imagem: null, anotacoes: [] };
@@ -15732,9 +15765,7 @@ const DecoPrint = (() => {
       if (rot) frame.style.transform = 'rotate(' + rot + 'deg)';
       const img = document.createElement('img');
       img.alt = title;
-      DecoImages.getSignedUrl(data.imagem.path).then(url => {
-        if (url) img.src = url;
-      });
+      carregarImagem(img, data.imagem.path, title);
       frame.appendChild(img);
       stage.appendChild(frame);
     }
@@ -15768,9 +15799,7 @@ const DecoPrint = (() => {
       if (base.foto) {
         const img = document.createElement('img');
         img.alt = base.nome || 'Cor base';
-        DecoImages.getSignedUrl(base.foto).then(url => {
-          if (url) img.src = url;
-        });
+        carregarImagem(img, base.foto, 'Foto da cor ' + (base.nome || 'base'));
         th.appendChild(img);
       }
       th.appendChild(document.createTextNode(base.nome || ''));
@@ -15817,6 +15846,19 @@ const DecoPrint = (() => {
   function buildSheet(ficha) {
     const sheet = el('div', 'deco-sheet');
     const fase = (ficha.fases && ficha.fases[ficha.fase_ativa]) || {};
+
+    // Regista os carregamentos de imagens desta folha (ver carregarImagem).
+    const anterior = coletor;
+    coletor = [];
+    sheet.carregamentos = coletor;
+    try {
+      return montarFolha(sheet, ficha, fase);
+    } finally {
+      coletor = anterior;
+    }
+  }
+
+  function montarFolha(sheet, ficha, fase) {
 
     const hero = el('div', 'deco-sheet__hero');
 
@@ -15899,30 +15941,52 @@ const DecoPrint = (() => {
     return sheet;
   }
 
-  // As imagens do croqui chegam por URL assinado, de forma assíncrona: sem
-  // esperar por elas, a caixa de impressão abria com os painéis vazios.
-  function esperarImagens(raiz, limiteMs) {
-    const imagens = [...raiz.querySelectorAll('img')].filter(img => !img.complete);
-    if (!imagens.length) return Promise.resolve();
-    return Promise.race([
-      Promise.all(imagens.map(img => new Promise(resolve => {
-        img.addEventListener('load', resolve, { once: true });
-        img.addEventListener('error', resolve, { once: true });
-      }))),
-      new Promise(resolve => setTimeout(resolve, limiteMs || 4000))
+  const LIMITE_IMAGENS_MS = 30000;
+
+  // Espera por todas as imagens de todas as folhas. Devolve a lista das que
+  // não chegaram a carregar (vazia = está tudo pronto para imprimir).
+  async function esperarImagens(folhas) {
+    const tarefas = folhas.flatMap(folha => folha.carregamentos || []);
+    if (!tarefas.length) return [];
+    const resultados = await Promise.race([
+      Promise.all(tarefas),
+      new Promise(resolve => setTimeout(() => resolve(null), LIMITE_IMAGENS_MS))
     ]);
+    // Passou o tempo: as que ainda estavam por acabar contam como falhadas.
+    if (!resultados) return ['uma ou mais imagens (demoraram demasiado)'];
+    return resultados.filter(r => !r.ok).map(r => r.descricao);
   }
 
   async function imprimir(fichas) {
     const lista = (fichas || []).filter(Boolean);
     sheetsEl.innerHTML = '';
     if (!lista.length) return;
-    lista.forEach(ficha => sheetsEl.appendChild(buildSheet(ficha)));
+    const folhas = lista.map(ficha => buildSheet(ficha));
+    folhas.forEach(folha => sheetsEl.appendChild(folha));
 
-    // Os URLs assinados só chegam no tick seguinte; dá-se-lhes uma volta antes
-    // de procurar imagens por carregar.
-    await new Promise(resolve => setTimeout(resolve, 250));
-    await esperarImagens(sheetsEl);
+    // Enquanto as imagens chegam, o cursor mostra que a aplicação está a
+    // trabalhar (senão parece que o botão não fez nada).
+    document.body.style.cursor = 'progress';
+    let falhadas;
+    try {
+      falhadas = await esperarImagens(folhas);
+    } finally {
+      document.body.style.cursor = '';
+    }
+    if (falhadas.length) {
+      // Em vez de imprimir com um painel vazio sem dizer nada, avisa.
+      const continuar = await DecoDialog.confirmar({
+        titulo: 'Imagens por carregar',
+        mensagem: 'Não foi possível carregar: ' + falhadas.join(', ')
+          + '. Se imprimires agora, estas imagens vão faltar na folha.',
+        confirmar: 'Imprimir mesmo assim',
+        cancelar: 'Cancelar'
+      });
+      if (!continuar) {
+        sheetsEl.innerHTML = '';
+        return;
+      }
+    }
     window.print();
   }
 
