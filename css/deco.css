@@ -807,18 +807,6 @@ input.croqui-text-input {
 }
 
 /* --- Editor: paleta de cores --------------------------------------------- */
-input.deco-paleta-titulo {
-  width: auto;
-  min-height: 0;
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-  background: transparent;
-  padding: 2px 6px;
-  font: inherit;
-  font-weight: 700;
-  min-width: 220px;
-}
-
 .deco-paleta-table {
   border-collapse: collapse;
   width: 100%;
@@ -1263,11 +1251,6 @@ input.deco-paleta-base-input:focus {
 #sectionDeco input.deco-paleta-base-input {
   height: var(--deco-h-sm);
   font-size: var(--deco-text);
-}
-
-#sectionDeco input.deco-paleta-titulo {
-  height: var(--deco-h-sm);
-  font-size: var(--deco-title);
 }
 
 #sectionDeco .deco-list-filters select,

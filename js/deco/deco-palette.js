@@ -10,7 +10,6 @@
 // marcas[i] da cor base corresponde a cores[i].
 const DecoPalette = (() => {
   const table = document.getElementById('decoPaletaTable');
-  const tituloInput = document.getElementById('decoPaletaTitulo');
   const addCorButton = document.getElementById('decoPaletaAddCor');
   const addBaseButton = document.getElementById('decoPaletaAddBase');
 
@@ -21,7 +20,9 @@ const DecoPalette = (() => {
 
   function normalize(value) {
     const out = (value && typeof value === 'object') ? value : {};
-    if (typeof out.titulo !== 'string' || !out.titulo) out.titulo = 'Paleta de cores';
+    // O título é sempre o mesmo e não se edita (fichas antigas com outro título
+    // passam a este).
+    out.titulo = 'Paleta de cores';
     if (!Array.isArray(out.cores)) out.cores = [];
     if (!Array.isArray(out.cores_base)) out.cores_base = [];
     out.cores_base.forEach(base => {
@@ -36,7 +37,6 @@ const DecoPalette = (() => {
     paleta = normalize(value);
     onChange = (options && options.onChange) || function () {};
     getFichaId = (options && options.fichaId) || (() => null);
-    tituloInput.value = paleta.titulo;
     render();
     if (!bound) {
       bindEvents();
@@ -279,10 +279,6 @@ const DecoPalette = (() => {
 
   function bindEvents() {
     table.addEventListener('keydown', onTabelaKeydown);
-    tituloInput.addEventListener('input', () => {
-      paleta.titulo = tituloInput.value;
-      changed();
-    });
     addCorButton.addEventListener('click', addCor);
     addBaseButton.addEventListener('click', addBase);
   }

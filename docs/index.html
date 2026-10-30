@@ -2002,18 +2002,6 @@ input.croqui-text-input {
 }
 
 /* --- Editor: paleta de cores --------------------------------------------- */
-input.deco-paleta-titulo {
-  width: auto;
-  min-height: 0;
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-  background: transparent;
-  padding: 2px 6px;
-  font: inherit;
-  font-weight: 700;
-  min-width: 220px;
-}
-
 .deco-paleta-table {
   border-collapse: collapse;
   width: 100%;
@@ -2458,11 +2446,6 @@ input.deco-paleta-base-input:focus {
 #sectionDeco input.deco-paleta-base-input {
   height: var(--deco-h-sm);
   font-size: var(--deco-text);
-}
-
-#sectionDeco input.deco-paleta-titulo {
-  height: var(--deco-h-sm);
-  font-size: var(--deco-title);
 }
 
 #sectionDeco .deco-list-filters select,
@@ -5628,7 +5611,7 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
 
           <div class="card deco-paleta-card">
             <div class="section-bar deco-section-bar">
-              <h2><input id="decoPaletaTitulo" type="text" class="deco-paleta-titulo" value="Paleta de cores"></h2>
+              <h2>Paleta de cores</h2>
               <div class="deco-tamanhos-actions">
                 <button id="decoPaletaAddCor" type="button" class="secondary">+ Cor</button>
                 <button id="decoPaletaAddBase" type="button" class="secondary">+ Cor base</button>
@@ -15375,7 +15358,6 @@ const DecoNomes = (() => {
 // marcas[i] da cor base corresponde a cores[i].
 const DecoPalette = (() => {
   const table = document.getElementById('decoPaletaTable');
-  const tituloInput = document.getElementById('decoPaletaTitulo');
   const addCorButton = document.getElementById('decoPaletaAddCor');
   const addBaseButton = document.getElementById('decoPaletaAddBase');
 
@@ -15386,7 +15368,9 @@ const DecoPalette = (() => {
 
   function normalize(value) {
     const out = (value && typeof value === 'object') ? value : {};
-    if (typeof out.titulo !== 'string' || !out.titulo) out.titulo = 'Paleta de cores';
+    // O título é sempre o mesmo e não se edita (fichas antigas com outro título
+    // passam a este).
+    out.titulo = 'Paleta de cores';
     if (!Array.isArray(out.cores)) out.cores = [];
     if (!Array.isArray(out.cores_base)) out.cores_base = [];
     out.cores_base.forEach(base => {
@@ -15401,7 +15385,6 @@ const DecoPalette = (() => {
     paleta = normalize(value);
     onChange = (options && options.onChange) || function () {};
     getFichaId = (options && options.fichaId) || (() => null);
-    tituloInput.value = paleta.titulo;
     render();
     if (!bound) {
       bindEvents();
@@ -15644,10 +15627,6 @@ const DecoPalette = (() => {
 
   function bindEvents() {
     table.addEventListener('keydown', onTabelaKeydown);
-    tituloInput.addEventListener('input', () => {
-      paleta.titulo = tituloInput.value;
-      changed();
-    });
     addCorButton.addEventListener('click', addCor);
     addBaseButton.addEventListener('click', addBase);
   }
@@ -16237,7 +16216,7 @@ const DecoPrint = (() => {
 
     const paleta = paletaTable(ficha.paleta);
     if (paleta) {
-      sheet.appendChild(band((ficha.paleta && ficha.paleta.titulo) || 'Paleta de cores'));
+      sheet.appendChild(band('Paleta de cores'));
       sheet.appendChild(paleta);
     }
 

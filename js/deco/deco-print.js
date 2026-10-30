@@ -343,7 +343,7 @@ const DecoPrint = (() => {
 
     const paleta = paletaTable(ficha.paleta);
     if (paleta) {
-      sheet.appendChild(band((ficha.paleta && ficha.paleta.titulo) || 'Paleta de cores'));
+      sheet.appendChild(band('Paleta de cores'));
       sheet.appendChild(paleta);
     }
 
