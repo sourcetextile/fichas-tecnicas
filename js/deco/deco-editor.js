@@ -78,7 +78,9 @@ const DecoEditor = (() => {
     'XS-5XL': DEFAULT_TAMANHOS.slice(),
     'XS-XXL': ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
     'XXS-XXL': ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'],
-    'XXS-4XL': ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL']
+    'XXS-4XL': ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL'],
+    // Numeração de 2 em 2: 34, 36, 38 ... 46.
+    '34-46': ['34', '36', '38', '40', '42', '44', '46']
   };
 
   let ficha = null;
