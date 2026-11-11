@@ -2001,6 +2001,64 @@ input.croqui-text-input {
   box-shadow: var(--focus-ring);
 }
 
+/* --- Editor: acabamentos -------------------------------------------------- */
+.deco-acab-select {
+  width: auto;
+  min-width: 260px;
+  max-width: 100%;
+  min-height: 0;
+  height: 34px;
+  padding: 0 10px;
+}
+
+.deco-acab-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: var(--s1);
+}
+
+.deco-acab-vazio {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.deco-acab-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.deco-acab-remover {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  line-height: 1;
+  padding: 0;
+}
+
+.deco-acab-remover:hover {
+  background: rgba(26, 26, 26, 0.1);
+  color: var(--ink);
+}
+
+.deco-acab-comentario {
+  width: 100%;
+  min-height: 0;
+  resize: vertical;
+  margin-bottom: var(--s2);
+}
+
 /* --- Editor: paleta de cores --------------------------------------------- */
 .deco-paleta-table {
   border-collapse: collapse;
@@ -2774,9 +2832,10 @@ input.deco-paleta-base-input:focus {
 }
 
 /* --- tira de dados-chave --- */
+/* Os dados-chave (fornecedor, referência da decoração, certificação) ficam
+   lado a lado numa só linha, em vez de empilhados: poupa altura à folha. */
 .deco-sheet__strip {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: flex;
   gap: 1px;
   background: var(--src-rule);
   border: 1px solid var(--src-rule);
@@ -2788,10 +2847,16 @@ input.deco-paleta-base-input:focus {
 .deco-sheet__tile {
   display: flex;
   flex-direction: column;
+  flex: 1 1 0;
   gap: 2px;
   background: #FFF;
-  padding: 8px 11px;
+  padding: 6px 10px;
   min-width: 0;
+}
+
+/* O fornecedor tem os nomes mais compridos: ganha um pouco mais de largura. */
+.deco-sheet__tile:first-child {
+  flex-grow: 1.7;
 }
 
 .deco-sheet__tile-label {
@@ -2802,7 +2867,7 @@ input.deco-paleta-base-input:focus {
 }
 
 .deco-sheet__tile-value {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--src-brown);
   overflow-wrap: anywhere;
@@ -2995,6 +3060,36 @@ input.deco-paleta-base-input:focus {
 
 .deco-sheet__note-body {
   font-size: 13px;
+}
+
+/* Acabamentos na folha: cada um numa etiqueta com contorno (o contorno
+   imprime sempre; um fundo colorido não), e o comentário por baixo. */
+.deco-sheet__acab {
+  margin-top: 7px;
+  border: 1px solid var(--src-rule);
+  border-radius: 8px;
+  padding: 7px 12px;
+}
+
+.deco-sheet__acab-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.deco-sheet__acab-item {
+  border: 1px solid var(--src-brown);
+  border-radius: 999px;
+  padding: 1px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--src-brown);
+}
+
+.deco-sheet__acab-comentario {
+  margin: 6px 0 0;
+  font-size: 13px;
+  white-space: pre-wrap;
 }
 
 /* --- rodape --- */
@@ -5594,6 +5689,19 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
                     <option value="Perna esquerda costa"></option>
                     <option value="Perna esquerda frente"></option>
                 </datalist>
+              </div>
+
+              <!-- Acabamentos: escolhem-se de uma lista (lavagens e tingimentos, montada
+                   em deco-editor.js) e levam uma caixa para comentários. Sai na
+                   impressão antes dos comentários gerais. -->
+              <div class="deco-subsection deco-acabamentos">
+                <div class="deco-subsection-bar">
+                  <h3 class="deco-subsection-title">Acabamentos</h3>
+                  <select id="decoAcabamentosSelect" class="deco-acab-select" aria-label="Acrescentar acabamento"></select>
+                </div>
+                <div id="decoAcabamentosLista" class="deco-acab-lista" aria-live="polite"></div>
+                <textarea id="decoAcabamentosComentario" class="deco-acab-comentario" rows="2" maxlength="1000"
+                          placeholder="Comentários aos acabamentos (opcional)" aria-label="Comentários aos acabamentos"></textarea>
               </div>
 
               <div class="deco-subsection">
@@ -16205,6 +16313,22 @@ const DecoPrint = (() => {
     bloco.appendChild(colocacao);
     sheet.appendChild(bloco);
 
+    // Acabamentos: antes dos comentários gerais.
+    const acab = (ficha.comentarios && ficha.comentarios.acabamentos) || {};
+    const itensAcab = Array.isArray(acab.itens) ? acab.itens.filter(Boolean) : [];
+    const comentarioAcab = typeof acab.comentario === 'string' ? acab.comentario.trim() : '';
+    if (itensAcab.length || comentarioAcab) {
+      sheet.appendChild(band('Acabamentos'));
+      const caixaAcab = el('div', 'deco-sheet__acab');
+      if (itensAcab.length) {
+        const lista = el('div', 'deco-sheet__acab-lista');
+        itensAcab.forEach(nome => lista.appendChild(el('span', 'deco-sheet__acab-item', nome)));
+        caixaAcab.appendChild(lista);
+      }
+      if (comentarioAcab) caixaAcab.appendChild(el('p', 'deco-sheet__acab-comentario', comentarioAcab));
+      sheet.appendChild(caixaAcab);
+    }
+
     const texto = ((ficha.comentarios && ficha.comentarios.texto) || '').trim();
     if (texto) {
       sheet.appendChild(band('Comentários'));
@@ -16641,6 +16765,10 @@ const DecoEditor = (() => {
   const comentariosRed = document.getElementById('decoComentariosRed');
   const comentariosClear = document.getElementById('decoComentariosClear');
 
+  const acabamentosSelect = document.getElementById('decoAcabamentosSelect');
+  const acabamentosLista = document.getElementById('decoAcabamentosLista');
+  const acabamentosComentario = document.getElementById('decoAcabamentosComentario');
+
   const FASES = ['SMS', 'PPS', 'Produção'];
   const DEFAULT_TAMANHOS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
   // Das descrições standard (DESCRICOES, logo a seguir) esta é a única que não
@@ -16675,9 +16803,76 @@ const DecoEditor = (() => {
     '34-46': ['34', '36', '38', '40', '42', '44', '46']
   };
 
+  // Acabamentos à peça. Escolhem-se desta lista (podem ser vários) e levam uma
+  // caixa de comentários. Ficam guardados dentro de ficha.comentarios (chave
+  // "acabamentos"), por isso são por fase como os comentários e não precisam de
+  // coluna nova na base de dados.
+  const ACABAMENTOS = {
+    'Lavagens': [
+      'Lavagem Normal',
+      'Lavagem com Silicone',
+      'Lavagem Anti-pilling',
+      'Lavagem Fade Out',
+      'Lavagem Stone Wash',
+      'Lavagem Stone Wash Forte',
+      'Lavagem Stone Wash Especial',
+      'Lavagem Fade Out Mareado',
+      'Lavagem Fade Out Forte',
+      'Lavagem Fade Out Especial',
+      'Lavagem Enzimática',
+      'Lavagem Normal GOTS',
+      'Lavagem Devorée',
+      'Lavagem Mão de Seda',
+      'Lavagem Stone Bleach',
+      'Lavagem Acid Wash',
+      'Lavagem Batique Bleach',
+      'Lavagem a seco',
+      'Lavagem Fade out forte GOTS',
+      'Lavagem Anti-óleo GOTS',
+      'Lavagem Fade Out GOTS',
+      'Lavagem Stone Wash GOTS',
+      'Lavagem Ozono',
+      'Lavagem Micronização',
+      'Lavagem Desencolagem + Silicone GOTS',
+      'Lavagens à peça Tirar tela',
+      'Lavagem Sky Wash',
+      'Lavagem Vintage'
+    ],
+    'Tingimentos': [
+      'Tingimento à peça reactivo',
+      'Tingimento à peça directo',
+      'Tingimento à peça Retro Dye',
+      'Tingimento à peça Pigmentos',
+      'Tingimento à peça Vegetal',
+      'Tingimento à peça Linho',
+      'Tingimento à peça Sulfuroso',
+      'Tingimento à peça Old Dye',
+      'Tingimento à peça Vintage Dye',
+      'Tingimento à peça Natural Dye',
+      'Tingimento à peça Tye Dye 1 cor',
+      'Tingimento à peça Tye Dye 3 cores',
+      'Tingimento à peça Tye Dye 2 cores',
+      'Tingimento à peça Tye Dye Manual 1 cor',
+      'Tingimento à peça Ecodye',
+      'Tingimento à peça Batique',
+      'Tingimento à peça Tye Dye Bamboo',
+      'Tingimento à peça Bamboo tie dye 2 cores',
+      'Tingimento à peça Mergulho',
+      'Tingimento à peça Tye Dye Manual 2 cores',
+      'Tingimento à peça reactivo GOTS',
+      'Tingimento à peça degradê GOTS',
+      'Tingimento à peça com Tye Dye Risca 1 cor Ecodye',
+      'Tingimento à peça degradê',
+      'Tingimento à peça Pigmentos GOTS',
+      'Tingimento à peça Nano Earth',
+      'Tingimento à peça Fluorescente'
+    ]
+  };
+
   let ficha = null;
   let saveTimer = null;
   let bound = false;
+  let acabamentos = { itens: [], comentario: '' };
   let croquiArte = null;
   let croquiTecnico = null;
   let selection = null;   // { row, start, end } - intervalo de colunas de tamanho
@@ -17090,6 +17285,71 @@ const DecoEditor = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Acabamentos
+  // ---------------------------------------------------------------------
+  function carregarAcabamentos() {
+    const guardado = (ficha.comentarios && ficha.comentarios.acabamentos) || {};
+    acabamentos = {
+      itens: Array.isArray(guardado.itens)
+        ? guardado.itens.filter(nome => typeof nome === 'string' && nome.trim())
+        : [],
+      comentario: typeof guardado.comentario === 'string' ? guardado.comentario : ''
+    };
+    acabamentosComentario.value = acabamentos.comentario;
+    renderAcabamentos();
+  }
+
+  function renderAcabamentos() {
+    // Lista de escolha: o que já está escolhido fica desativado.
+    acabamentosSelect.innerHTML = '';
+    acabamentosSelect.appendChild(new Option('Acrescentar acabamento…', ''));
+    Object.entries(ACABAMENTOS).forEach(([grupo, nomes]) => {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = grupo;
+      nomes.forEach(nome => {
+        const opcao = new Option(nome, nome);
+        opcao.disabled = acabamentos.itens.includes(nome);
+        optgroup.appendChild(opcao);
+      });
+      acabamentosSelect.appendChild(optgroup);
+    });
+    acabamentosSelect.value = '';
+
+    acabamentosLista.innerHTML = '';
+    if (!acabamentos.itens.length) {
+      const vazio = document.createElement('span');
+      vazio.className = 'deco-acab-vazio';
+      vazio.textContent = 'Nenhum acabamento escolhido.';
+      acabamentosLista.appendChild(vazio);
+      return;
+    }
+    acabamentos.itens.forEach(nome => {
+      const chip = document.createElement('span');
+      chip.className = 'deco-acab-chip';
+      chip.appendChild(document.createTextNode(nome));
+      const remover = document.createElement('button');
+      remover.type = 'button';
+      remover.className = 'deco-acab-remover';
+      remover.textContent = '✕';
+      remover.title = 'Remover este acabamento';
+      remover.setAttribute('aria-label', 'Remover ' + nome);
+      remover.addEventListener('click', () => {
+        acabamentos.itens = acabamentos.itens.filter(item => item !== nome);
+        renderAcabamentos();
+        scheduleSave();
+      });
+      chip.appendChild(remover);
+      acabamentosLista.appendChild(chip);
+    });
+  }
+
+  function acabamentosParaGuardar() {
+    const itens = acabamentos.itens.slice();
+    const comentario = acabamentosComentario.value.trim();
+    return itens.length || comentario ? { itens, comentario } : null;
+  }
+
+  // ---------------------------------------------------------------------
   // Carregar / guardar
   // ---------------------------------------------------------------------
   function load(entry) {
@@ -17112,6 +17372,7 @@ const DecoEditor = (() => {
     atualizarBotaoParte();
     renderColocacao();
     comentariosEl.innerHTML = sanitizeHtml((ficha.comentarios && ficha.comentarios.html) || '');
+    carregarAcabamentos();
     renderFases();
     saveStatus.textContent = '';
     tamanhosPreset.value = '';
@@ -17137,7 +17398,10 @@ const DecoEditor = (() => {
       colocacao_texto: colocacaoTexto.value.trim() || null,
       colocacao_partes: colocacaoPartes.value.trim() || null,
       ficha_mp: (ficha.ficha_mp || '').trim() || null,
-      comentarios: { html: sanitizeHtml(comentariosEl.innerHTML), texto: comentariosEl.textContent || '' },
+      comentarios: Object.assign(
+        { html: sanitizeHtml(comentariosEl.innerHTML), texto: comentariosEl.textContent || '' },
+        acabamentosParaGuardar() ? { acabamentos: acabamentosParaGuardar() } : {}
+      ),
       paleta: ficha.paleta || {},
       croqui: ficha.croqui || {}
     };
@@ -18219,6 +18483,16 @@ const DecoEditor = (() => {
     finalizarButton.addEventListener('click', toggleFinalizar);
     colocacaoFrente.addEventListener('click', () => setColocacao('Frente'));
     colocacaoVerso.addEventListener('click', () => setColocacao('Verso'));
+
+    acabamentosSelect.addEventListener('change', () => {
+      const nome = acabamentosSelect.value;
+      if (nome && !acabamentos.itens.includes(nome)) {
+        acabamentos.itens.push(nome);
+        scheduleSave();
+      }
+      renderAcabamentos();
+    });
+    acabamentosComentario.addEventListener('input', scheduleSave);
 
     comentariosEl.addEventListener('input', scheduleSave);
     comentariosEl.addEventListener('blur', () => {

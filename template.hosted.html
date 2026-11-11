@@ -449,6 +449,19 @@
                 </datalist>
               </div>
 
+              <!-- Acabamentos: escolhem-se de uma lista (lavagens e tingimentos, montada
+                   em deco-editor.js) e levam uma caixa para comentários. Sai na
+                   impressão antes dos comentários gerais. -->
+              <div class="deco-subsection deco-acabamentos">
+                <div class="deco-subsection-bar">
+                  <h3 class="deco-subsection-title">Acabamentos</h3>
+                  <select id="decoAcabamentosSelect" class="deco-acab-select" aria-label="Acrescentar acabamento"></select>
+                </div>
+                <div id="decoAcabamentosLista" class="deco-acab-lista" aria-live="polite"></div>
+                <textarea id="decoAcabamentosComentario" class="deco-acab-comentario" rows="2" maxlength="1000"
+                          placeholder="Comentários aos acabamentos (opcional)" aria-label="Comentários aos acabamentos"></textarea>
+              </div>
+
               <div class="deco-subsection">
                 <div class="deco-subsection-bar">
                   <h3 class="deco-subsection-title">Comentários</h3>

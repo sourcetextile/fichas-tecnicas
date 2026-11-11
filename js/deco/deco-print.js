@@ -331,6 +331,22 @@ const DecoPrint = (() => {
     bloco.appendChild(colocacao);
     sheet.appendChild(bloco);
 
+    // Acabamentos: antes dos comentários gerais.
+    const acab = (ficha.comentarios && ficha.comentarios.acabamentos) || {};
+    const itensAcab = Array.isArray(acab.itens) ? acab.itens.filter(Boolean) : [];
+    const comentarioAcab = typeof acab.comentario === 'string' ? acab.comentario.trim() : '';
+    if (itensAcab.length || comentarioAcab) {
+      sheet.appendChild(band('Acabamentos'));
+      const caixaAcab = el('div', 'deco-sheet__acab');
+      if (itensAcab.length) {
+        const lista = el('div', 'deco-sheet__acab-lista');
+        itensAcab.forEach(nome => lista.appendChild(el('span', 'deco-sheet__acab-item', nome)));
+        caixaAcab.appendChild(lista);
+      }
+      if (comentarioAcab) caixaAcab.appendChild(el('p', 'deco-sheet__acab-comentario', comentarioAcab));
+      sheet.appendChild(caixaAcab);
+    }
+
     const texto = ((ficha.comentarios && ficha.comentarios.texto) || '').trim();
     if (texto) {
       sheet.appendChild(band('Comentários'));

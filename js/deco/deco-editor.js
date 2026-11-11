@@ -49,6 +49,10 @@ const DecoEditor = (() => {
   const comentariosRed = document.getElementById('decoComentariosRed');
   const comentariosClear = document.getElementById('decoComentariosClear');
 
+  const acabamentosSelect = document.getElementById('decoAcabamentosSelect');
+  const acabamentosLista = document.getElementById('decoAcabamentosLista');
+  const acabamentosComentario = document.getElementById('decoAcabamentosComentario');
+
   const FASES = ['SMS', 'PPS', 'Produção'];
   const DEFAULT_TAMANHOS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
   // Das descrições standard (DESCRICOES, logo a seguir) esta é a única que não
@@ -83,9 +87,76 @@ const DecoEditor = (() => {
     '34-46': ['34', '36', '38', '40', '42', '44', '46']
   };
 
+  // Acabamentos à peça. Escolhem-se desta lista (podem ser vários) e levam uma
+  // caixa de comentários. Ficam guardados dentro de ficha.comentarios (chave
+  // "acabamentos"), por isso são por fase como os comentários e não precisam de
+  // coluna nova na base de dados.
+  const ACABAMENTOS = {
+    'Lavagens': [
+      'Lavagem Normal',
+      'Lavagem com Silicone',
+      'Lavagem Anti-pilling',
+      'Lavagem Fade Out',
+      'Lavagem Stone Wash',
+      'Lavagem Stone Wash Forte',
+      'Lavagem Stone Wash Especial',
+      'Lavagem Fade Out Mareado',
+      'Lavagem Fade Out Forte',
+      'Lavagem Fade Out Especial',
+      'Lavagem Enzimática',
+      'Lavagem Normal GOTS',
+      'Lavagem Devorée',
+      'Lavagem Mão de Seda',
+      'Lavagem Stone Bleach',
+      'Lavagem Acid Wash',
+      'Lavagem Batique Bleach',
+      'Lavagem a seco',
+      'Lavagem Fade out forte GOTS',
+      'Lavagem Anti-óleo GOTS',
+      'Lavagem Fade Out GOTS',
+      'Lavagem Stone Wash GOTS',
+      'Lavagem Ozono',
+      'Lavagem Micronização',
+      'Lavagem Desencolagem + Silicone GOTS',
+      'Lavagens à peça Tirar tela',
+      'Lavagem Sky Wash',
+      'Lavagem Vintage'
+    ],
+    'Tingimentos': [
+      'Tingimento à peça reactivo',
+      'Tingimento à peça directo',
+      'Tingimento à peça Retro Dye',
+      'Tingimento à peça Pigmentos',
+      'Tingimento à peça Vegetal',
+      'Tingimento à peça Linho',
+      'Tingimento à peça Sulfuroso',
+      'Tingimento à peça Old Dye',
+      'Tingimento à peça Vintage Dye',
+      'Tingimento à peça Natural Dye',
+      'Tingimento à peça Tye Dye 1 cor',
+      'Tingimento à peça Tye Dye 3 cores',
+      'Tingimento à peça Tye Dye 2 cores',
+      'Tingimento à peça Tye Dye Manual 1 cor',
+      'Tingimento à peça Ecodye',
+      'Tingimento à peça Batique',
+      'Tingimento à peça Tye Dye Bamboo',
+      'Tingimento à peça Bamboo tie dye 2 cores',
+      'Tingimento à peça Mergulho',
+      'Tingimento à peça Tye Dye Manual 2 cores',
+      'Tingimento à peça reactivo GOTS',
+      'Tingimento à peça degradê GOTS',
+      'Tingimento à peça com Tye Dye Risca 1 cor Ecodye',
+      'Tingimento à peça degradê',
+      'Tingimento à peça Pigmentos GOTS',
+      'Tingimento à peça Nano Earth',
+      'Tingimento à peça Fluorescente'
+    ]
+  };
+
   let ficha = null;
   let saveTimer = null;
   let bound = false;
+  let acabamentos = { itens: [], comentario: '' };
   let croquiArte = null;
   let croquiTecnico = null;
   let selection = null;   // { row, start, end } - intervalo de colunas de tamanho
@@ -498,6 +569,71 @@ const DecoEditor = (() => {
   }
 
   // ---------------------------------------------------------------------
+  // Acabamentos
+  // ---------------------------------------------------------------------
+  function carregarAcabamentos() {
+    const guardado = (ficha.comentarios && ficha.comentarios.acabamentos) || {};
+    acabamentos = {
+      itens: Array.isArray(guardado.itens)
+        ? guardado.itens.filter(nome => typeof nome === 'string' && nome.trim())
+        : [],
+      comentario: typeof guardado.comentario === 'string' ? guardado.comentario : ''
+    };
+    acabamentosComentario.value = acabamentos.comentario;
+    renderAcabamentos();
+  }
+
+  function renderAcabamentos() {
+    // Lista de escolha: o que já está escolhido fica desativado.
+    acabamentosSelect.innerHTML = '';
+    acabamentosSelect.appendChild(new Option('Acrescentar acabamento…', ''));
+    Object.entries(ACABAMENTOS).forEach(([grupo, nomes]) => {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = grupo;
+      nomes.forEach(nome => {
+        const opcao = new Option(nome, nome);
+        opcao.disabled = acabamentos.itens.includes(nome);
+        optgroup.appendChild(opcao);
+      });
+      acabamentosSelect.appendChild(optgroup);
+    });
+    acabamentosSelect.value = '';
+
+    acabamentosLista.innerHTML = '';
+    if (!acabamentos.itens.length) {
+      const vazio = document.createElement('span');
+      vazio.className = 'deco-acab-vazio';
+      vazio.textContent = 'Nenhum acabamento escolhido.';
+      acabamentosLista.appendChild(vazio);
+      return;
+    }
+    acabamentos.itens.forEach(nome => {
+      const chip = document.createElement('span');
+      chip.className = 'deco-acab-chip';
+      chip.appendChild(document.createTextNode(nome));
+      const remover = document.createElement('button');
+      remover.type = 'button';
+      remover.className = 'deco-acab-remover';
+      remover.textContent = '✕';
+      remover.title = 'Remover este acabamento';
+      remover.setAttribute('aria-label', 'Remover ' + nome);
+      remover.addEventListener('click', () => {
+        acabamentos.itens = acabamentos.itens.filter(item => item !== nome);
+        renderAcabamentos();
+        scheduleSave();
+      });
+      chip.appendChild(remover);
+      acabamentosLista.appendChild(chip);
+    });
+  }
+
+  function acabamentosParaGuardar() {
+    const itens = acabamentos.itens.slice();
+    const comentario = acabamentosComentario.value.trim();
+    return itens.length || comentario ? { itens, comentario } : null;
+  }
+
+  // ---------------------------------------------------------------------
   // Carregar / guardar
   // ---------------------------------------------------------------------
   function load(entry) {
@@ -520,6 +656,7 @@ const DecoEditor = (() => {
     atualizarBotaoParte();
     renderColocacao();
     comentariosEl.innerHTML = sanitizeHtml((ficha.comentarios && ficha.comentarios.html) || '');
+    carregarAcabamentos();
     renderFases();
     saveStatus.textContent = '';
     tamanhosPreset.value = '';
@@ -545,7 +682,10 @@ const DecoEditor = (() => {
       colocacao_texto: colocacaoTexto.value.trim() || null,
       colocacao_partes: colocacaoPartes.value.trim() || null,
       ficha_mp: (ficha.ficha_mp || '').trim() || null,
-      comentarios: { html: sanitizeHtml(comentariosEl.innerHTML), texto: comentariosEl.textContent || '' },
+      comentarios: Object.assign(
+        { html: sanitizeHtml(comentariosEl.innerHTML), texto: comentariosEl.textContent || '' },
+        acabamentosParaGuardar() ? { acabamentos: acabamentosParaGuardar() } : {}
+      ),
       paleta: ficha.paleta || {},
       croqui: ficha.croqui || {}
     };
@@ -1627,6 +1767,16 @@ const DecoEditor = (() => {
     finalizarButton.addEventListener('click', toggleFinalizar);
     colocacaoFrente.addEventListener('click', () => setColocacao('Frente'));
     colocacaoVerso.addEventListener('click', () => setColocacao('Verso'));
+
+    acabamentosSelect.addEventListener('change', () => {
+      const nome = acabamentosSelect.value;
+      if (nome && !acabamentos.itens.includes(nome)) {
+        acabamentos.itens.push(nome);
+        scheduleSave();
+      }
+      renderAcabamentos();
+    });
+    acabamentosComentario.addEventListener('input', scheduleSave);
 
     comentariosEl.addEventListener('input', scheduleSave);
     comentariosEl.addEventListener('blur', () => {
