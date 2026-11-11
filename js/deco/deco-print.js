@@ -343,7 +343,18 @@ const DecoPrint = (() => {
         itensAcab.forEach(nome => lista.appendChild(el('span', 'deco-sheet__acab-item', nome)));
         caixaAcab.appendChild(lista);
       }
-      if (comentarioAcab) caixaAcab.appendChild(el('p', 'deco-sheet__acab-comentario', comentarioAcab));
+      if (comentarioAcab) {
+        // Com a formatação (negrito, vermelho) dos comentários; fichas só com
+        // texto simples saem como texto.
+        const texto = el('div', 'deco-sheet__acab-comentario');
+        if (typeof acab.comentario_html === 'string' && acab.comentario_html) {
+          texto.innerHTML = DecoEditor.sanitizeHtml(acab.comentario_html);
+        } else {
+          texto.textContent = comentarioAcab;
+          texto.style.whiteSpace = 'pre-wrap';
+        }
+        caixaAcab.appendChild(texto);
+      }
       sheet.appendChild(caixaAcab);
     }
 

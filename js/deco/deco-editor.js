@@ -52,6 +52,9 @@ const DecoEditor = (() => {
   const acabamentosSelect = document.getElementById('decoAcabamentosSelect');
   const acabamentosLista = document.getElementById('decoAcabamentosLista');
   const acabamentosComentario = document.getElementById('decoAcabamentosComentario');
+  const acabamentosBold = document.getElementById('decoAcabamentosBold');
+  const acabamentosRed = document.getElementById('decoAcabamentosRed');
+  const acabamentosClear = document.getElementById('decoAcabamentosClear');
 
   const FASES = ['SMS', 'PPS', 'Produção'];
   const DEFAULT_TAMANHOS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
@@ -579,8 +582,19 @@ const DecoEditor = (() => {
         : [],
       comentario: typeof guardado.comentario === 'string' ? guardado.comentario : ''
     };
-    acabamentosComentario.value = acabamentos.comentario;
+    // O comentário leva formatação (negrito, vermelho), como os comentários
+    // gerais: guarda-se o HTML limpo e, a par, o texto simples. Fichas que só
+    // têm o texto simples (de antes de haver formatação) abrem com ele.
+    acabamentosComentario.innerHTML = typeof guardado.comentario_html === 'string' && guardado.comentario_html
+      ? sanitizeHtml(guardado.comentario_html)
+      : textoParaHtml(acabamentos.comentario);
     renderAcabamentos();
+  }
+
+  function textoParaHtml(texto) {
+    const caixa = document.createElement('div');
+    caixa.textContent = texto || '';
+    return caixa.innerHTML.replace(/\n/g, '<br>');
   }
 
   function renderAcabamentos() {
@@ -629,8 +643,11 @@ const DecoEditor = (() => {
 
   function acabamentosParaGuardar() {
     const itens = acabamentos.itens.slice();
-    const comentario = acabamentosComentario.value.trim();
-    return itens.length || comentario ? { itens, comentario } : null;
+    const comentario = (acabamentosComentario.textContent || '').trim();
+    if (!itens.length && !comentario) return null;
+    return comentario
+      ? { itens, comentario, comentario_html: sanitizeHtml(acabamentosComentario.innerHTML) }
+      : { itens, comentario: '' };
   }
 
   // ---------------------------------------------------------------------
@@ -1709,8 +1726,10 @@ const DecoEditor = (() => {
     return holder.innerHTML;
   }
 
-  function exec(command, value) {
-    comentariosEl.focus();
+  // alvo: a caixa de texto onde se aplica a formatação (por defeito, os
+  // comentários gerais; os acabamentos têm a sua).
+  function exec(command, value, alvo) {
+    (alvo || comentariosEl).focus();
     // Sem styleWithCSS o browser gera <b> e <font color>, que e o que o
     // sanitizador deixa passar e o que a folha impressa sabe desenhar.
     try { document.execCommand('styleWithCSS', false, false); } catch (err) { /* ignorado */ }
@@ -1777,6 +1796,17 @@ const DecoEditor = (() => {
       renderAcabamentos();
     });
     acabamentosComentario.addEventListener('input', scheduleSave);
+    acabamentosComentario.addEventListener('blur', () => {
+      // Como nos comentários gerais: só se reescreve se a limpeza mudar algo.
+      const limpo = sanitizeHtml(acabamentosComentario.innerHTML);
+      if (limpo !== acabamentosComentario.innerHTML) acabamentosComentario.innerHTML = limpo;
+    });
+    semPerderSelecao(acabamentosBold, () => exec('bold', undefined, acabamentosComentario));
+    semPerderSelecao(acabamentosRed, () => {
+      exec('foreColor', '#FF0000', acabamentosComentario);
+      exec('bold', undefined, acabamentosComentario);
+    });
+    semPerderSelecao(acabamentosClear, () => exec('removeFormat', undefined, acabamentosComentario));
 
     comentariosEl.addEventListener('input', scheduleSave);
     comentariosEl.addEventListener('blur', () => {

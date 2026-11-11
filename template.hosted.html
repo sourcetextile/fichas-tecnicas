@@ -458,8 +458,14 @@
                   <select id="decoAcabamentosSelect" class="deco-acab-select" aria-label="Acrescentar acabamento"></select>
                 </div>
                 <div id="decoAcabamentosLista" class="deco-acab-lista" aria-live="polite"></div>
-                <textarea id="decoAcabamentosComentario" class="deco-acab-comentario" rows="2" maxlength="1000"
-                          placeholder="Comentários aos acabamentos (opcional)" aria-label="Comentários aos acabamentos"></textarea>
+                <div class="deco-rt-actions deco-acab-ferramentas">
+                  <button id="decoAcabamentosBold" type="button" class="secondary" title="Negrito (Ctrl+B)"><strong>N</strong></button>
+                  <button id="decoAcabamentosRed" type="button" class="secondary" title="Realçar a vermelho">Realçar</button>
+                  <button id="decoAcabamentosClear" type="button" class="secondary" title="Remover formatação">Limpar formato</button>
+                </div>
+                <div id="decoAcabamentosComentario" class="deco-rich-text deco-acab-comentario" contenteditable="true" role="textbox"
+                     aria-multiline="true" aria-label="Comentários aos acabamentos"
+                     data-placeholder="Comentários aos acabamentos (opcional)"></div>
               </div>
 
               <div class="deco-subsection">

@@ -2052,11 +2052,21 @@ input.croqui-text-input {
   color: var(--ink);
 }
 
+/* Caixa de comentários dos acabamentos: o mesmo editor dos comentários gerais,
+   mais baixo, com a barra N / Realçar / Limpar formato por cima. */
+.deco-acab-ferramentas {
+  margin-bottom: var(--s1);
+}
+
 .deco-acab-comentario {
-  width: 100%;
-  min-height: 0;
-  resize: vertical;
+  min-height: 56px;
   margin-bottom: var(--s2);
+}
+
+.deco-acab-comentario:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  pointer-events: none;
 }
 
 /* --- Editor: paleta de cores --------------------------------------------- */
@@ -3089,7 +3099,6 @@ input.deco-paleta-base-input:focus {
 .deco-sheet__acab-comentario {
   margin: 6px 0 0;
   font-size: 13px;
-  white-space: pre-wrap;
 }
 
 /* --- rodape --- */
@@ -5700,8 +5709,14 @@ textarea.ip-ed-campo.is-notas { height: auto !important; padding: 6px 8px !impor
                   <select id="decoAcabamentosSelect" class="deco-acab-select" aria-label="Acrescentar acabamento"></select>
                 </div>
                 <div id="decoAcabamentosLista" class="deco-acab-lista" aria-live="polite"></div>
-                <textarea id="decoAcabamentosComentario" class="deco-acab-comentario" rows="2" maxlength="1000"
-                          placeholder="Comentários aos acabamentos (opcional)" aria-label="Comentários aos acabamentos"></textarea>
+                <div class="deco-rt-actions deco-acab-ferramentas">
+                  <button id="decoAcabamentosBold" type="button" class="secondary" title="Negrito (Ctrl+B)"><strong>N</strong></button>
+                  <button id="decoAcabamentosRed" type="button" class="secondary" title="Realçar a vermelho">Realçar</button>
+                  <button id="decoAcabamentosClear" type="button" class="secondary" title="Remover formatação">Limpar formato</button>
+                </div>
+                <div id="decoAcabamentosComentario" class="deco-rich-text deco-acab-comentario" contenteditable="true" role="textbox"
+                     aria-multiline="true" aria-label="Comentários aos acabamentos"
+                     data-placeholder="Comentários aos acabamentos (opcional)"></div>
               </div>
 
               <div class="deco-subsection">
@@ -16325,7 +16340,18 @@ const DecoPrint = (() => {
         itensAcab.forEach(nome => lista.appendChild(el('span', 'deco-sheet__acab-item', nome)));
         caixaAcab.appendChild(lista);
       }
-      if (comentarioAcab) caixaAcab.appendChild(el('p', 'deco-sheet__acab-comentario', comentarioAcab));
+      if (comentarioAcab) {
+        // Com a formatação (negrito, vermelho) dos comentários; fichas só com
+        // texto simples saem como texto.
+        const texto = el('div', 'deco-sheet__acab-comentario');
+        if (typeof acab.comentario_html === 'string' && acab.comentario_html) {
+          texto.innerHTML = DecoEditor.sanitizeHtml(acab.comentario_html);
+        } else {
+          texto.textContent = comentarioAcab;
+          texto.style.whiteSpace = 'pre-wrap';
+        }
+        caixaAcab.appendChild(texto);
+      }
       sheet.appendChild(caixaAcab);
     }
 
@@ -16768,6 +16794,9 @@ const DecoEditor = (() => {
   const acabamentosSelect = document.getElementById('decoAcabamentosSelect');
   const acabamentosLista = document.getElementById('decoAcabamentosLista');
   const acabamentosComentario = document.getElementById('decoAcabamentosComentario');
+  const acabamentosBold = document.getElementById('decoAcabamentosBold');
+  const acabamentosRed = document.getElementById('decoAcabamentosRed');
+  const acabamentosClear = document.getElementById('decoAcabamentosClear');
 
   const FASES = ['SMS', 'PPS', 'Produção'];
   const DEFAULT_TAMANHOS = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
@@ -17295,8 +17324,19 @@ const DecoEditor = (() => {
         : [],
       comentario: typeof guardado.comentario === 'string' ? guardado.comentario : ''
     };
-    acabamentosComentario.value = acabamentos.comentario;
+    // O comentário leva formatação (negrito, vermelho), como os comentários
+    // gerais: guarda-se o HTML limpo e, a par, o texto simples. Fichas que só
+    // têm o texto simples (de antes de haver formatação) abrem com ele.
+    acabamentosComentario.innerHTML = typeof guardado.comentario_html === 'string' && guardado.comentario_html
+      ? sanitizeHtml(guardado.comentario_html)
+      : textoParaHtml(acabamentos.comentario);
     renderAcabamentos();
+  }
+
+  function textoParaHtml(texto) {
+    const caixa = document.createElement('div');
+    caixa.textContent = texto || '';
+    return caixa.innerHTML.replace(/\n/g, '<br>');
   }
 
   function renderAcabamentos() {
@@ -17345,8 +17385,11 @@ const DecoEditor = (() => {
 
   function acabamentosParaGuardar() {
     const itens = acabamentos.itens.slice();
-    const comentario = acabamentosComentario.value.trim();
-    return itens.length || comentario ? { itens, comentario } : null;
+    const comentario = (acabamentosComentario.textContent || '').trim();
+    if (!itens.length && !comentario) return null;
+    return comentario
+      ? { itens, comentario, comentario_html: sanitizeHtml(acabamentosComentario.innerHTML) }
+      : { itens, comentario: '' };
   }
 
   // ---------------------------------------------------------------------
@@ -18425,8 +18468,10 @@ const DecoEditor = (() => {
     return holder.innerHTML;
   }
 
-  function exec(command, value) {
-    comentariosEl.focus();
+  // alvo: a caixa de texto onde se aplica a formatação (por defeito, os
+  // comentários gerais; os acabamentos têm a sua).
+  function exec(command, value, alvo) {
+    (alvo || comentariosEl).focus();
     // Sem styleWithCSS o browser gera <b> e <font color>, que e o que o
     // sanitizador deixa passar e o que a folha impressa sabe desenhar.
     try { document.execCommand('styleWithCSS', false, false); } catch (err) { /* ignorado */ }
@@ -18493,6 +18538,17 @@ const DecoEditor = (() => {
       renderAcabamentos();
     });
     acabamentosComentario.addEventListener('input', scheduleSave);
+    acabamentosComentario.addEventListener('blur', () => {
+      // Como nos comentários gerais: só se reescreve se a limpeza mudar algo.
+      const limpo = sanitizeHtml(acabamentosComentario.innerHTML);
+      if (limpo !== acabamentosComentario.innerHTML) acabamentosComentario.innerHTML = limpo;
+    });
+    semPerderSelecao(acabamentosBold, () => exec('bold', undefined, acabamentosComentario));
+    semPerderSelecao(acabamentosRed, () => {
+      exec('foreColor', '#FF0000', acabamentosComentario);
+      exec('bold', undefined, acabamentosComentario);
+    });
+    semPerderSelecao(acabamentosClear, () => exec('removeFormat', undefined, acabamentosComentario));
 
     comentariosEl.addEventListener('input', scheduleSave);
     comentariosEl.addEventListener('blur', () => {

@@ -857,11 +857,21 @@ input.croqui-text-input {
   color: var(--ink);
 }
 
+/* Caixa de comentários dos acabamentos: o mesmo editor dos comentários gerais,
+   mais baixo, com a barra N / Realçar / Limpar formato por cima. */
+.deco-acab-ferramentas {
+  margin-bottom: var(--s1);
+}
+
 .deco-acab-comentario {
-  width: 100%;
-  min-height: 0;
-  resize: vertical;
+  min-height: 56px;
   margin-bottom: var(--s2);
+}
+
+.deco-acab-comentario:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  pointer-events: none;
 }
 
 /* --- Editor: paleta de cores --------------------------------------------- */
@@ -1894,7 +1904,6 @@ input.deco-paleta-base-input:focus {
 .deco-sheet__acab-comentario {
   margin: 6px 0 0;
   font-size: 13px;
-  white-space: pre-wrap;
 }
 
 /* --- rodape --- */
