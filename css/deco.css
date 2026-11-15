@@ -196,6 +196,8 @@ body.is-deco .page-description {
   display: flex;
   align-items: center;
   gap: var(--s1);
+  min-height: 32px;
+  padding-right: 10px;
   font-weight: 600;
   cursor: pointer;
 }

@@ -57,6 +57,8 @@ const DecoApp = (() => {
     // Pedidos de preço precisa de todo o espaço vertical que puder).
     document.body.dataset.secao = atual.chave;
     if (pageTitle) pageTitle.textContent = atual.titulo;
+    // O separador do browser e o histórico passam a dizer em que secção se está.
+    document.title = atual.titulo + ' — Sourcetextile';
     if (pageDescription) pageDescription.textContent = atual.descricao;
     if (atual.aoAbrir) atual.aoAbrir();
   }

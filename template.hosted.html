@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="app/css/logo.css">
 </head>
 <body>
+  <a class="skip-link" href="#conteudo">Saltar para o conteúdo</a>
   <div class="page-shell">
     <!-- Logótipo na margem esquerda (só aparece quando o ecrã tem margem livre;
          senão fica o do cabeçalho). Desenhado por css/logo.css. -->
@@ -38,7 +39,7 @@
       <p id="pageDescription" class="page-description">Seleciona a peça e preenche apenas os campos relevantes. A aplicação gera descrições standard por zona — Confeção, Embalagem e Corte.</p>
     </header>
 
-    <main class="main-content">
+    <main id="conteudo" class="main-content" tabindex="-1">
       <section id="loginScreen" class="screen">
         <div id="loginCard" class="card login-card">
           <h2>Iniciar sessão</h2>
@@ -81,7 +82,7 @@
           <div class="section-bar">
             <h2><span class="step-number">✓</span> Fichas guardadas</h2>
           </div>
-          <input id="savedFilter" type="text" class="saved-filter" placeholder="Pesquisar por nome, modelo (referência do artigo) ou cliente...">
+          <input id="savedFilter" type="text" class="saved-filter" aria-label="Pesquisar fichas guardadas" placeholder="Pesquisar por nome, modelo (referência do artigo) ou cliente...">
           <div id="savedList" class="saved-list"></div>
         </div>
       </section>
@@ -175,7 +176,7 @@
             </div>
           </div>
           <div class="deco-list-filters">
-            <input id="decoListFilter" type="text" class="saved-filter" placeholder="Pesquisar por cliente, modelo, referência, OF, fornecedor...">
+            <input id="decoListFilter" type="text" class="saved-filter" aria-label="Pesquisar fichas de decoração" placeholder="Pesquisar por cliente, modelo, referência, OF, fornecedor...">
             <select id="decoListEstado" aria-label="Filtrar por fase">
                 <option value="">Todas as fases</option>
                 <option value="SMS">Com SMS</option>
@@ -380,7 +381,7 @@
                     <button id="decoColocacaoFrente" type="button" class="segmented">Exterior</button>
                     <button id="decoColocacaoVerso" type="button" class="segmented">Interior</button>
                   </div>
-                  <input id="decoColocacaoTexto" type="text" placeholder="Ex.: A 8 cm da costura do ombro, ao centro">
+                  <input id="decoColocacaoTexto" type="text" aria-label="Descrição da colocação" placeholder="Ex.: A 8 cm da costura do ombro, ao centro">
                 </div>
                 <label class="input-label deco-partes-label" for="decoColocacaoPartes">Partes
                   <input id="decoColocacaoPartes" type="text" list="decoPartes"
